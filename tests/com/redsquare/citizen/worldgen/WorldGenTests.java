@@ -55,7 +55,6 @@ public class WorldGenTests {
 
   @Test
   public void generateWorldToMaps() {
-    // test
     String tectonicPath = "res/test_output/worldgen/tectonic_map.png";
     String landSeaPath = "res/test_output/worldgen/land_sea_map.png";
     String politicalPath = "res/test_output/worldgen/political_map.png";
