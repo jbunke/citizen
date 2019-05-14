@@ -1,5 +1,6 @@
 package com.redsquare.citizen.worldgen;
 
+import com.redsquare.citizen.GameDebug;
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.language.PhoneticVocabulary;
 import com.redsquare.citizen.systems.language.PlaceNameGenerator;
@@ -49,6 +50,27 @@ public class World {
   private final int height;
 
   private int poleAt;
+
+  public static World safeCreate(int width, int height,
+                                 int plateCount, int trials) {
+    boolean success = false;
+    World world = null;
+
+    while (!success && trials > 0) {
+      success = true;
+      trials--;
+
+      try {
+        world = new World(width, height, plateCount);
+      } catch (StackOverflowError e) {
+        GameDebug.printMessage("World creation attempt failed for (" +
+                width + ", " + height + ") ...", GameDebug::printDebug);
+        success = false;
+      }
+    }
+
+    return world;
+  }
 
   public World(int width, int height, int plateCount) {
     this.width = width;
@@ -605,7 +627,7 @@ public class World {
 
         // Don't print names of lowest-tier settlements
         if (powerLevel < 3) {
-          BufferedImage name = Font.CLEAN.getText(settlement.getName());
+          BufferedImage name = Font.CLEAN.getText(settlement.getName() + " (" + settlement.getSetupPower() + ")");
           g.drawImage(name, location.x * SCALE_UP + dotSize * SCALE_UP,
                   location.y * SCALE_UP - (name.getHeight() / 2),null);
         }
@@ -1225,7 +1247,7 @@ public class World {
 
       Set<Settlement> regions = new HashSet<>();
       regions.add(state.getCapital());
-      int minimumDistance = (int)(Math.sqrt(landArea) / 2);
+      int minimumDistance = (int)(Math.sqrt(landArea) / 3);
 
       while (placed < regionCount && trials < regionCount * 100
               && sortedIndex < settlements.size()) {

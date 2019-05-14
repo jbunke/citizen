@@ -60,13 +60,7 @@ public class WorldGenTests {
     String borderPath = "res/test_output/worldgen/political_border_map.png";
     String regionPath = "res/test_output/worldgen/region_map.png";
 
-    World testWorld = new World(480, 270, 30);
-
-    TectonicPlate[] plates = testWorld.getPlates();
-
-    for (TectonicPlate plate : plates) {
-      System.out.println(plate.getArea());
-    }
+    World testWorld = World.safeCreate(480, 270, 30, 20);
 
     BufferedImage tectonicMap = testWorld.tectonicMap(10);
     BufferedImage landSeaMap = testWorld.physicalGeography(10);
