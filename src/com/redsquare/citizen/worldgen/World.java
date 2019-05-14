@@ -466,10 +466,6 @@ public class World {
     }
   }
 
-  TectonicPlate[] getPlates() {
-    return plates;
-  }
-
   BufferedImage regionMap(final int SCALE_UP) {
     BufferedImage map = new BufferedImage(width * SCALE_UP, height * SCALE_UP,
             BufferedImage.TYPE_INT_ARGB);

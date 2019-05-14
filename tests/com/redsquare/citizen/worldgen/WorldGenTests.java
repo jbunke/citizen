@@ -55,8 +55,6 @@ public class WorldGenTests {
 
   @Test
   public void generateWorldToMaps() {
-    GameDebug.deactivate();
-
     String tectonicPath = "res/test_output/worldgen/tectonic_map.png";
     String landSeaPath = "res/test_output/worldgen/land_sea_map.png";
     String politicalPath = "res/test_output/worldgen/political_map.png";
@@ -69,7 +67,7 @@ public class WorldGenTests {
     BufferedImage landSeaMap = testWorld.physicalGeography(10);
     BufferedImage regionMap = testWorld.regionMap(10);
     BufferedImage politicalMap = testWorld.politicalMap(10, false, true, false);
-    BufferedImage borderMap = testWorld.politicalMap(10, true, false, true);
+    BufferedImage borderMap = testWorld.politicalMap(10, true, false, false);
     try {
       ImageIO.write(tectonicMap, IMAGE_FORMAT, new File(tectonicPath));
       ImageIO.write(landSeaMap, IMAGE_FORMAT, new File(landSeaPath));
