@@ -64,10 +64,13 @@ public class World {
         world = new World(width, height, plateCount);
       } catch (StackOverflowError e) {
         GameDebug.printMessage("World creation attempt failed for (" +
-                width + ", " + height + ") ...", GameDebug::printDebug);
+                width + ", " + height + ")", GameDebug::printDebug);
         success = false;
       }
     }
+
+    if (world != null)
+      GameDebug.printMessage("World creation success", GameDebug::printDebug);
 
     return world;
   }
@@ -201,7 +204,11 @@ public class World {
     return closest;
   }
 
-  private Set<Settlement> allSettlements() {
+  public Set<State> getStates() {
+    return states;
+  }
+
+  public Set<Settlement> allSettlements() {
     if (settlements != null) return settlements;
 
     Set<Set<Settlement>> settlementsPerState = new HashSet<>();
@@ -575,7 +582,7 @@ public class World {
     return map;
   }
 
-  BufferedImage politicalMap(final int SCALE_UP, boolean withBorders,
+  public BufferedImage politicalMap(final int SCALE_UP, boolean withBorders,
                              boolean withLines, boolean regionBorders) {
     BufferedImage map =
             new BufferedImage(width * SCALE_UP, height * SCALE_UP,
@@ -614,15 +621,17 @@ public class World {
             if (withLines) {
               liegeLoc = settlement.getLiege().getLocation();
 
-              g.drawLine(location.x * SCALE_UP, location.y * SCALE_UP,
-                      liegeLoc.x * SCALE_UP, liegeLoc.y * SCALE_UP);
+              g.drawLine(location.x * SCALE_UP + (SCALE_UP / 2),
+                      location.y * SCALE_UP + (SCALE_UP / 2),
+                      liegeLoc.x * SCALE_UP + (SCALE_UP / 2),
+                      liegeLoc.y * SCALE_UP + (SCALE_UP / 2));
             }
 
             g.setColor(new Color(0, 0, 0));
         }
 
-        g.fillOval((int)((location.x - (dotSize / 2.)) * SCALE_UP),
-                (int)((location.y - (dotSize / 2.)) * SCALE_UP),
+        g.fillOval((int)((location.x - (dotSize / 2.)) * SCALE_UP + (SCALE_UP / 2)),
+                (int)((location.y - (dotSize / 2.)) * SCALE_UP + (SCALE_UP / 2)),
                 dotSize * SCALE_UP, dotSize * SCALE_UP);
 
         // Don't print names of lowest-tier settlements

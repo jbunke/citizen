@@ -20,6 +20,10 @@ public class State {
     this.name = PlaceNameGenerator.generateRandomName(2, 3, vocabulary);
   }
 
+  public String getName() {
+    return name;
+  }
+
   public PhoneticVocabulary getVocabulary() {
     return vocabulary;
   }
