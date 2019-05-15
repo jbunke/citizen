@@ -4,6 +4,7 @@ import com.redsquare.citizen.GameDebug;
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.language.PhoneticVocabulary;
 import com.redsquare.citizen.systems.language.PlaceNameGenerator;
+import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
 import com.redsquare.citizen.util.Sets;
@@ -633,8 +634,12 @@ public class World {
         // Don't print names of lowest-tier settlements
         if (powerLevel < 3) {
           BufferedImage name = Font.CLEAN.getText(settlement.getName() + " (" + settlement.getSetupPower() + ")");
+          WritingSystem ws = settlement.getState().getWritingSystem();
+          BufferedImage wsName = ws.draw(settlement.getName(), 1);
           g.drawImage(name, location.x * SCALE_UP + dotSize * SCALE_UP,
                   location.y * SCALE_UP - (name.getHeight() / 2),null);
+          g.drawImage(wsName, location.x * SCALE_UP + dotSize * SCALE_UP,
+                  location.y * SCALE_UP + name.getHeight(),null);
         }
       }
     }
