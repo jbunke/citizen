@@ -71,7 +71,7 @@ public class WritingSystem {
 
   private List<GlyphLine> generateCommonElements(int maxDistance) {
     List<GlyphLine> common = new ArrayList<>();
-    int commonCount = 3 + (int)(Math.random() * 3);
+    int commonCount = 1 + (int)(Math.random() * 2);
 
     for (int i = 0; i < commonCount; i++) {
       GlyphLine candidate = GlyphLine.random(maxDistance);
