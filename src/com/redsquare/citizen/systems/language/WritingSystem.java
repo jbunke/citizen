@@ -9,6 +9,7 @@ public class WritingSystem {
 
   private final PhoneticVocabulary vocabulary;
   private final Map<WordSubUnit, Glyph> glyphs;
+  private final List<WordSubUnit> keys;
   private final Type type;
 
   private WritingSystem(PhoneticVocabulary vocabulary, Type type) {
@@ -22,6 +23,10 @@ public class WritingSystem {
 
     // between 3 and 5 common elements
     List<GlyphLine> common = generateCommonElements(maxDistance);
+
+    // populate and sort keys
+    keys = enumerateKeys();
+    sortKeys();
 
     glyphs = generateGlyphs(common, maxDistance);
   }
@@ -44,11 +49,23 @@ public class WritingSystem {
     ALPHABETICAL, SYLLABIC
   }
 
+  private void sortKeys() {
+    for (int i = 0; i < keys.size(); i++) {
+      for (int j = i + 1; j < keys.size(); j++) {
+        if (keys.get(j).toString().length() > keys.get(i).toString().length()) {
+          WordSubUnit temp = keys.get(i);
+          keys.set(i, keys.get(j));
+          keys.set(j, temp);
+        }
+      }
+    }
+  }
+
   private Map<WordSubUnit, Glyph> generateGlyphs(List<GlyphLine> common,
                                                  int maxDistance) {
     Map<WordSubUnit, Glyph> glyphs = new HashMap<>();
 
-    for (WordSubUnit key : enumerateKeys()) {
+    for (WordSubUnit key : keys) {
       // generate glyph
       boolean violates = true;
       Glyph candidate = null;
@@ -145,21 +162,8 @@ public class WritingSystem {
   }
 
   private List<Glyph> translate(String text) {
-    List<WordSubUnit> keys = enumerateKeys();
     List<Glyph> glyphs = new ArrayList<>();
 
-    // Phase 1: Sort keys by length to support longest matching first
-    for (int i = 0; i < keys.size(); i++) {
-      for (int j = i + 1; j < keys.size(); j++) {
-        if (keys.get(j).toString().length() > keys.get(i).toString().length()) {
-          WordSubUnit temp = keys.get(i);
-          keys.set(i, keys.get(j));
-          keys.set(j, temp);
-        }
-      }
-    }
-
-    // Phase 2: Search for first key which matches the start of the input; remove that from TEXT
     boolean noMatchFound = false;
     while (text.length() > 0 && !noMatchFound) {
       noMatchFound = true;
@@ -173,6 +177,8 @@ public class WritingSystem {
           break;
         }
       }
+
+      if (noMatchFound) text = text.substring(1);
     }
 
     return glyphs;

@@ -12,6 +12,21 @@ public class Word {
     this.syllables = syllables;
   }
 
+  private Word(Word w1, Word w2) {
+    syllables = new Syllable[w1.syllables.length + w2.syllables.length];
+
+    for (int i = 0; i < w1.syllables.length; i++) {
+      syllables[i] = w1.syllables[i];
+    }
+    for (int i = 0; i < w2.syllables.length; i++) {
+      syllables[w1.syllables.length + i] = w2.syllables[i];
+    }
+  }
+
+  static Word compound(Word w1, Word w2) {
+    return new Word(w1, w2);
+  }
+
   private static String selectUnit(String[] pool) {
     int size = pool.length;
     int index = (int)(size * Math.random());
@@ -116,5 +131,26 @@ public class Word {
     for (Syllable syllable : syllables) word.append(syllable.toString());
 
     return word.toString();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Word)) return false;
+
+    boolean matches = true;
+    Word comp = (Word) obj;
+
+    if (comp.syllables.length != syllables.length) return false;
+
+    for (int i = 0; i < syllables.length; i++) {
+      matches &= syllables[i].equals(comp.syllables[i]);
+    }
+
+    return matches;
+  }
+
+  @Override
+  public int hashCode() {
+    return syllables.length;
   }
 }
