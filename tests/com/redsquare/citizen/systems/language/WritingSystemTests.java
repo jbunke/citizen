@@ -23,7 +23,7 @@ public class WritingSystemTests {
     WritingSystem[] wss = new WritingSystem[10];
 
     for (int i = 0; i < 10; i++) {
-      wss[i] = WritingSystem.generate(v, WritingSystem.Type.ALPHABETICAL);
+      wss[i] = WritingSystem.generate(v);
     }
 
     StringBuilder testText = new StringBuilder();

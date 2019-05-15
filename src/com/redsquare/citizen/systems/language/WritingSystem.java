@@ -17,7 +17,7 @@ public class WritingSystem {
     this.type = type;
 
     // max distance from last line
-    int maxDistance = (int)((GlyphLine.ARTICULATIONS / 3) +
+    int maxDistance = (int)((GlyphLine.ARTICULATIONS / 4) +
             (Math.random() * GlyphLine.ARTICULATIONS));
 
     // between 3 and 5 common elements

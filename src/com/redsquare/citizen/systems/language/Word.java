@@ -84,7 +84,7 @@ public class Word {
     return new Word(syllables);
   }
 
-  static Word generateRandomWord(int minSyllables, int maxSyllables,
+  public static Word generateRandomWord(int minSyllables, int maxSyllables,
                                           PhoneticVocabulary vocabulary) {
     int syllableCount = minSyllables +
             (int)(Math.random() * (maxSyllables - minSyllables));
