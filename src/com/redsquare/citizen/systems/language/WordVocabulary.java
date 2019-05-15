@@ -54,7 +54,7 @@ public class WordVocabulary {
             case GIRL:
               generateNonCoreFor(new Meaning[] {
                               Meaning.BOY, Meaning.GIRL
-                      }, 1.0, new double[] { 0.5, 1.0 }, // 0.5
+                      }, 0.5, new double[] { 0.5, 1.0 }, // 0.5
                       new Word[][] {
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.YOUNG),
@@ -70,11 +70,71 @@ public class WordVocabulary {
                               }
                       }, usedWords, skips, v);
               break;
+            case FATHER:
+            case MOTHER:
+              generateNonCoreFor(new Meaning[] {
+                              Meaning.FATHER, Meaning.MOTHER
+                      }, 0.7, new double[] { 0.5, 1.0 }, // 0.5
+                      new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.PARENT),
+                                              wordDictionary.get(Meaning.MALE)),
+                                      Word.compound(wordDictionary.get(Meaning.PARENT),
+                                              wordDictionary.get(Meaning.FEMALE))
+                              },
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.MALE),
+                                              wordDictionary.get(Meaning.PARENT)),
+                                      Word.compound(wordDictionary.get(Meaning.FEMALE),
+                                              wordDictionary.get(Meaning.PARENT))
+                              }
+                      }, usedWords, skips, v);
+              break;
+            case SON:
+            case DAUGHTER:
+              generateNonCoreFor(new Meaning[] {
+                              Meaning.SON, Meaning.DAUGHTER
+                      }, 0.7, new double[] { 0.5, 1.0 }, // 0.5
+                      new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.CHILD_OF),
+                                              wordDictionary.get(Meaning.MALE)),
+                                      Word.compound(wordDictionary.get(Meaning.CHILD_OF),
+                                              wordDictionary.get(Meaning.FEMALE))
+                              },
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.MALE),
+                                              wordDictionary.get(Meaning.CHILD_OF)),
+                                      Word.compound(wordDictionary.get(Meaning.FEMALE),
+                                              wordDictionary.get(Meaning.CHILD_OF))
+                              }
+                      }, usedWords, skips, v);
+              break;
+            case BROTHER:
+            case SISTER:
+              generateNonCoreFor(new Meaning[] {
+                              Meaning.BROTHER, Meaning.SISTER
+                      }, 0.7, new double[] { 0.5, 1.0 }, // 0.5
+                      new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.SIBLING),
+                                              wordDictionary.get(Meaning.MALE)),
+                                      Word.compound(wordDictionary.get(Meaning.SIBLING),
+                                              wordDictionary.get(Meaning.FEMALE))
+                              },
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.MALE),
+                                              wordDictionary.get(Meaning.SIBLING)),
+                                      Word.compound(wordDictionary.get(Meaning.FEMALE),
+                                              wordDictionary.get(Meaning.SIBLING))
+                              }
+                      }, usedWords, skips, v);
+              break;
             case MAN:
             case WOMAN:
               generateNonCoreFor(new Meaning[] {
                               Meaning.MAN, Meaning.WOMAN
-                      }, 1.0, new double[] { 0.5, 1.0 }, // 0.5
+                      }, 0.5, new double[] { 0.5, 1.0 }, // 0.5
                       new Word[][] {
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.PERSON),
@@ -95,7 +155,7 @@ public class WordVocabulary {
               // PREREQUISITES: BOY GIRL MAN WOMAN
               generateNonCoreFor(new Meaning[] {
                               Meaning.BOYFRIEND, Meaning.GIRLFRIEND
-                      }, 1.0, new double[] { 0.5, 0.7, 1.0 }, // 0.7
+                      }, 0.7, new double[] { 0.5, 0.7, 1.0 }, // 0.7
                       new Word[][] {
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.MALE),
@@ -117,17 +177,35 @@ public class WordVocabulary {
                               }
                       }, usedWords, skips, v);
               break;
+            case DISTANT:
+              generateNonCoreFor(new Meaning[] { Meaning.DISTANT }, 0.6,
+                      new double[] { 1.0 }, new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.OPPOSITE),
+                                              wordDictionary.get(Meaning.PROXIMAL))
+                              }
+                      }, usedWords, skips, v);
+              break;
+            case ENEMY:
+              generateNonCoreFor(new Meaning[] { Meaning.ENEMY }, 0.4,
+                      new double[] { 1.0 }, new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.OPPOSITE),
+                                              wordDictionary.get(Meaning.FRIEND))
+                              }
+                      }, usedWords, skips, v);
+              break;
           }
         }
       }
     }
   }
 
-  private void generateNonCoreFor(Meaning[] meanings, double originalProb,
+  private void generateNonCoreFor(Meaning[] meanings, double derivedProb,
                                   double[] probs, Word[][] options,
                                   Set<Word> usedWords, Set<Meaning> skips,
                                   PhoneticVocabulary v) {
-    if (Math.random() < originalProb) {
+    if (Math.random() < derivedProb) {
       Word[] words = new Word[meanings.length];
 
       double prob = Math.random();
@@ -159,7 +237,7 @@ public class WordVocabulary {
       boolean violates = true;
 
       while (violates) {
-        candidate = Word.generateRandomWord(2, 5, v);
+        candidate = Word.generateRandomWord(1, 4, v);
         violates = usedWords.contains(candidate);
       }
 
