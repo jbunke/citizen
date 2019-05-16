@@ -5,10 +5,22 @@ public class Syllable extends WordSubUnit {
   private final String vowel;
   private final String suffix;
 
-  public Syllable(String prefix, String vowel, String suffix) {
+  Syllable(String prefix, String vowel, String suffix) {
     this.prefix = prefix;
     this.vowel = vowel;
     this.suffix = suffix;
+  }
+
+  String getPrefix() {
+    return prefix;
+  }
+
+  String getVowel() {
+    return vowel;
+  }
+
+  String getSuffix() {
+    return suffix;
   }
 
   @Override

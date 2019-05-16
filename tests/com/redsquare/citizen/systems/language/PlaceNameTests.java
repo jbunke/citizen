@@ -16,7 +16,7 @@ public class PlaceNameTests {
       BufferedWriter bw = new BufferedWriter(fw);
 
       for (int i = 0; i < 100; i++) {
-        bw.write(PlaceNameGenerator.generateRandomName(2, 4));
+        bw.write(PlaceNameGenerator.generateRandomName(2, 4).toString());
         bw.newLine();
       }
       bw.close();
@@ -35,7 +35,8 @@ public class PlaceNameTests {
       BufferedWriter bw = new BufferedWriter(fw);
 
       for (int i = 0; i < 100; i++) {
-        String placeName = PlaceNameGenerator.generateRandomName(2, 3, v);
+        String placeName =
+                PlaceNameGenerator.generateRandomName(2, 3, v).toString();
         String demonym = DemonymGenerator.demonym(placeName);
         bw.write(placeName + " -> " + demonym);
         bw.newLine();
@@ -62,7 +63,7 @@ public class PlaceNameTests {
 
         for (int j = 0; j < 25; j++) {
           bw.write(PlaceNameGenerator.
-                  generateRandomName(2, 3, v));
+                  generateRandomName(2, 3, v).toString());
           bw.newLine();
         }
         bw.newLine();

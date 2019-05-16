@@ -7,8 +7,8 @@ import java.util.List;
 
 public class Glyph {
 
-  static final int SIZE = GlyphLine.ARTICULATIONS + 2;
-  private static final int LINE_WIDTH = 2;
+  static final int SIZE = GlyphLine.ARTICULATIONS * 2 + 2;
+  private static final int LINE_WIDTH = 3;
 
   private final List<GlyphLine> lines;
 
@@ -36,8 +36,8 @@ public class Glyph {
     g.setStroke(new BasicStroke(LINE_WIDTH));
 
     for (GlyphLine line : lines) {
-      g.drawLine(1 + line.from.x, 1 + line.from.y,
-              1 + line.to.x, 1 + line.to.y);
+      g.drawLine(1 + line.from.x * 2, 1 + line.from.y * 2,
+              1 + line.to.x * 2, 1 + line.to.y * 2);
     }
 
     return glyph;

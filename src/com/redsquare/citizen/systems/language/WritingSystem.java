@@ -161,6 +161,29 @@ public class WritingSystem {
     return keys;
   }
 
+  private List<Glyph> translate(Word word) {
+    List<Glyph> glyphs = new ArrayList<>();
+
+    for (Syllable syllable : word.getSyllables()) {
+      if (type == Type.SYLLABIC) {
+        glyphs.add(this.glyphs.get(syllable));
+      } else {
+        Phoneme prefix = new Phoneme(syllable.getPrefix());
+        Phoneme vowel = new Phoneme(syllable.getVowel());
+        Phoneme suffix = new Phoneme(syllable.getSuffix());
+
+        if (prefix.toString().length() > 0)
+          glyphs.add(this.glyphs.get(prefix));
+        if (vowel.toString().length() > 0)
+          glyphs.add(this.glyphs.get(vowel));
+        if (suffix.toString().length() > 0)
+          glyphs.add(this.glyphs.get(suffix));
+      }
+    }
+
+    return glyphs;
+  }
+
   private List<Glyph> translate(String text) {
     List<Glyph> glyphs = new ArrayList<>();
 

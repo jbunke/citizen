@@ -22,6 +22,13 @@ public class WordVocabulary {
     return new WordVocabulary(v);
   }
 
+  Word lookUp(Meaning meaning) {
+    if (wordDictionary.containsKey(meaning))
+      return wordDictionary.get(meaning);
+
+    return null;
+  }
+
   private void generateVocabulary(PhoneticVocabulary v) {
     Meaning[] allMeanings = Meaning.values();
     Set<Word> usedWords = new HashSet<>();
@@ -192,6 +199,45 @@ public class WordVocabulary {
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.OPPOSITE),
                                               wordDictionary.get(Meaning.FRIEND))
+                              }
+                      }, usedWords, skips, v);
+              break;
+            case THIS_LANGUAGE:
+              generateNonCoreFor(new Meaning[] { Meaning.THIS_LANGUAGE }, 1.0,
+                      new double[] { 0.5, 1.0 }, new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.THESE_PEOPLE),
+                                              wordDictionary.get(Meaning.LANGUAGE))
+                              },
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.LANGUAGE),
+                                              wordDictionary.get(Meaning.THESE_PEOPLE))
+                              }
+                      }, usedWords, skips, v);
+              break;
+            case CAPITAL:
+              generateNonCoreFor(new Meaning[] { Meaning.CAPITAL }, 0.6,
+                      new double[] { 0.4, 1.0 }, new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.GREAT_COMP),
+                                              wordDictionary.get(Meaning.CITY))
+                              },
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.MAIN),
+                                              wordDictionary.get(Meaning.CITY))
+                              }
+                      }, usedWords, skips, v);
+              break;
+            case THIS_STATE:
+              generateNonCoreFor(new Meaning[] { Meaning.THIS_STATE }, 1.0,
+                      new double[] { 0.5, 1.0 }, new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.THESE_PEOPLE),
+                                              wordDictionary.get(Meaning.STATE))
+                              },
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.STATE),
+                                              wordDictionary.get(Meaning.THESE_PEOPLE))
                               }
                       }, usedWords, skips, v);
               break;

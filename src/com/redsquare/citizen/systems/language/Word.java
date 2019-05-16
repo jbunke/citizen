@@ -27,11 +27,12 @@ public class Word {
     return new Word(w1, w2);
   }
 
-  private static String selectUnit(String[] pool) {
-    int size = pool.length;
-    int index = (int)(size * Math.random());
+  static Word generate(Syllable[] syllables) {
+    return new Word(syllables);
+  }
 
-    return pool[index];
+  Syllable[] getSyllables() {
+    return syllables;
   }
 
   private static Syllable generateSyllable(String lastSyllable,
@@ -50,7 +51,7 @@ public class Word {
             (!lastSyllable.equals("") && endsWithVowel(lastSyllable, vowels));
     if (!lastSyllable.equals("")) hasPrefix &= !lastSyllable.endsWith("h");
     boolean hasSuffix = Math.random() < SUFFIX_PROB;
-    String vowel = selectUnit(vowels);
+    String vowel = PhoneticVocabulary.selectUnit(vowels);
     String prefix = "";
     String suffix = "";
 
@@ -59,7 +60,7 @@ public class Word {
       while (violates) {
         violates = false;
 
-        prefix = selectUnit(prefixes);
+        prefix = PhoneticVocabulary.selectUnit(prefixes);
         if (Phonemes.ILLEGAL_PREFIX_TO_VOWEL.containsKey(prefix)) {
           List<String> violatingVowels = Phonemes.ILLEGAL_PREFIX_TO_VOWEL.get(prefix);
           violates = violatingVowels.contains(vowel);
@@ -74,7 +75,7 @@ public class Word {
     if (hasSuffix) {
       boolean violates = true;
       while (violates) {
-        suffix = selectUnit(suffixes);
+        suffix = PhoneticVocabulary.selectUnit(suffixes);
         if (Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.containsKey(vowel)) {
           List<String> violatingSuffixes = Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.get(vowel);
           violates = violatingSuffixes.contains(suffix);

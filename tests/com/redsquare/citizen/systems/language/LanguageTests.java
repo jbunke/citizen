@@ -5,7 +5,8 @@ import org.junit.Test;
 public class LanguageTests {
   @Test
   public void vocabularyPopulation() {
-    PhoneticVocabulary v = PhoneticVocabulary.generate();
-    WordVocabulary wv = WordVocabulary.generate(v);
+    Language language = Language.generate();
+
+    System.out.println(language.getName());
   }
 }

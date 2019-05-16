@@ -49,4 +49,12 @@ public class PhoneticVocabulary {
 
     return set;
   }
+
+  static String selectUnit(String[] pool) {
+    int size = pool.length;
+    int index = (int)(size * Math.random());
+
+    return pool[index];
+  }
+
 }

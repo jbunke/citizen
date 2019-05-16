@@ -1,11 +1,14 @@
 package com.redsquare.citizen.systems.politics;
 
+import com.redsquare.citizen.systems.language.PlaceNameGenerator;
+import com.redsquare.citizen.systems.language.Word;
+
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Settlement {
-  private String name;
+  private Word name;
 
   private State state;
   private Set<Settlement> vassals = new HashSet<>();
@@ -16,10 +19,12 @@ public class Settlement {
 
   private Point location;
 
-  public Settlement(String name, Point location, State state) {
-    this.name = name;
+  public Settlement(Point location, State state) {
     this.location = location;
     this.state = state;
+
+    this.name = PlaceNameGenerator.generateRandomName(
+            2, 4, state.getLanguage().getVocabulary());
 
     setupPower = 0;
   }
@@ -29,7 +34,7 @@ public class Settlement {
   }
 
   public String getName() {
-    return name;
+    return name.toString();
   }
 
   public int getSetupPower() {

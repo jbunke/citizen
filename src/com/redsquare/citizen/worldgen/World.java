@@ -7,6 +7,7 @@ import com.redsquare.citizen.systems.language.PlaceNameGenerator;
 import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
+import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
@@ -158,8 +159,19 @@ public class World {
       states.add(plate.generateState(cells));
     }
 
+    // REMOVE STATES WITH NO SETTLEMENTS
+    removeTrivialStates();
+
     // BORDERS
     borders = establishBorders();
+  }
+
+  private void removeTrivialStates() {
+    Set<State> toRemove = new HashSet<>();
+    for (State state : states) {
+      if (state.settlements().isEmpty()) toRemove.add(state);
+    }
+    states.removeAll(toRemove);
   }
 
   private State[][] establishBorders() {
@@ -241,11 +253,11 @@ public class World {
         double northVariation = 0.8 + (0.4 * Math.random());
         double southVariation = 0.8 + (0.4 * Math.random());
 
-        if (ratio < (1/5.0) * northVariation || ratio > 5.0 / southVariation) {
+        if (ratio < (1/4.0) * northVariation || ratio > 4.0 / southVariation) {
           cells[x][y].setRegion(WorldCell.Region.POLAR);
-        } else if (ratio < (2/5.0) * northVariation || ratio > (5/2.0) / southVariation) {
+        } else if (ratio < (1/2.0) * northVariation || ratio > (2/1.0) / southVariation) {
           cells[x][y].setRegion(WorldCell.Region.TEMPERATE);
-        } else if (ratio < 0.6 * northVariation || ratio > (5/3.0) / southVariation) {
+        } else if (ratio < (4/5.0) * northVariation || ratio > (5/4.0) / southVariation) {
           cells[x][y].setRegion(WorldCell.Region.SUBTROPICAL);
         } else {
           cells[x][y].setRegion(WorldCell.Region.TROPICAL);
@@ -633,8 +645,10 @@ public class World {
 
         // Don't print names of lowest-tier settlements
         if (powerLevel < 3) {
-          BufferedImage name = Font.CLEAN.getText(settlement.getName() + " (" + settlement.getSetupPower() + ")");
-          WritingSystem ws = settlement.getState().getWritingSystem();
+          BufferedImage name = Font.CLEAN.getText(
+                  settlement.getName() + " (" + settlement.getSetupPower() + ")");
+          WritingSystem ws =
+                  settlement.getState().getLanguage().getWritingSystem();
           BufferedImage wsName = ws.draw(settlement.getName(), 1);
           g.drawImage(name, location.x * SCALE_UP + dotSize * SCALE_UP,
                   location.y * SCALE_UP - (name.getHeight() / 2),null);
@@ -642,6 +656,24 @@ public class World {
                   location.y * SCALE_UP + name.getHeight(),null);
         }
       }
+
+//      Point capitalLoc = state.getCapital().getLocation();
+//      WritingSystem ws = state.getLanguage().getWritingSystem();
+//
+//      BufferedImage text = Font.CLEAN.getText(
+//              Formatter.capitaliseFirstLetter(state.getName()));
+//      BufferedImage symbols = ws.draw(state.getName(), 2);
+//
+//      g.setColor(new Color(255, 255, 255, 150));
+//      g.fillRect(capitalLoc.x * SCALE_UP - (symbols.getWidth() / 2 + 5),
+//              capitalLoc.y * SCALE_UP - symbols.getHeight(),
+//              symbols.getWidth() + 10, symbols.getHeight() * 2);
+//
+//      g.drawImage(text, capitalLoc.x * SCALE_UP - text.getWidth() / 2,
+//              capitalLoc.y * SCALE_UP - (int)(1.5 * text.getHeight()),
+//              null);
+//      g.drawImage(symbols, capitalLoc.x * SCALE_UP - symbols.getWidth() / 2,
+//              capitalLoc.y * SCALE_UP, null);
     }
 
     return map;
@@ -1210,11 +1242,7 @@ public class World {
         Point point = randomPoint(leftmost, rightmost, topmost, bottommost);
 
         if (onPlate(point) && cells[point.x][point.y].isLand()) {
-          String name =
-                  PlaceNameGenerator.generateRandomName(
-                          2, 4, state.getVocabulary());
-
-          Settlement settlement = new Settlement(name, point, state);
+          Settlement settlement = new Settlement(point, state);
           cells[point.x][point.y].populateSettlement(settlement);
           settlements.add(settlement);
 

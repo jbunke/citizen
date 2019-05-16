@@ -3,6 +3,10 @@ package com.redsquare.citizen.systems.language;
 public enum Meaning {
   // CORE MORPHEMES // LESSER
 
+  // Proper nouns / this
+  THESE_PEOPLE(0, LexClass.NOUN), LANGUAGE(0, LexClass.NOUN),
+  THIS_LANGUAGE(1, LexClass.NOUN), THIS_STATE(1, LexClass.NOUN),
+
   // Relationships
   PARENT(0, LexClass.NOUN), CHILD_OF(0, LexClass.NOUN), SIBLING(0, LexClass.NOUN),
   LOVER(0, LexClass.NOUN), FRIEND(0, LexClass.NOUN),
