@@ -28,7 +28,7 @@ public class PlaceNameTests {
   @Test
   public void demonymGeneratorTest() {
     String demonymFile = "res/test_output/language/demonyms.txt";
-    PhoneticVocabulary v = PhoneticVocabulary.generate();
+    Phonology p = Phonology.generate();
 
     try {
       FileWriter fw = new FileWriter(demonymFile);
@@ -36,7 +36,7 @@ public class PlaceNameTests {
 
       for (int i = 0; i < 100; i++) {
         String placeName =
-                PlaceNameGenerator.generateRandomName(2, 3, v).toString();
+                PlaceNameGenerator.generateRandomName(2, 3, p).toString();
         String demonym = DemonymGenerator.demonym(placeName);
         bw.write(placeName + " -> " + demonym);
         bw.newLine();
@@ -56,14 +56,14 @@ public class PlaceNameTests {
       BufferedWriter bw = new BufferedWriter(fw);
 
       for (int i = 0; i < 10; i++) {
-        PhoneticVocabulary v = PhoneticVocabulary.generate();
+        Phonology p = Phonology.generate();
 
         bw.write("Vocabulary " + (i + 1) + ":");
         bw.newLine();
 
         for (int j = 0; j < 25; j++) {
           bw.write(PlaceNameGenerator.
-                  generateRandomName(2, 3, v).toString());
+                  generateRandomName(2, 3, p).toString());
           bw.newLine();
         }
         bw.newLine();

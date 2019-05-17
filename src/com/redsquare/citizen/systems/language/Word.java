@@ -36,22 +36,22 @@ public class Word {
   }
 
   private static Syllable generateSyllable(String lastSyllable,
-                                           PhoneticVocabulary vocabulary) {
+                                           Phonology phonology) {
     String[] vowels = Phonemes.VOMEL_PHONEMES;
     String[] prefixes = Phonemes.PREFIX_CONS_PHONEMES;
     String[] suffixes = Phonemes.SUFFIX_CONS_PHONEMES;
 
-    if (vocabulary != null) {
-      vowels = vocabulary.VOWEL_PHONEMES;
-      prefixes = vocabulary.PREFIX_CONS_PHONEMES;
-      suffixes = vocabulary.SUFFIX_CONS_PHONEMES;
+    if (phonology != null) {
+      vowels = phonology.VOWEL_PHONEMES;
+      prefixes = phonology.PREFIX_CONS_PHONEMES;
+      suffixes = phonology.SUFFIX_CONS_PHONEMES;
     }
 
     boolean hasPrefix = Math.random() < PREFIX_PROB ||
             (!lastSyllable.equals("") && endsWithVowel(lastSyllable, vowels));
     if (!lastSyllable.equals("")) hasPrefix &= !lastSyllable.endsWith("h");
     boolean hasSuffix = Math.random() < SUFFIX_PROB;
-    String vowel = PhoneticVocabulary.selectUnit(vowels);
+    String vowel = Phonology.selectUnit(vowels);
     String prefix = "";
     String suffix = "";
 
@@ -60,7 +60,7 @@ public class Word {
       while (violates) {
         violates = false;
 
-        prefix = PhoneticVocabulary.selectUnit(prefixes);
+        prefix = Phonology.selectUnit(prefixes);
         if (Phonemes.ILLEGAL_PREFIX_TO_VOWEL.containsKey(prefix)) {
           List<String> violatingVowels = Phonemes.ILLEGAL_PREFIX_TO_VOWEL.get(prefix);
           violates = violatingVowels.contains(vowel);
@@ -75,7 +75,7 @@ public class Word {
     if (hasSuffix) {
       boolean violates = true;
       while (violates) {
-        suffix = PhoneticVocabulary.selectUnit(suffixes);
+        suffix = Phonology.selectUnit(suffixes);
         if (Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.containsKey(vowel)) {
           List<String> violatingSuffixes = Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.get(vowel);
           violates = violatingSuffixes.contains(suffix);
@@ -101,7 +101,7 @@ public class Word {
   }
 
   public static Word generateRandomWord(int minSyllables, int maxSyllables,
-                                          PhoneticVocabulary vocabulary) {
+                                          Phonology phonology) {
     int syllableCount = minSyllables +
             (int)(Math.random() * (maxSyllables - minSyllables));
     Syllable[] syllables = new Syllable[syllableCount];
@@ -109,7 +109,7 @@ public class Word {
     for (int i = 0; i < syllables.length; i++) {
       String lastSyllable = "";
       if (i > 0) lastSyllable = syllables[i - 1].toString();
-      syllables[i] = generateSyllable(lastSyllable, vocabulary);
+      syllables[i] = generateSyllable(lastSyllable, phonology);
     }
 
     return new Word(syllables);

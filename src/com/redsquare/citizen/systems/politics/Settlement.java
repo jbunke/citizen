@@ -24,7 +24,7 @@ public class Settlement {
     this.state = state;
 
     this.name = PlaceNameGenerator.generateRandomName(
-            2, 4, state.getLanguage().getVocabulary());
+            2, 4, state.getLanguage().getPhonology());
 
     setupPower = 0;
   }

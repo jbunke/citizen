@@ -7,14 +7,14 @@ import java.util.List;
 
 public class WritingSystem {
 
-  private final PhoneticVocabulary vocabulary;
+  private final Phonology phonology;
   private final Map<WordSubUnit, Glyph> glyphs;
   private final List<WordSubUnit> keys;
   private final Type type;
 
-  private WritingSystem(PhoneticVocabulary vocabulary, Type type) {
+  private WritingSystem(Phonology phonology, Type type) {
     // Random likelihood of syllabic vs alphabetical
-    this.vocabulary = vocabulary;
+    this.phonology = phonology;
     this.type = type;
 
     // max distance from last line
@@ -31,18 +31,18 @@ public class WritingSystem {
     glyphs = generateGlyphs(common, maxDistance);
   }
 
-  public static WritingSystem generate(PhoneticVocabulary vocabulary) {
+  public static WritingSystem generate(Phonology phonology) {
     Type type;
 
     if (Math.random() < 0.5) type = Type.ALPHABETICAL;
     else type = Type.SYLLABIC;
 
-    return new WritingSystem(vocabulary, type);
+    return new WritingSystem(phonology, type);
   }
 
-  public static WritingSystem generate(PhoneticVocabulary vocabulary,
+  public static WritingSystem generate(Phonology phonology,
                                        Type type) {
-    return new WritingSystem(vocabulary, type);
+    return new WritingSystem(phonology, type);
   }
 
   public enum Type {
@@ -113,16 +113,16 @@ public class WritingSystem {
         Set<Syllable> vowelSuffix = new HashSet<>();
         Set<Syllable> prefixVowelSuffix = new HashSet<>();
 
-        for (String vowel : vocabulary.VOWEL_PHONEMES) {
+        for (String vowel : phonology.VOWEL_PHONEMES) {
           vowelsOnly.add(new Syllable("", vowel, ""));
 
-          for (String prefix : vocabulary.PREFIX_CONS_PHONEMES) {
+          for (String prefix : phonology.PREFIX_CONS_PHONEMES) {
             if (!Phonemes.ILLEGAL_PREFIX_TO_VOWEL.containsKey(prefix) ||
                     !Phonemes.ILLEGAL_PREFIX_TO_VOWEL.
                     get(prefix).contains(vowel)) {
               prefixVowel.add(new Syllable(prefix, vowel, ""));
 
-              for (String suffix : vocabulary.SUFFIX_CONS_PHONEMES) {
+              for (String suffix : phonology.SUFFIX_CONS_PHONEMES) {
                 if (!Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.containsKey(vowel) ||
                         !Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.
                         get(vowel).contains(suffix)) {
@@ -132,7 +132,7 @@ public class WritingSystem {
             }
           }
 
-          for (String suffix : vocabulary.SUFFIX_CONS_PHONEMES) {
+          for (String suffix : phonology.SUFFIX_CONS_PHONEMES) {
             if (!Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.containsKey(vowel) ||
                     !Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.
                     get(vowel).contains(suffix)) {
@@ -147,11 +147,11 @@ public class WritingSystem {
         keys.addAll(vowelSuffix);
         break;
       case ALPHABETICAL:
-        for (String vowel : vocabulary.VOWEL_PHONEMES)
+        for (String vowel : phonology.VOWEL_PHONEMES)
           keys.add(new Phoneme(vowel));
-        for (String prefix : vocabulary.PREFIX_CONS_PHONEMES)
+        for (String prefix : phonology.PREFIX_CONS_PHONEMES)
           keys.add(new Phoneme(prefix));
-        for (String suffix : vocabulary.SUFFIX_CONS_PHONEMES)
+        for (String suffix : phonology.SUFFIX_CONS_PHONEMES)
           keys.add(new Phoneme(suffix));
         break;
     }

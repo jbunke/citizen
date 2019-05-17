@@ -18,17 +18,17 @@ public class WritingSystemTests {
   public void glyphGeneration() {
     String filepath = "res/test_output/language/writing_systems.png";
 
-    PhoneticVocabulary v = PhoneticVocabulary.generate();
+    Phonology p = Phonology.generate();
 
     WritingSystem[] wss = new WritingSystem[10];
 
     for (int i = 0; i < 10; i++) {
-      wss[i] = WritingSystem.generate(v);
+      wss[i] = WritingSystem.generate(p, WritingSystem.Type.ALPHABETICAL);
     }
 
     StringBuilder testText = new StringBuilder();
     for (int i = 0; i < 25; i++) {
-      testText.append(Word.generateRandomWord(1, 4, v));
+      testText.append(Word.generateRandomWord(1, 4, p));
       testText.append(" ");
       if (i % 5 == 0 && i > 0) testText.append("\n");
     }

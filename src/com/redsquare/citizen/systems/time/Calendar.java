@@ -1,7 +1,6 @@
 package com.redsquare.citizen.systems.time;
 
-import com.redsquare.citizen.systems.language.PhoneticVocabulary;
-import com.redsquare.citizen.systems.language.PlaceNameGenerator;
+import com.redsquare.citizen.systems.language.Phonology;
 import com.redsquare.citizen.systems.language.Word;
 
 import java.util.HashMap;
@@ -10,7 +9,7 @@ import java.util.Map;
 public class Calendar {
   private final Map<Integer, String> yearDayMap;
 
-  private Calendar(PhoneticVocabulary v,
+  private Calendar(Phonology v,
                    int yearLength, String dayWord) {
     yearDayMap = new HashMap<>();
 
@@ -29,7 +28,7 @@ public class Calendar {
     }
   }
 
-  public static Calendar generate(PhoneticVocabulary v,
+  public static Calendar generate(Phonology v,
                                   int yearLength, String dayWord) {
     return new Calendar(v, yearLength, dayWord);
   }

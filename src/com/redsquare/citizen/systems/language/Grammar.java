@@ -5,20 +5,20 @@ public class Grammar {
   final boolean isSVO; // FALSE = SOV, TRUE = SVO
   final Word pluralSuffix;
 
-  private Grammar(PhoneticVocabulary vocabulary) {
+  private Grammar(Phonology phonology) {
     isSVO = Math.random() < 0.5;
-    pluralSuffix = generatePluralSuffix(vocabulary);
+    pluralSuffix = generatePluralSuffix(phonology);
   }
 
-  static Grammar generate(PhoneticVocabulary vocabulary) {
-    return new Grammar(vocabulary);
+  static Grammar generate(Phonology phonology) {
+    return new Grammar(phonology);
   }
 
-  private Word generatePluralSuffix(PhoneticVocabulary vocabulary) {
+  private Word generatePluralSuffix(Phonology phonology) {
     return Word.generate(new Syllable[] {
             new Syllable("", "",
-                    PhoneticVocabulary.selectUnit(
-                            vocabulary.SUFFIX_CONS_PHONEMES))
+                    Phonology.selectUnit(
+                            phonology.SUFFIX_CONS_PHONEMES))
     });
   }
 

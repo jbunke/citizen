@@ -2,12 +2,9 @@ package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.GameDebug;
 import com.redsquare.citizen.graphics.Font;
-import com.redsquare.citizen.systems.language.PhoneticVocabulary;
-import com.redsquare.citizen.systems.language.PlaceNameGenerator;
 import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
-import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
@@ -731,11 +728,11 @@ public class World {
               case TROPICAL:
               case SUBTROPICAL:
                 g.setColor(new Color(10,
-                        120 + (int)(30 * Math.random()), 5));
+                        90 + (int)(30 * Math.random()), 5));
                 break;
               default:
                 g.setColor(new Color(20,
-                        100 + (int)(30 * Math.random()), 5));
+                        85 + (int)(30 * Math.random()), 10));
             }
             break;
           case DESERT:
@@ -941,7 +938,7 @@ public class World {
                   Math.min(bottommost, height - RIVER_RANGE));
           WorldCell.Type type = cells[riverStart.x][riverStart.y].getType();
           if (!onPlate(riverStart) ||
-                  (type != WorldCell.Type.BEACH && type != WorldCell.Type.SHALLOW))
+                  (type != WorldCell.Type.SHALLOW))
             found = false;
         }
 
@@ -1077,7 +1074,14 @@ public class World {
     private void generateGrid(TectonicPlate[] plates, int index) {
       double worldDiag = Math.hypot((double) width, (double) height);
 
-      double maxDist = worldDiag / DIVISOR; // potentially factor in number of plates
+      int reduction = plates.length;
+
+      double maxDist = worldDiag / DIVISOR;
+
+      while (reduction > 20) {
+        maxDist -= (worldDiag / DIVISOR) / 10;
+        reduction -= 10;
+      }
 
       generateAt(origin.x, origin.y, plates, index, maxDist);
 

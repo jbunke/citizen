@@ -20,7 +20,7 @@ public class CalendarTests {
 
     Language language = Language.generate();
 
-    Calendar c = Calendar.generate(language.getVocabulary(),
+    Calendar c = Calendar.generate(language.getPhonology(),
             YEAR_LENGTH_IN_DAYS,
             language.lookUpWord(Meaning.DAY_OF_YEAR).toString());
 

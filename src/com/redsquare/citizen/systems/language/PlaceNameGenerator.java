@@ -7,7 +7,7 @@ public class PlaceNameGenerator {
   }
 
   public static Word generateRandomName(int minSyllables, int maxSyllables,
-                                          PhoneticVocabulary vocabulary) {
-    return Word.generateRandomWord(minSyllables, maxSyllables, vocabulary);
+                                          Phonology phonology) {
+    return Word.generateRandomWord(minSyllables, maxSyllables, phonology);
   }
 }

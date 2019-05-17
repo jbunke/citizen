@@ -8,7 +8,7 @@ public class WordVocabulary {
   private final Map<Meaning, Word> wordDictionary;
   private final Map<Word, Meaning> semanticDictionary;
 
-  private WordVocabulary(PhoneticVocabulary v) {
+  private WordVocabulary(Phonology v) {
     wordDictionary = new HashMap<>();
     semanticDictionary = new HashMap<>();
 
@@ -18,7 +18,7 @@ public class WordVocabulary {
             GameDebug::printDebug);
   }
 
-  static WordVocabulary generate(PhoneticVocabulary v) {
+  static WordVocabulary generate(Phonology v) {
     return new WordVocabulary(v);
   }
 
@@ -29,7 +29,7 @@ public class WordVocabulary {
     return null;
   }
 
-  private void generateVocabulary(PhoneticVocabulary v) {
+  private void generateVocabulary(Phonology v) {
     Meaning[] allMeanings = Meaning.values();
     Set<Word> usedWords = new HashSet<>();
 
@@ -250,7 +250,7 @@ public class WordVocabulary {
   private void generateNonCoreFor(Meaning[] meanings, double derivedProb,
                                   double[] probs, Word[][] options,
                                   Set<Word> usedWords, Set<Meaning> skips,
-                                  PhoneticVocabulary v) {
+                                  Phonology v) {
     if (Math.random() < derivedProb) {
       Word[] words = new Word[meanings.length];
 
@@ -277,7 +277,7 @@ public class WordVocabulary {
   }
 
   private void generateOriginalsFor(Meaning[] meanings, Set<Word> usedWords,
-                                 PhoneticVocabulary v) {
+                                 Phonology v) {
     for (Meaning meaning : meanings) {
       Word candidate = null;
       boolean violates = true;

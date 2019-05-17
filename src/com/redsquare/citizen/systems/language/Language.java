@@ -1,7 +1,7 @@
 package com.redsquare.citizen.systems.language;
 
 public class Language {
-  private final PhoneticVocabulary vocabulary;
+  private final Phonology phonology;
   private final WritingSystem writingSystem;
   private final WordVocabulary words;
   private final Grammar grammar;
@@ -9,10 +9,11 @@ public class Language {
   private final Word name;
 
   private Language() {
-    vocabulary = PhoneticVocabulary.generate();
-    writingSystem = WritingSystem.generate(vocabulary);
-    grammar = Grammar.generate(vocabulary);
-    words = WordVocabulary.generate(vocabulary);
+    phonology = Phonology.generate();
+    writingSystem = WritingSystem.generate(phonology,
+            WritingSystem.Type.ALPHABETICAL); // TEMP explicitly alphabets
+    grammar = Grammar.generate(phonology);
+    words = WordVocabulary.generate(phonology);
 
     name = words.lookUp(Meaning.THIS_LANGUAGE);
   }
@@ -21,8 +22,8 @@ public class Language {
     return new Language();
   }
 
-  public PhoneticVocabulary getVocabulary() {
-    return vocabulary;
+  public Phonology getPhonology() {
+    return phonology;
   }
 
   public WritingSystem getWritingSystem() {

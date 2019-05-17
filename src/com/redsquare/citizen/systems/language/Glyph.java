@@ -8,7 +8,7 @@ import java.util.List;
 public class Glyph {
 
   static final int SIZE = GlyphLine.ARTICULATIONS * 2 + 2;
-  private static final int LINE_WIDTH = 3;
+  private static final int LINE_WIDTH = 2;
 
   private final List<GlyphLine> lines;
 
@@ -52,7 +52,7 @@ public class Glyph {
             (GlyphLine.ARTICULATIONS / maxDistance));
 
     // start with common element?
-    if (Math.random() < 0.9)
+    if (Math.random() < 0.4)
       lines.add(commonElements.get(
               (int)(Math.random() * commonElements.size())));
 
