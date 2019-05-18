@@ -29,6 +29,10 @@ public class State {
     return language;
   }
 
+  public Culture getCulture() {
+    return culture;
+  }
+
   public Settlement getCapital() {
     return capital;
   }

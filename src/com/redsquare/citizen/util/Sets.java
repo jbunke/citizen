@@ -35,4 +35,27 @@ public class Sets {
 
     return union;
   }
+
+  /* For example:
+   * Intersection Person A's children Set<Person> and Person B's children
+   * Set<Person> will return the children that they share as parents */
+  public static <T> Set<T> intersection(Set<T> a, Set<T> b) {
+    Set<T> intersection = new HashSet<>();
+
+    a.forEach(x -> {
+      if (b.contains(x)) intersection.add(x);
+    });
+
+    return intersection;
+  }
+
+  public static <T> Set<T> intersection(Set<Set<T>> sets) {
+    Set<T> intersection = new HashSet<>();
+
+    for (Set<T> set : sets) {
+      intersection = intersection(intersection, set);
+    }
+
+    return intersection;
+  }
 }

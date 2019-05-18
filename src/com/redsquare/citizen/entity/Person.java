@@ -1,40 +1,108 @@
 package com.redsquare.citizen.entity;
 
+import com.redsquare.citizen.systems.language.Language;
+import com.redsquare.citizen.systems.politics.Culture;
+import com.redsquare.citizen.systems.politics.Family;
+import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.util.ColorMath;
 import com.redsquare.citizen.util.Randoms;
+import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Person extends Animal {
   protected String[] name;
   protected String called;
-  protected final GameDate birthday;
 
-  protected final Person father;
-  protected final Person mother;
+  /* Not final as cultures may have Family transitions during institutions
+   * like marriage */
+  private Family family;
+  private final GameDate birthday;
+  private final Settlement birthplace;
+
+  private final Person father;
+  private final Person mother;
   /* final because assignment to empty HashSet is then populated but is still
    * the same HashSet object */
-  protected final Set<Person> children;
+  private final Set<Person> children;
 
-  protected final Color skinColor;
-  protected final Color hairColor;
-  protected final Height height;
-  protected final BodyType bodyType;
+  private final Color skinColor;
+  private final Color hairColor;
+  private final Height height;
+  private final BodyType bodyType;
 
-  protected Person(Person father, Person mother, GameDate birthday) {
+  private final Language motherTongue;
+  private final Set<Language> languages;
+  private Culture culture;
+
+  protected Person(Person father, Person mother, GameDate birthday,
+                   Settlement birthplace) {
     this.father = father;
     this.mother = mother;
     this.birthday = birthday;
+    this.birthplace = birthplace;
+
     this.children = new HashSet<>();
 
     // TODO: name generation
 
+    motherTongue = motherTongueGeneration();
+    languages = Set.of(motherTongue);
+    culture = cultureGeneration();
+    family = familyGeneration();
+
     skinColor = skinColorGeneration();
     hairColor = hairColorGeneration();
     height = heightGeneration();
+    bodyType = randomBodyType();
+  }
+
+  private Family familyGeneration() {
+    if (culture.getInheritance() != Culture.Inheritance.MATRILINEAL)
+      return father.family;
+
+    return mother.family;
+  }
+
+  private Culture cultureGeneration() {
+    if (father.culture.getInheritance() == Culture.Inheritance.PATRILINEAL ||
+            mother.culture.getInheritance() == Culture.Inheritance.PATRILINEAL)
+      return father.culture;
+    else if (mother.culture.getInheritance() == Culture.Inheritance.MATRILINEAL)
+      return mother.culture;
+
+    /* sharedChildren is the set of children that this person's parents share
+     * excluding them; their full siblings */
+    Set<Person> sharedChildren =
+            Sets.difference(Sets.intersection(father.children, mother.children), Set.of(this));
+
+    /* Consistency among siblings: if parents share children already,
+     * apply same culture as older siblings final case is non-deterministic */
+    if (sharedChildren.size() > 0)
+      return new ArrayList<>(sharedChildren).get(0).culture;
+
+    return Math.random() < 0.5 ? mother.culture : father.culture;
+  }
+
+  private Language motherTongueGeneration() {
+    Language regional = birthplace.getState().getLanguage();
+
+    if (father.speaks(regional) || mother.speaks(regional)) return regional;
+
+    return mother.motherTongue;
+  }
+
+  private BodyType randomBodyType() {
+    double prob = Math.random();
+
+    if (prob < 0.4) return BodyType.AVERAGE;
+    else if (prob < 0.7) return BodyType.SLIM;
+    else if (prob < 0.9) return BodyType.MUSCULAR;
+    return BodyType.FAT;
   }
 
   private Height heightGeneration() {
@@ -135,6 +203,24 @@ public class Person extends Animal {
 
   protected enum BodyType {
     AVERAGE, SLIM, MUSCULAR, FAT
+  }
+
+  private boolean speaks(Language language) {
+    return languages.contains(language);
+  }
+
+  private boolean ancestorOf(Person p) {
+    return p.descendantOf(this);
+  }
+
+  private boolean descendantOf(Person p) {
+    // Can't be a descendant of someone you were born before
+    if (birthday.equals(GameDate.priorEvent(birthday, p.birthday))) return false;
+
+    if (father == null) return false;
+    else if (father.equals(p) || mother.equals(p)) return true;
+
+    return father.descendantOf(p) || mother.descendantOf(p);
   }
 
   @Override
