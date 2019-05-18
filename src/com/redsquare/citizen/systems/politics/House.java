@@ -4,11 +4,10 @@ import com.redsquare.citizen.entity.Person;
 
 import java.util.List;
 
-public class House {
+public class House extends Family {
   private Settlement seat;
 
   private Person head;
-  private List<Person> members;
 
   Settlement getSeat() {
     return seat;

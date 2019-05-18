@@ -10,7 +10,17 @@ public abstract class Entity {
 
   Sprite[] layers;
 
-  Point worldLocation;
-  Point location;
   int mass;
+
+  /**
+   * @return The (x, y) coordinates of the cell in the WorldCell[][] that
+   * the entity is located
+   * */
+  abstract Point worldLocation();
+
+  /**
+   * @return The (x, y) coordinates (potentially rounded) of the location in
+   * the cell that the entity is located
+   * */
+  abstract Point cellLocation();
 }

@@ -13,8 +13,10 @@ public class State {
 
   //culture
   private Language language;
+  private Culture culture;
 
   public State() {
+    culture = Culture.generate();
     language = Language.generate();
     this.name = language.lookUpWord(Meaning.THIS_STATE);
   }
