@@ -41,6 +41,8 @@ public class Person extends Animal {
 
   protected Person(Person father, Person mother, GameDate birthday,
                    Settlement birthplace) {
+    sex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
+
     this.father = father;
     this.mother = mother;
     this.birthday = birthday;
@@ -59,6 +61,9 @@ public class Person extends Animal {
     hairColor = hairColorGeneration();
     height = heightGeneration();
     bodyType = randomBodyType();
+
+    this.mother.children.add(this);
+    this.father.children.add(this);
   }
 
   private Family familyGeneration() {
