@@ -45,16 +45,16 @@ public class Race {
     Color[] options;
     double[] probs;
 
-    if (skew < 0.2) {
+    if (skew > 0.8) {
       options = new Color[] { PLAT_BLONDE, BLONDE, GINGE, LIGHT_BROWN, BROWN };
       probs = new double[] { 0.1, 0.3, 0.35, 0.8, 1.0 };
-    } else if (skew < 0.3) {
+    } else if (skew > 0.7) {
       options = new Color[] { BLONDE, GINGE, LIGHT_BROWN, BROWN, BLACK };
       probs = new double[] { 0.1, 0.12, 0.5, 0.85, 1.0 };
-    } else if (skew < 0.4) {
+    } else if (skew > 0.6) {
       options = new Color[] { LIGHT_BROWN, BROWN, BLACK };
       probs = new double[] { 0.3, 0.7, 1.0 };
-    } else if (skew < 0.6) {
+    } else if (skew > 0.4) {
       options = new Color[] { LIGHT_BROWN, BROWN, AFRO_BROWN, BLACK };
       probs = new double[] { 0.1, 0.4, 0.7, 1.0 };
     } else {
