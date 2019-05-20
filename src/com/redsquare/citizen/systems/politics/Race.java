@@ -47,7 +47,7 @@ public class Race {
 
     if (skew > 0.8) {
       options = new Color[] { PLAT_BLONDE, BLONDE, GINGE, LIGHT_BROWN, BROWN };
-      probs = new double[] { 0.1, 0.3, 0.35, 0.8, 1.0 };
+      probs = new double[] { 0.15, 0.45, 0.55, 0.8, 1.0 };
     } else if (skew > 0.7) {
       options = new Color[] { BLONDE, GINGE, LIGHT_BROWN, BROWN, BLACK };
       probs = new double[] { 0.1, 0.12, 0.5, 0.85, 1.0 };

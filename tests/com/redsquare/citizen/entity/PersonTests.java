@@ -20,30 +20,34 @@ public class PersonTests {
   private static final String PATH = "res/test_output/people/parents";
 
   @Test
-  public void parentTest() {
+  public void differentBackgroundParentsTest() {
     for (int run = 0; run < 10; run++) {
-      State state = new State();
-      Settlement settlement = new Settlement(new Point(0, 0), state);
+      State state1 = new State();
+      Settlement settlement1 = new Settlement(new Point(0, 0), state1);
+
+      State state2 = new State();
+      Settlement settlement2 = new Settlement(new Point(0, 0), state2);
+
       GameDate date = new GameDate(1, 1);
 
-      Person mother = Person.create(Sex.FEMALE, date, settlement);
-      Person father = Person.create(Sex.MALE, date, settlement);
+      Person mother = Person.create(Sex.FEMALE, date, settlement1);
+      Person father = Person.create(Sex.MALE, date, settlement2);
 
       List<Person> children = new ArrayList<>();
 
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 20; i++) {
         date = GameDate.increment(date, DAYS_IN_YEAR);
-        children.add(Person.birth(mother, father, date, settlement));
+        children.add(Person.birth(mother, father, date, settlement1));
       }
 
-      BufferedImage test = new BufferedImage(260, 30,
+      BufferedImage test = new BufferedImage(460, 30,
               BufferedImage.TYPE_INT_ARGB);
       Graphics2D g = (Graphics2D) test.getGraphics();
 
       g.drawImage(crudePersonDrawing(mother), 0, 0, null);
       g.drawImage(crudePersonDrawing(father), 20, 0, null);
 
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 20; i++) {
         g.drawImage(crudePersonDrawing(children.get(i)),
                 60 + (20 * i), 0, null);
       }
