@@ -2,8 +2,7 @@ package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.GameDebug;
 import com.redsquare.citizen.graphics.Font;
-import com.redsquare.citizen.systems.language.PhoneticVocabulary;
-import com.redsquare.citizen.systems.language.PlaceNameGenerator;
+import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
 import com.redsquare.citizen.util.Sets;
@@ -14,7 +13,9 @@ import java.util.*;
 import java.util.List;
 
 public class World {
-  private boolean generated[][];
+
+  public final static int DEFAULT_WIDTH = 640;
+  public final static int DEFAULT_HEIGHT = 360;
 
   private final static int LAND_FILL_REPS = 1;
   private final static int LAND_PEER_THRESHOLD = 5;
@@ -37,6 +38,8 @@ public class World {
   private static final int DESERT_MAX_DIST = 60;
   private static final int DESERT_PEER_THRESHOLD = 5;
   private static final int DESERT_FILL_REPS = 3;
+
+  private boolean generated[][];
 
   private Set<Settlement> settlements = null;
 
@@ -157,8 +160,19 @@ public class World {
       states.add(plate.generateState(cells));
     }
 
+    // REMOVE STATES WITH NO SETTLEMENTS
+    removeTrivialStates();
+
     // BORDERS
     borders = establishBorders();
+  }
+
+  private void removeTrivialStates() {
+    Set<State> toRemove = new HashSet<>();
+    for (State state : states) {
+      if (state.settlements().isEmpty()) toRemove.add(state);
+    }
+    states.removeAll(toRemove);
   }
 
   private State[][] establishBorders() {
@@ -240,11 +254,11 @@ public class World {
         double northVariation = 0.8 + (0.4 * Math.random());
         double southVariation = 0.8 + (0.4 * Math.random());
 
-        if (ratio < (1/5.0) * northVariation || ratio > 5.0 / southVariation) {
+        if (ratio < (1/4.0) * northVariation || ratio > 4.0 / southVariation) {
           cells[x][y].setRegion(WorldCell.Region.POLAR);
-        } else if (ratio < (2/5.0) * northVariation || ratio > (5/2.0) / southVariation) {
+        } else if (ratio < (1/2.0) * northVariation || ratio > (2/1.0) / southVariation) {
           cells[x][y].setRegion(WorldCell.Region.TEMPERATE);
-        } else if (ratio < 0.6 * northVariation || ratio > (5/3.0) / southVariation) {
+        } else if (ratio < (4/5.0) * northVariation || ratio > (5/4.0) / southVariation) {
           cells[x][y].setRegion(WorldCell.Region.SUBTROPICAL);
         } else {
           cells[x][y].setRegion(WorldCell.Region.TROPICAL);
@@ -632,11 +646,35 @@ public class World {
 
         // Don't print names of lowest-tier settlements
         if (powerLevel < 3) {
-          BufferedImage name = Font.CLEAN.getText(settlement.getName() + " (" + settlement.getSetupPower() + ")");
+          BufferedImage name = Font.CLEAN.getText(
+                  settlement.getName() + " (" + settlement.getSetupPower() + ")");
+          WritingSystem ws =
+                  settlement.getState().getLanguage().getWritingSystem();
+          BufferedImage wsName = ws.draw(settlement.getName(), 1);
           g.drawImage(name, location.x * SCALE_UP + dotSize * SCALE_UP,
                   location.y * SCALE_UP - (name.getHeight() / 2),null);
+          g.drawImage(wsName, location.x * SCALE_UP + dotSize * SCALE_UP,
+                  location.y * SCALE_UP + name.getHeight(),null);
         }
       }
+
+//      Point capitalLoc = state.getCapital().getLocation();
+//      WritingSystem ws = state.getLanguage().getWritingSystem();
+//
+//      BufferedImage text = Font.CLEAN.getText(
+//              Formatter.capitaliseFirstLetter(state.getName()));
+//      BufferedImage symbols = ws.draw(state.getName(), 2);
+//
+//      g.setColor(new Color(255, 255, 255, 150));
+//      g.fillRect(capitalLoc.x * SCALE_UP - (symbols.getWidth() / 2 + 5),
+//              capitalLoc.y * SCALE_UP - symbols.getHeight(),
+//              symbols.getWidth() + 10, symbols.getHeight() * 2);
+//
+//      g.drawImage(text, capitalLoc.x * SCALE_UP - text.getWidth() / 2,
+//              capitalLoc.y * SCALE_UP - (int)(1.5 * text.getHeight()),
+//              null);
+//      g.drawImage(symbols, capitalLoc.x * SCALE_UP - symbols.getWidth() / 2,
+//              capitalLoc.y * SCALE_UP, null);
     }
 
     return map;
@@ -694,11 +732,11 @@ public class World {
               case TROPICAL:
               case SUBTROPICAL:
                 g.setColor(new Color(10,
-                        120 + (int)(30 * Math.random()), 5));
+                        90 + (int)(30 * Math.random()), 5));
                 break;
               default:
                 g.setColor(new Color(20,
-                        100 + (int)(30 * Math.random()), 5));
+                        85 + (int)(30 * Math.random()), 10));
             }
             break;
           case DESERT:
@@ -904,7 +942,7 @@ public class World {
                   Math.min(bottommost, height - RIVER_RANGE));
           WorldCell.Type type = cells[riverStart.x][riverStart.y].getType();
           if (!onPlate(riverStart) ||
-                  (type != WorldCell.Type.BEACH && type != WorldCell.Type.SHALLOW))
+                  (type != WorldCell.Type.SHALLOW))
             found = false;
         }
 
@@ -1040,7 +1078,14 @@ public class World {
     private void generateGrid(TectonicPlate[] plates, int index) {
       double worldDiag = Math.hypot((double) width, (double) height);
 
-      double maxDist = worldDiag / DIVISOR; // potentially factor in number of plates
+      int reduction = plates.length;
+
+      double maxDist = worldDiag / DIVISOR;
+
+      while (reduction > 20) {
+        maxDist -= (worldDiag / DIVISOR) / 10;
+        reduction -= 10;
+      }
 
       generateAt(origin.x, origin.y, plates, index, maxDist);
 
@@ -1205,11 +1250,7 @@ public class World {
         Point point = randomPoint(leftmost, rightmost, topmost, bottommost);
 
         if (onPlate(point) && cells[point.x][point.y].isLand()) {
-          String name =
-                  PlaceNameGenerator.generateRandomName(
-                          2, 4, state.getVocabulary());
-
-          Settlement settlement = new Settlement(name, point, state);
+          Settlement settlement = new Settlement(point, state);
           cells[point.x][point.y].populateSettlement(settlement);
           settlements.add(settlement);
 

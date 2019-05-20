@@ -1,31 +1,36 @@
 package com.redsquare.citizen.systems.politics;
 
-import com.redsquare.citizen.systems.language.PhoneticVocabulary;
-import com.redsquare.citizen.systems.language.PlaceNameGenerator;
+import com.redsquare.citizen.systems.language.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class State {
-  private String name;
+  private Word name;
 
   // admin
   private Settlement capital;
 
   //culture
-  private PhoneticVocabulary vocabulary;
+  private Language language;
+  private Culture culture;
 
   public State() {
-    this.vocabulary = PhoneticVocabulary.generate();
-    this.name = PlaceNameGenerator.generateRandomName(2, 3, vocabulary);
+    culture = Culture.generate();
+    language = Language.generate();
+    this.name = language.lookUpWord(Meaning.THIS_STATE);
   }
 
   public String getName() {
-    return name;
+    return name.toString();
   }
 
-  public PhoneticVocabulary getVocabulary() {
-    return vocabulary;
+  public Language getLanguage() {
+    return language;
+  }
+
+  public Culture getCulture() {
+    return culture;
   }
 
   public Settlement getCapital() {

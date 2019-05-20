@@ -23,4 +23,28 @@ public class GameDate {
 
     return new GameDate(day, year);
   }
+
+  public static int yearsBetween(GameDate first, GameDate second) {
+    return (first.year - second.year) - (second.day > first.day ? 1 : 0);
+  }
+
+  public static GameDate priorEvent(GameDate d1, GameDate d2) {
+    if (d1.year < d2.year) return d1;
+    else if (d2.year < d1.year) return d2;
+    else return d1.day <= d2.day ? d1 : d2;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof GameDate)) return false;
+
+    GameDate comp = (GameDate) obj;
+
+    return year == comp.year && day == comp.day;
+  }
+
+  @Override
+  public int hashCode() {
+    return year + day;
+  }
 }

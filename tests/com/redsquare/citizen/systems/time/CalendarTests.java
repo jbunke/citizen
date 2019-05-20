@@ -1,7 +1,7 @@
 package com.redsquare.citizen.systems.time;
 
-import com.redsquare.citizen.systems.language.PhoneticVocabulary;
-import com.redsquare.citizen.systems.language.PlaceNameGenerator;
+import com.redsquare.citizen.systems.language.Language;
+import com.redsquare.citizen.systems.language.Meaning;
 import org.junit.Test;
 
 import java.io.BufferedWriter;
@@ -18,12 +18,11 @@ public class CalendarTests {
 
     String filepath = "res/test_output/calendar/dates_for_10_years.txt";
 
-    PhoneticVocabulary v = PhoneticVocabulary.generate();
+    Language language = Language.generate();
 
-    // TODO: Generate with WordGenerator based on PhoneticVocabulary and morphemes that carry meaning of "day"
-    String dayName = PlaceNameGenerator.generateRandomName(1, 1, v).toLowerCase();
-
-    Calendar c = Calendar.generate(v, YEAR_LENGTH_IN_DAYS, dayName);
+    Calendar c = Calendar.generate(language.getPhonology(),
+            YEAR_LENGTH_IN_DAYS,
+            language.lookUpWord(Meaning.DAY_OF_YEAR).toString());
 
     try {
       FileWriter fw = new FileWriter(new File(filepath));
