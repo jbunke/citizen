@@ -66,6 +66,63 @@ public class Person extends Animal {
     this.father.children.add(this);
   }
 
+  protected Person(Sex sex, GameDate birthday, Settlement birthplace) {
+    this.sex = sex;
+    this.birthday = birthday;
+    this.birthplace = birthplace;
+
+    this.father = null;
+    this.mother = null;
+
+    this.children = new HashSet<>();
+
+    motherTongue = birthplace.getState().getLanguage();
+    languages = Set.of(motherTongue);
+    culture = birthplace.getState().getCulture();
+    family = Family.generate();
+
+    skinColor = birthplace.getState().getCulture().
+            getNativeRace().generateSkinColor();
+    hairColor = birthplace.getState().getCulture().
+            getNativeRace().generateHairColor();
+    height = randomHeight();
+    bodyType = randomBodyType();
+  }
+
+  public static Person create(Sex sex, GameDate birthday,
+                              Settlement birthplace) {
+    return new Person(sex, birthday, birthplace);
+  }
+
+  public static Person birth(Person mother, Person father, GameDate birthday,
+                             Settlement birthplace) {
+    return new Person(father, mother, birthday, birthplace);
+  }
+
+  Sex getSex() {
+    return sex;
+  }
+
+  Height getHeight() {
+    return height;
+  }
+
+  BodyType getBodyType() {
+    return bodyType;
+  }
+
+  Color getSkinColor() {
+    return skinColor;
+  }
+
+  Color getHairColor() {
+    return hairColor;
+  }
+
+  public Set<Person> getChildren() {
+    return children;
+  }
+
   private Family familyGeneration() {
     if (culture.getInheritance() != Culture.Inheritance.MATRILINEAL)
       return father.family;
@@ -108,6 +165,14 @@ public class Person extends Animal {
     else if (prob < 0.7) return BodyType.SLIM;
     else if (prob < 0.9) return BodyType.MUSCULAR;
     return BodyType.FAT;
+  }
+
+  private Height randomHeight() {
+    double prob = Math.random();
+
+    if (prob < 0.5) return Height.MEDIUM;
+    else if (prob < 0.8) return Height.TALL;
+    else return Height.SHORT;
   }
 
   private Height heightGeneration() {
@@ -172,13 +237,22 @@ public class Person extends Animal {
 
   private Color skinColorGeneration() {
     double skinSkew = Randoms.bounded(0.3, 0.7);
-    Color diff = new Color(father.skinColor.getRed() - mother.skinColor.getRed(),
-            father.skinColor.getGreen() - mother.skinColor.getGreen(),
-            father.skinColor.getBlue() - mother.skinColor.getBlue());
+    Color darker = mother.skinColor;
+    Color lighter = father.skinColor;
+
+    if (ColorMath.lightness(mother.skinColor) >
+            ColorMath.lightness(father.skinColor)) {
+      darker = father.skinColor;
+      lighter = mother.skinColor;
+    }
+
+    Color diff = new Color(lighter.getRed() - darker.getRed(),
+            lighter.getGreen() - darker.getGreen(),
+            lighter.getBlue() - darker.getBlue());
     return new Color(
-            (int)(mother.skinColor.getRed() + (diff.getRed() * skinSkew)),
-            (int)(mother.skinColor.getGreen() + (diff.getGreen() * skinSkew)),
-            (int)(mother.skinColor.getBlue() + (diff.getBlue() * skinSkew)));
+            (int)(darker.getRed() + (diff.getRed() * skinSkew)),
+            (int)(darker.getGreen() + (diff.getGreen() * skinSkew)),
+            (int)(darker.getBlue() + (diff.getBlue() * skinSkew)));
   }
 
   private Color hairColorGeneration() {

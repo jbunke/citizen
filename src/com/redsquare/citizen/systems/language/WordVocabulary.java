@@ -81,7 +81,7 @@ public class WordVocabulary {
             case MOTHER:
               generateNonCoreFor(new Meaning[] {
                               Meaning.FATHER, Meaning.MOTHER
-                      }, 0.7, new double[] { 0.5, 1.0 }, // 0.5
+                      }, 1.0, new double[] { 0.5, 1.0 }, // 0.5
                       new Word[][] {
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.PARENT),
