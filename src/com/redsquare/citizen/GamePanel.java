@@ -11,6 +11,7 @@ public class GamePanel extends JPanel implements Runnable {
   private int width, height;
 
   private GameManager gameManager;
+  private InputHandler inputHandler;
 
   private boolean running = false;
   private Thread thread;
@@ -22,6 +23,7 @@ public class GamePanel extends JPanel implements Runnable {
     this.height = height;
 
     gameManager = GameManager.init();
+    inputHandler = InputHandler.create(this);
 
     setPreferredSize(new Dimension(width, height));
     setFocusable(true);
@@ -129,7 +131,7 @@ public class GamePanel extends JPanel implements Runnable {
   }
 
   private void input() {
-    gameManager.input();
+    gameManager.input(inputHandler);
   }
 
   /**

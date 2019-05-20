@@ -35,7 +35,7 @@ public class GameManager {
 
   }
 
-  void input() {
+  void input(InputHandler inputHandler) {
 
   }
 

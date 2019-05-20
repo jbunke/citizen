@@ -1,5 +1,6 @@
 package com.redsquare.citizen.game_states;
 
+import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.entity.Player;
 import com.redsquare.citizen.worldgen.World;
 
@@ -31,7 +32,7 @@ public final class PlayingGameState extends GameState {
   }
 
   @Override
-  public void input() {
+  public void input(InputHandler inputHandler) {
 
   }
 }
