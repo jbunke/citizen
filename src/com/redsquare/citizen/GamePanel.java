@@ -10,6 +10,8 @@ public class GamePanel extends JPanel implements Runnable {
 
   private int width, height;
 
+  private GameManager gameManager;
+
   private boolean running = false;
   private Thread thread;
   private BufferedImage image;
@@ -18,6 +20,8 @@ public class GamePanel extends JPanel implements Runnable {
   GamePanel(int width, int height) {
     this.width = width;
     this.height = height;
+
+    gameManager = GameManager.init();
 
     setPreferredSize(new Dimension(width, height));
     setFocusable(true);
@@ -120,16 +124,21 @@ public class GamePanel extends JPanel implements Runnable {
     }
   }
 
-  private void update() {}
+  private void update() {
+    gameManager.update();
+  }
 
-  private void input() {}
+  private void input() {
+    gameManager.input();
+  }
 
   /**
    * Render the frame in "image" with "g"
    * */
   private void render() {
     if (g != null) {
-      SpriteTester.render(g);
+      // SpriteTester.render(g);
+      gameManager.render(g);
     }
   }
 

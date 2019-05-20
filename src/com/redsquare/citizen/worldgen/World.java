@@ -13,7 +13,9 @@ import java.util.*;
 import java.util.List;
 
 public class World {
-  private boolean generated[][];
+
+  public final static int DEFAULT_WIDTH = 640;
+  public final static int DEFAULT_HEIGHT = 360;
 
   private final static int LAND_FILL_REPS = 1;
   private final static int LAND_PEER_THRESHOLD = 5;
@@ -36,6 +38,8 @@ public class World {
   private static final int DESERT_MAX_DIST = 60;
   private static final int DESERT_PEER_THRESHOLD = 5;
   private static final int DESERT_FILL_REPS = 3;
+
+  private boolean generated[][];
 
   private Set<Settlement> settlements = null;
 

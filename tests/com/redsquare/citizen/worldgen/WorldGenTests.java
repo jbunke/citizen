@@ -1,6 +1,5 @@
 package com.redsquare.citizen.worldgen;
 
-import com.redsquare.citizen.GameDebug;
 import com.redsquare.citizen.graphics.Font;
 import org.junit.Test;
 
@@ -9,8 +8,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
-import com.redsquare.citizen.worldgen.World.TectonicPlate;
 
 public class WorldGenTests {
 
