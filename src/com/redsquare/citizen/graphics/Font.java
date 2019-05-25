@@ -1,5 +1,7 @@
 package com.redsquare.citizen.graphics;
 
+import com.redsquare.citizen.util.Orientation;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ public class Font extends Sprite {
   /**
    * Call with String.split("\n")
    * */
-  public BufferedImage getText(String[] lines) {
+  public BufferedImage getText(String[] lines, Orientation orientation) {
     List<BufferedImage> images = new ArrayList<>();
 
     for (String line : lines) images.add(getText(line));
@@ -50,7 +52,25 @@ public class Font extends Sprite {
 
     height = 0;
     for (BufferedImage image : images) {
-      g.drawImage(image, 0, height, null);
+      switch (orientation) {
+        case LEFT_TOP:
+        case LEFT_BOTTOM:
+        case LEFT_CENTER_V:
+          g.drawImage(image, 0, height, null);
+          break;
+        case CENTER_H_BOTTOM:
+        case CENTER_H_CENTER_V:
+        case CENTER_H_TOP:
+          g.drawImage(image, (widest - image.getWidth()) / 2,
+                  height, null);
+          break;
+        case RIGHT_BOTTOM:
+        case RIGHT_CENTER_V:
+        case RIGHT_TOP:
+          g.drawImage(image, widest - image.getWidth(),
+                  height, null);
+          break;
+      }
       height += image.getHeight();
     }
 

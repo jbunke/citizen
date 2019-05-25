@@ -1,6 +1,7 @@
 package com.redsquare.citizen;
 
 import com.redsquare.citizen.game_states.GameState;
+import com.redsquare.citizen.game_states.MenuGameState;
 import com.redsquare.citizen.game_states.PlayingGameState;
 
 import java.awt.*;
@@ -16,10 +17,12 @@ public class GameManager {
   private static final int MENU = 2;
 
   private GameManager() {
-    current = PLAYING;
+    current = MENU;
 
     states = new GameState[3];
-    states[0] = PlayingGameState.init();
+    states[PLAYING] = PlayingGameState.init();
+
+    states[MENU] = MenuGameState.init();
     // TODO - PAUSE, MENU, & PERHAPS MORE
   }
 
@@ -28,15 +31,15 @@ public class GameManager {
   }
 
   void update() {
-
+    states[current].update();
   }
 
   void render(Graphics2D g) {
-
+    states[current].render(g);
   }
 
   void input(InputHandler inputHandler) {
-
+    states[current].input(inputHandler);
   }
 
   public GameState getGameState() {

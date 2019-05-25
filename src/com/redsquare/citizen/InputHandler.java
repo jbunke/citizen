@@ -1,15 +1,28 @@
 package com.redsquare.citizen;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 
-public class InputHandler implements KeyListener, MouseListener {
+public class InputHandler implements KeyListener,
+        MouseListener, MouseMotionListener {
+
+  private int mouseX;
+  private int mouseY;
 
   private InputHandler(GamePanel gamePanel) {
     gamePanel.addKeyListener(this);
     gamePanel.addMouseListener(this);
+    gamePanel.addMouseMotionListener(this);
+
+    mouseX = 0;
+    mouseY = 0;
+  }
+
+  public int getMouseX() {
+    return mouseX;
+  }
+
+  public int getMouseY() {
+    return mouseY;
   }
 
   public static InputHandler create(GamePanel gamePanel) {
@@ -54,5 +67,16 @@ public class InputHandler implements KeyListener, MouseListener {
   @Override
   public void mouseExited(MouseEvent e) {
 
+  }
+
+  @Override
+  public void mouseDragged(MouseEvent e) {
+
+  }
+
+  @Override
+  public void mouseMoved(MouseEvent e) {
+    mouseX = e.getX();
+    mouseY = e.getY();
   }
 }
