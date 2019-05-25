@@ -11,7 +11,6 @@ public enum MenuStateCode {
 
     switch (this) {
       case MAIN:
-      default:
         return Set.of(
                 TextMenuElement.temp("CITIZEN",
                         new Point(640, 50)),
@@ -20,6 +19,13 @@ public enum MenuStateCode {
                 TextMenuElement.temp("QUIT",
                         new Point(640, 380), QUIT_ARE_YOU_SURE, this)
         );
+      case PLAY_MENU:
+        return Set.of(
+                TextMenuElement.temp("TEST",
+                        new Point(640, 50))
+        );
+      default:
+        return Set.of();
     }
   }
 }

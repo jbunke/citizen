@@ -3,16 +3,24 @@ package com.redsquare.citizen.game_states.menu_elements;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.game_states.MenuGameState;
 import com.redsquare.citizen.graphics.Font;
+import com.redsquare.citizen.input_events.ClickEvent;
+import com.redsquare.citizen.input_events.Event;
 import com.redsquare.citizen.util.ColorMath;
 import com.redsquare.citizen.util.Orientation;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 public class TextMenuElement extends MenuElement {
 
   // status
   private boolean isHighlighted;
+
+  private int minX;
+  private int maxX;
+  private int minY;
+  private int maxY;
 
   private final String text;
   private final Point renderPoint;
@@ -44,11 +52,13 @@ public class TextMenuElement extends MenuElement {
             font.getText(text.split("\n"), orientation) :
             ColorMath.recolor(font.getText(
                     text.split("\n"), orientation), highlightColor);
+
+    setBounds();
   }
 
   static TextMenuElement temp(String text, Point renderPoint) {
     return new TextMenuElement(text, renderPoint, new Color(0, 0, 0),
-            new Color(255, 0, 0), Font.CLEAN, null, null,
+            new Color(0, 0, 0), Font.CLEAN, null, null,
             Orientation.CENTER_H_CENTER_V);
   }
 
@@ -114,11 +124,11 @@ public class TextMenuElement extends MenuElement {
     g.drawImage(image, trueRenderPoint.x, trueRenderPoint.y, null);
   }
 
-  private void updateHighlightStatus(int mouseX, int mouseY) {
-    int minX = renderPoint.x;
-    int maxX = renderPoint.x;
-    int minY = renderPoint.y;
-    int maxY = renderPoint.y;
+  private void setBounds() {
+    minX = renderPoint.x;
+    maxX = renderPoint.x;
+    minY = renderPoint.y;
+    maxY = renderPoint.y;
 
     switch (orientation) {
       case LEFT_TOP:
@@ -157,15 +167,35 @@ public class TextMenuElement extends MenuElement {
         maxX += baseImage.getWidth() / 2;
         break;
     }
+  }
 
-    isHighlighted = minX <= mouseX && mouseX <= maxX &&
+  private boolean isIn(int mouseX, int mouseY) {
+    return minX <= mouseX && mouseX <= maxX &&
             minY <= mouseY && mouseY <= maxY;
+  }
+
+  private void updateHighlightStatus(int mouseX, int mouseY) {
+    isHighlighted = isIn(mouseX, mouseY);
   }
 
   @Override
   public void input(InputHandler inputHandler, MenuGameState menuGameState) {
     updateHighlightStatus(inputHandler.getMouseX(), inputHandler.getMouseY());
 
-    super.input(inputHandler, menuGameState);
+    List<Event> events = inputHandler.getUnprocessedEvents();
+
+    for (int i = 0; i < events.size(); i++) {
+      if (events.get(i) instanceof ClickEvent) {
+        ClickEvent clickEvent = (ClickEvent) events.get(i);
+
+        if (isIn(clickEvent.mouseX, clickEvent.mouseY)) {
+          events.remove(clickEvent);
+
+          if (hasLink) menuGameState.setStateCode(linkCode);
+
+          return;
+        }
+      }
+    }
   }
 }

@@ -13,7 +13,11 @@ public final class MenuGameState extends GameState {
   private MenuStateCode stateCode;
 
   private MenuGameState() {
-    stateCode = MenuStateCode.MAIN;
+    setStateCode(MenuStateCode.MAIN);
+  }
+
+  public void setStateCode(MenuStateCode stateCode) {
+    this.stateCode = stateCode;
     elements = stateCode.generateElements();
   }
 
