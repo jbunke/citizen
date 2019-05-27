@@ -32,4 +32,18 @@ public class ColorMath {
 
     return result;
   }
+
+  public static Color colorBetween(Color darker, Color lighter, double skew) {
+    int r = darker.getRed() +
+            (int)(skew * (lighter.getRed() - darker.getRed()));
+    r = Math.min(Math.max(0, r), 255);
+    int g = darker.getGreen() +
+            (int)(skew * (lighter.getGreen() - darker.getGreen()));
+    g = Math.min(Math.max(0, g), 255);
+    int b = darker.getRed() +
+            (int)(skew * (lighter.getBlue() - darker.getBlue()));
+    b = Math.min(Math.max(0, b), 255);
+
+    return new Color(r, g, b);
+  }
 }

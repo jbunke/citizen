@@ -1,6 +1,5 @@
 package com.redsquare.citizen.game_states;
 
-import com.redsquare.citizen.GameDebug;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.game_states.menu_elements.MenuElement;
 import com.redsquare.citizen.game_states.menu_elements.MenuStateCode;
@@ -28,7 +27,7 @@ public final class MenuGameState extends GameState {
 
   @Override
   public void update() {
-
+    elements.forEach(MenuElement::update);
   }
 
   @Override

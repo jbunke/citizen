@@ -1,6 +1,7 @@
 package com.redsquare.citizen.game_states.menu_elements;
 
 import com.redsquare.citizen.InputHandler;
+import com.redsquare.citizen.config.WorldConfig;
 import com.redsquare.citizen.game_states.MenuGameState;
 
 import java.awt.*;
@@ -12,9 +13,9 @@ public class SliderMenuElement extends MenuElement {
   private final TextMenuElement affecting;
   private final Point renderPoint;
   private final int width;
-  private final int minimum;
-  private int position;
-  private final int maximum;
+  final int minimum;
+  int position;
+  final int maximum;
   private final int increment;
   private final Function<Integer, String> sliderValToString;
 
@@ -24,9 +25,9 @@ public class SliderMenuElement extends MenuElement {
   private int maxY;
 
   private final BufferedImage bar;
-  private final BufferedImage slider;
+  final BufferedImage slider;
 
-  private SliderMenuElement(TextMenuElement affecting, int width,
+  SliderMenuElement(TextMenuElement affecting, int width,
                               Point renderPoint,
                               int minimum, int maximum, int increment,
                               Function<Integer, String> sliderValToString) {
@@ -130,13 +131,24 @@ public class SliderMenuElement extends MenuElement {
             position -= (position - minimum) % increment;
         }
 
-        affecting.updateText(sliderValToString.apply(position));
+        if (affecting != null)
+          affecting.updateText(sliderValToString.apply(position));
       }
     }
   }
 
   // usage functions
   static String worldSizeFunction(Integer x) {
+    WorldConfig.setXDim(x);
     return x + "x" + ((x * 9) / 16);
+  }
+
+  static String plateCountFunction(Integer pc) {
+    WorldConfig.setPlateCount(pc);
+    return String.valueOf(pc);
+  }
+
+  static String skinColorFunction(Integer selection) {
+    return selection + "/50";
   }
 }
