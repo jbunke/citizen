@@ -22,13 +22,13 @@ public class TextMenuElement extends MenuElement {
   private int minY;
   private int maxY;
 
-  private final String text;
+  private String text;
   private final Point renderPoint;
   private final Color baseColor;
   private final Color highlightColor;
   private final Font font;
-  private final BufferedImage baseImage;
-  private final BufferedImage highlightImage;
+  private BufferedImage baseImage;
+  private BufferedImage highlightImage;
   private final Orientation orientation;
 
   private TextMenuElement(String text, Point renderPoint, Color baseColor,
@@ -44,15 +44,7 @@ public class TextMenuElement extends MenuElement {
     this.font = font;
     this.orientation = orientation;
 
-    this.baseImage = baseColor.equals(Color.BLACK) ?
-            font.getText(text.split("\n"), orientation) :
-            ColorMath.recolor(font.getText(
-                    text.split("\n"), orientation), baseColor);
-    this.highlightImage = highlightColor.equals(Color.BLACK) ?
-            font.getText(text.split("\n"), orientation) :
-            ColorMath.recolor(font.getText(
-                    text.split("\n"), orientation), highlightColor);
-
+    drawImages();
     setBounds();
   }
 
@@ -74,6 +66,23 @@ public class TextMenuElement extends MenuElement {
     return new TextMenuElement(text, renderPoint, new Color(0, 0, 0),
             new Color(255, 0, 0), Font.CLEAN, linkCode, fromCode,
             Orientation.CENTER_H_CENTER_V);
+  }
+
+  void updateText(String text) {
+    this.text = text;
+    drawImages();
+    setBounds();
+  }
+
+  private void drawImages() {
+    this.baseImage = baseColor.equals(Color.BLACK) ?
+            font.getText(text.split("\n"), orientation) :
+            ColorMath.recolor(font.getText(
+                    text.split("\n"), orientation), baseColor);
+    this.highlightImage = highlightColor.equals(Color.BLACK) ?
+            font.getText(text.split("\n"), orientation) :
+            ColorMath.recolor(font.getText(
+                    text.split("\n"), orientation), highlightColor);
   }
 
   @Override
@@ -191,7 +200,7 @@ public class TextMenuElement extends MenuElement {
         if (isIn(clickEvent.mouseX, clickEvent.mouseY)) {
           events.remove(clickEvent);
 
-          if (hasLink) menuGameState.setStateCode(linkCode);
+          if (hasLink) menuGameState.setStateCode(linkCode, fromCode);
 
           return;
         }

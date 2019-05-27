@@ -10,6 +10,8 @@ import java.util.List;
 public class InputHandler implements KeyListener,
         MouseListener, MouseMotionListener {
 
+  private boolean mouseDown;
+
   private int mouseX;
   private int mouseY;
 
@@ -23,6 +25,8 @@ public class InputHandler implements KeyListener,
     mouseX = 0;
     mouseY = 0;
 
+    mouseDown = false;
+
     unprocessed = new ArrayList<>();
   }
 
@@ -30,7 +34,7 @@ public class InputHandler implements KeyListener,
     return unprocessed;
   }
 
-  public void clearUnprocessedEvents() {
+  void clearUnprocessedEvents() {
     unprocessed = new ArrayList<>();
   }
 
@@ -42,7 +46,11 @@ public class InputHandler implements KeyListener,
     return mouseY;
   }
 
-  public static InputHandler create(GamePanel gamePanel) {
+  public boolean isMouseDown() {
+    return mouseDown;
+  }
+
+  static InputHandler create(GamePanel gamePanel) {
     return new InputHandler(gamePanel);
   }
 
@@ -70,12 +78,12 @@ public class InputHandler implements KeyListener,
 
   @Override
   public void mousePressed(MouseEvent e) {
-
+    mouseDown = true;
   }
 
   @Override
   public void mouseReleased(MouseEvent e) {
-
+    mouseDown = false;
   }
 
   @Override
@@ -90,7 +98,7 @@ public class InputHandler implements KeyListener,
 
   @Override
   public void mouseDragged(MouseEvent e) {
-
+    setLocation(e);
   }
 
   @Override

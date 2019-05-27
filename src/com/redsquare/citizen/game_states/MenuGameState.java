@@ -1,5 +1,6 @@
 package com.redsquare.citizen.game_states;
 
+import com.redsquare.citizen.GameDebug;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.game_states.menu_elements.MenuElement;
 import com.redsquare.citizen.game_states.menu_elements.MenuStateCode;
@@ -13,12 +14,12 @@ public final class MenuGameState extends GameState {
   private MenuStateCode stateCode;
 
   private MenuGameState() {
-    setStateCode(MenuStateCode.MAIN);
+    setStateCode(MenuStateCode.MAIN, null);
   }
 
-  public void setStateCode(MenuStateCode stateCode) {
+  public void setStateCode(MenuStateCode stateCode, MenuStateCode sender) {
     this.stateCode = stateCode;
-    elements = stateCode.generateElements();
+    elements = stateCode.generateElements(sender);
   }
 
   public static MenuGameState init() {
