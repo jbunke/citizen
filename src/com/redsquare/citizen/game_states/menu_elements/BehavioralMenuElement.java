@@ -1,5 +1,6 @@
 package com.redsquare.citizen.game_states.menu_elements;
 
+import com.redsquare.citizen.GameManager;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.game_states.MenuGameState;
 
@@ -24,7 +25,7 @@ public class BehavioralMenuElement extends MenuElement {
   }
 
   public enum Behaviour {
-    QUIT
+    QUIT, START_GAME
   }
 
   @Override
@@ -33,6 +34,10 @@ public class BehavioralMenuElement extends MenuElement {
       case QUIT:
         // TODO: proper close
         System.exit(0);
+        break;
+      case START_GAME:
+        GameManager.get().initPlaying();
+        GameManager.get().setGameState(GameManager.PLAYING);
         break;
     }
   }

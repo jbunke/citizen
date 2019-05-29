@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 
 class ShadowTester {
   private static final int LOWER_LIMIT = 55;
-  private static final int SHADOW_START = 33;
+  private static final int SHADOW_START = 37;
   private static final int Y_RANGE = LOWER_LIMIT - SHADOW_START;
 
   // TODO: DELETE OR refactor into solution
@@ -28,7 +28,7 @@ class ShadowTester {
           int putY = SHADOW_START + (int)(((y - 3) /
                   (double)(LOWER_LIMIT - 3)) * Y_RANGE);
           int width = (int)(38 * ((putY - SHADOW_START) / (double)Y_RANGE));
-          int point = 69 - 5 * time;
+          int point = 63 - 5 * time;
           int startX = point + (int)((20 - point) *
                   (1 - ((LOWER_LIMIT - y) / (double)(LOWER_LIMIT - 3))));
           int putX = startX + (int)(((x - 20) / (double)(58 - 20)) * width);

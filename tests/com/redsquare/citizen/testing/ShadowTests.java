@@ -18,7 +18,7 @@ public class ShadowTests {
 
     try {
       BufferedImage sprite =
-              ImageIO.read(new File("res/test_resources/shadows/sprite4.png"));
+              ImageIO.read(new File("res/test_resources/shadows/example.png"));
 
       for (int i = 0; i <= 12; i++) {
         BufferedImage atTime = new BufferedImage(sprite.getWidth(),

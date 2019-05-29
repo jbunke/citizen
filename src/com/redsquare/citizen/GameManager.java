@@ -28,13 +28,17 @@ public class GameManager {
     // TODO - PAUSE, MENU, & PERHAPS MORE
   }
 
-  static GameManager get() {
+  public static GameManager get() {
     return instance;
   }
 
   static GameManager init() {
     instance = new GameManager();
     return instance;
+  }
+
+  public void initPlaying() {
+    states[PLAYING] = PlayingGameState.init();
   }
 
   void update() {

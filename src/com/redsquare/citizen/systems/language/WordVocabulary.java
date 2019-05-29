@@ -13,9 +13,6 @@ public class WordVocabulary {
     semanticDictionary = new HashMap<>();
 
     generateVocabulary(v);
-
-    GameDebug.printMessage("Vocabulary construction complete",
-            GameDebug::printDebug);
   }
 
   static WordVocabulary generate(Phonology v) {

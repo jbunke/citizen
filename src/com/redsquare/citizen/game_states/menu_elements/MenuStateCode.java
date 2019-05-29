@@ -7,7 +7,8 @@ import java.util.Set;
 
 public enum MenuStateCode {
   MAIN, WORLD_CONFIG, QUIT_ARE_YOU_SURE, QUIT,
-  PLAYER_CONFIG;
+  PLAYER_CONFIG,
+  START_GAME;
 
   public Set<MenuElement> generateElements(MenuStateCode sender) {
     // TODO
@@ -68,10 +69,11 @@ public enum MenuStateCode {
                         Race.DARKEST, Race.LIGHTEST),
                 skinColor,
 
+                // TODO: temp
                 TextMenuElement.temp("RANDOM",
-                        new Point(1180, 50), MAIN),
+                        new Point(1180, 50), START_GAME),
                 TextMenuElement.temp("ADVANCE",
-                        new Point(1180, 670), MAIN)
+                        new Point(1180, 670), START_GAME)
         );
       case QUIT_ARE_YOU_SURE:
         return Set.of(
@@ -86,6 +88,12 @@ public enum MenuStateCode {
         return Set.of(
                 BehavioralMenuElement.generate(
                         BehavioralMenuElement.Behaviour.QUIT, new Object[0])
+        );
+      case START_GAME:
+        return Set.of(
+                BehavioralMenuElement.generate(
+                        BehavioralMenuElement.Behaviour.START_GAME,
+                        new Object[0])
         );
       default:
         return Set.of();
