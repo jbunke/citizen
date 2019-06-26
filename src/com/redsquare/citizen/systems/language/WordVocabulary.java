@@ -1,7 +1,5 @@
 package com.redsquare.citizen.systems.language;
 
-import com.redsquare.citizen.GameDebug;
-
 import java.util.*;
 
 public class WordVocabulary {
@@ -13,9 +11,6 @@ public class WordVocabulary {
     semanticDictionary = new HashMap<>();
 
     generateVocabulary(v);
-
-    GameDebug.printMessage("Vocabulary construction complete",
-            GameDebug::printDebug);
   }
 
   static WordVocabulary generate(Phonology v) {

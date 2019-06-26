@@ -6,8 +6,8 @@ import java.awt.*;
 
 public class Race {
 
-  private static final Color DARKEST = new Color(51, 19, 0);
-  private static final Color LIGHTEST = new Color(206, 158, 107);
+  public static final Color DARKEST = new Color(51, 19, 0);
+  public static final Color LIGHTEST = new Color(206, 158, 107);
 
   private static final Color PLAT_BLONDE = new Color(234, 213, 136);
   private static final Color BLONDE = new Color(219, 170, 81);

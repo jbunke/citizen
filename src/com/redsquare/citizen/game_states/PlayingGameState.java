@@ -1,5 +1,8 @@
 package com.redsquare.citizen.game_states;
 
+import com.redsquare.citizen.GameDebug;
+import com.redsquare.citizen.InputHandler;
+import com.redsquare.citizen.config.WorldConfig;
 import com.redsquare.citizen.entity.Player;
 import com.redsquare.citizen.worldgen.World;
 
@@ -11,12 +14,14 @@ public final class PlayingGameState extends GameState {
   private final Player player;
 
   private PlayingGameState() {
-    world = World.safeCreate(World.DEFAULT_WIDTH,
-            World.DEFAULT_HEIGHT, 30, 20);
+    int x = WorldConfig.getXDim();
+    int y = (x * 9) / 16;
+    world = World.safeCreate(x, y, WorldConfig.getPlateCount(), 20);
     player = Player.temp();
   }
 
   public static PlayingGameState init() {
+    GameDebug.printDebug("Initialising \"playing\" game state...");
     return new PlayingGameState();
   }
 
@@ -31,7 +36,7 @@ public final class PlayingGameState extends GameState {
   }
 
   @Override
-  public void input() {
+  public void input(InputHandler inputHandler) {
 
   }
 }

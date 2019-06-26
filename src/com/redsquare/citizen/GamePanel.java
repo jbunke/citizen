@@ -1,7 +1,5 @@
 package com.redsquare.citizen;
 
-import com.redsquare.citizen.testing.SpriteTester;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -11,6 +9,7 @@ public class GamePanel extends JPanel implements Runnable {
   private int width, height;
 
   private GameManager gameManager;
+  private InputHandler inputHandler;
 
   private boolean running = false;
   private Thread thread;
@@ -22,6 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
     this.height = height;
 
     gameManager = GameManager.init();
+    inputHandler = InputHandler.create(this);
 
     setPreferredSize(new Dimension(width, height));
     setFocusable(true);
@@ -129,7 +129,7 @@ public class GamePanel extends JPanel implements Runnable {
   }
 
   private void input() {
-    gameManager.input();
+    gameManager.input(inputHandler);
   }
 
   /**
@@ -137,6 +137,10 @@ public class GamePanel extends JPanel implements Runnable {
    * */
   private void render() {
     if (g != null) {
+      // CLEAR canvas?
+      g.setColor(new Color(255, 255, 255));
+      g.fillRect(0, 0, width, height);
+
       // SpriteTester.render(g);
       gameManager.render(g);
     }

@@ -2,6 +2,7 @@ package com.redsquare.citizen.systems.language;
 
 import com.redsquare.citizen.GameDebug;
 import com.redsquare.citizen.graphics.Font;
+import com.redsquare.citizen.util.Orientation;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -41,7 +42,9 @@ public class WritingSystemTests {
       wsis[i] = wss[i].draw(testText.toString().split("\n"), 1);
     }
 
-    BufferedImage fi = Font.CLEAN.getText(testText.toString().toLowerCase().split("\n"));
+    BufferedImage fi =
+            Font.CLEAN.getText(testText.toString().toLowerCase().
+                    split("\n"), Orientation.LEFT_TOP);
 
     int maxWidth = fi.getWidth();
     int height = 0;
