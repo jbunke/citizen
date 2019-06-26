@@ -1,7 +1,5 @@
 package com.redsquare.citizen.systems.language;
 
-import com.redsquare.citizen.GameDebug;
-
 import java.util.*;
 
 public class WordVocabulary {
