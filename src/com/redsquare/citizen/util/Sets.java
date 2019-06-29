@@ -1,5 +1,6 @@
 package com.redsquare.citizen.util;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -57,5 +58,13 @@ public class Sets {
     }
 
     return intersection;
+  }
+
+  public static <T> T randomEntry(Set<T> set) {
+    if (set.isEmpty()) return null;
+
+    int i = Randoms.bounded(0, set.size());
+
+    return new ArrayList<>(set).get(i);
   }
 }

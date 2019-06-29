@@ -1,6 +1,7 @@
 package com.redsquare.citizen.systems.politics;
 
 import com.redsquare.citizen.systems.language.*;
+import com.redsquare.citizen.util.Formatter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -58,5 +59,10 @@ public class State {
     }
 
     return settlements;
+  }
+
+  @Override
+  public String toString() {
+    return Formatter.capitaliseFirstLetter(name.toString());
   }
 }

@@ -233,6 +233,10 @@ public class World {
     return settlements;
   }
 
+  public Settlement randomSettlement() {
+    return Sets.randomEntry(allSettlements());
+  }
+
   private void generatePoles() {
     poleAt = width / 2;
     Point northPole = new Point(poleAt, 0);
