@@ -1,5 +1,8 @@
 package com.redsquare.citizen.systems.language;
 
+import com.redsquare.citizen.util.Randoms;
+import com.redsquare.citizen.util.Sets;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -7,98 +10,120 @@ import java.util.List;
 
 public class Glyph {
 
-  static final int SIZE = GlyphLine.ARTICULATIONS * 2 + 2;
-  private static final int LINE_WIDTH = 2;
+  private final List<GlyphComponent> components;
 
-  private final List<GlyphLine> lines;
-
-  private Glyph(List<GlyphLine> commonElements, int maxDistance) {
-    lines = buildLines(commonElements, maxDistance);
+  private Glyph(WritingSystem ws) {
+    components = new ArrayList<>();
+    buildComponents(ws);
+    centering();
   }
 
   private Glyph() {
-    lines = new ArrayList<>();
+    components = new ArrayList<>();
   }
 
-  static Glyph generate(List<GlyphLine> commonElements, int maxDistance) {
-    return new Glyph(commonElements, maxDistance);
+  static Glyph generate(WritingSystem ws) {
+    return new Glyph(ws);
   }
 
   static Glyph empty() {
     return new Glyph();
   }
 
-  BufferedImage draw() {
-    BufferedImage glyph = new BufferedImage(SIZE, SIZE,
+  BufferedImage draw(int size) {
+    BufferedImage glyph = new BufferedImage(size, size,
             BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) glyph.getGraphics();
-    g.setColor(new Color(0, 0, 0));
-    g.setStroke(new BasicStroke(LINE_WIDTH));
 
-    for (GlyphLine line : lines) {
-      g.drawLine(1 + line.from.x * 2, 1 + line.from.y * 2,
-              1 + line.to.x * 2, 1 + line.to.y * 2);
+    for (GlyphComponent component : components) {
+      g.drawImage(component.draw(size), 0, 0, null);
     }
 
     return glyph;
   }
 
-  private List<GlyphLine> buildLines(
-          List<GlyphLine> commonElements, int maxDistance) {
-    List<GlyphLine> lines = new ArrayList<>();
+  private void buildComponents(WritingSystem ws) {
+    int compCount = Randoms.bounded(2, 8);
 
-    // between 1 - 8 lines in glyph
-    int lineCount = 3 + (int)(Math.random() * 4 *
-            (GlyphLine.ARTICULATIONS / maxDistance));
+    // common element
+    if (Math.random() < ws.commonElemProbability)
+      components.add(Sets.randomEntry(ws.commonElements));
 
-    // start with common element?
-    if (Math.random() < 0.4)
-      lines.add(commonElements.get(
-              (int)(Math.random() * commonElements.size())));
+    GlyphComponent last = components.size() > 0 ? components.get(0) : null;
 
-    // rest of lines
-    for (int i = lines.size(); i < lineCount; i++) {
-      boolean violates = true;
-      GlyphLine candidate = null;
+    while (components.size() < compCount ||
+            (ySpan() < 0.4 && xSpan() < 0.4 &&
+                    Math.random() > 0.25)) {
+      GlyphComponent current = last == null ? GlyphComponent.orig(ws) :
+              (Randoms.deviation(ws.avgContinuationProb,
+                      ws.continuationDeviationMax) <= Math.random()
+                      ? GlyphComponent.orig(ws) :
+                      (Math.random() < 0.5 ?
+                              GlyphComponent.continuing(last, true, ws) :
+                              GlyphComponent.continuing(last, false, ws)));
 
-      while (violates) {
-        violates = false;
-
-        // following on or free
-        if (Math.random() < 0.7 && !lines.isEmpty()) candidate =
-                GlyphLine.followsFrom(lines.get(lines.size() - 1), maxDistance);
-        else if (Math.random() < 0.95)
-          candidate = commonElements.get(
-                  (int)(Math.random() * commonElements.size()));
-        else candidate = GlyphLine.random(maxDistance);
-
-        if (lines.contains(candidate))
-          violates = true;
-      }
-
-      lines.add(candidate);
+      components.add(current);
+      last = current;
     }
-
-    return lines;
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof Glyph)) return false;
-
-    Glyph comp = (Glyph) obj;
-
-    for (GlyphLine cl : comp.lines) {
-      if (!lines.contains(cl)) return false;
-    }
-    for (GlyphLine l : lines) {
-      if (!comp.lines.contains(l)) return false;
-    }
-    return true;
+  private double xSpan() {
+    return maxX() - minX();
   }
 
-  @Override
-  public int hashCode() {
-    return lines.size();
+  private double ySpan() {
+    return maxY() - minY();
+  }
+
+  private double minX() {
+    double minX = 1d;
+
+    for (GlyphComponent component : components) {
+      minX = Math.min(minX, component.minX());
+    }
+
+    return minX;
+  }
+
+  private double maxX() {
+    double maxX = 0d;
+
+    for (GlyphComponent component : components) {
+      maxX = Math.max(maxX, component.maxX());
+    }
+
+    return maxX;
+  }
+
+  private double minY() {
+    double minY = 1d;
+
+    for (GlyphComponent component : components) {
+      minY = Math.min(minY, component.minY());
+    }
+
+    return minY;
+  }
+
+  private double maxY() {
+    double maxY = 0d;
+
+    for (GlyphComponent component : components) {
+      maxY = Math.max(maxY, component.maxY());
+    }
+
+    return maxY;
+  }
+
+  private void centering() {
+    double idealMinX = 0.5 - ((maxX() - minX()) * 0.5);
+    double idealMinY = 0.5 - ((maxY() - minY()) * 0.5);
+
+    double translateX = idealMinX - minX();
+    double translateY = idealMinY - minY();
+
+    for (GlyphComponent component : components) {
+      component.translate(translateX, translateY);
+    }
   }
 }

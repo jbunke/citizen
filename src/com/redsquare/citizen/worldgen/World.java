@@ -654,7 +654,7 @@ public class World {
                   settlement.getName() + " (" + settlement.getSetupPower() + ")");
           WritingSystem ws =
                   settlement.getState().getLanguage().getWritingSystem();
-          BufferedImage wsName = ws.draw(settlement.getName(), 1);
+          BufferedImage wsName = ws.draw(settlement.getName(), 40);
           g.drawImage(name, location.x * SCALE_UP + dotSize * SCALE_UP,
                   location.y * SCALE_UP - (name.getHeight() / 2),null);
           g.drawImage(wsName, location.x * SCALE_UP + dotSize * SCALE_UP,

@@ -1,5 +1,7 @@
 package com.redsquare.citizen.systems.language;
 
+import com.redsquare.citizen.util.Randoms;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
@@ -12,30 +14,55 @@ public class WritingSystem {
   private final List<WordSubUnit> keys;
   private final Type type;
 
+  // VISUAL CRITERIA
+  final double avgLineCurve; // 0 - 1 skewed ^2
+  final double curveDeviationMax; // 0.1 - 0.5
+  final double avgLineLength; // 0 - 1
+  final double avgContinuationProb; // 0.5 - 1
+  final double continuationDeviationMax; // 0 - 0.5
+  final double commonElemProbability; // 0 - 1
+
+  final double directionalProclivity; // 0 - 1
+  final int prefDirection; // 0 - 359
+  final int maxDirectionSkew; // 0 - 180
+
+  final Set<GlyphComponent> commonElements;
+
   private WritingSystem(Phonology phonology, Type type) {
     // Random likelihood of syllabic vs alphabetical
     this.phonology = phonology;
     this.type = type;
 
-    // max distance from last line
-    int maxDistance = (int)((GlyphLine.ARTICULATIONS / 4) +
-            (Math.random() * GlyphLine.ARTICULATIONS));
+    avgLineCurve = Math.random() * Math.random();
+    avgLineLength = Randoms.bounded(0.4, 1d);
+    curveDeviationMax = Randoms.bounded(0.1, 0.5);
+    avgContinuationProb = 1 - Math.pow(Randoms.bounded(0d, 0.5), 2);
+    continuationDeviationMax = Math.pow(Randoms.bounded(0d, Math.sqrt(0.5)), 2);
+    commonElemProbability = Math.random();
 
-    // between 3 and 5 common elements
-    List<GlyphLine> common = generateCommonElements(maxDistance);
+    directionalProclivity = Math.random();
+    prefDirection = Randoms.bounded(0, 360);
+    maxDirectionSkew = Randoms.bounded(0, 180);
+
+    int amountCommonElements = Randoms.bounded(2, 5);
+    commonElements = new HashSet<>();
+
+    while (commonElements.size() < amountCommonElements) {
+      commonElements.add(GlyphComponent.orig(this));
+    }
 
     // populate and sort keys
     keys = enumerateKeys();
     sortKeys();
 
-    glyphs = generateGlyphs(common, maxDistance);
+    glyphs = generateGlyphs();
   }
 
   public static WritingSystem generate(Phonology phonology) {
     Type type;
 
-    if (Math.random() < 0.5) type = Type.ALPHABETICAL;
-    else type = Type.SYLLABIC;
+    if (Math.random() < 0.5) type = Type.ALPHABET;
+    else type = Type.COMPONENT_SYLLABARY;
 
     return new WritingSystem(phonology, type);
   }
@@ -46,7 +73,7 @@ public class WritingSystem {
   }
 
   public enum Type {
-    ALPHABETICAL, SYLLABIC
+    ALPHABET, COMPONENT_SYLLABARY, DISTINCT_SYLLABARY
   }
 
   private void sortKeys() {
@@ -61,23 +88,12 @@ public class WritingSystem {
     }
   }
 
-  private Map<WordSubUnit, Glyph> generateGlyphs(List<GlyphLine> common,
-                                                 int maxDistance) {
+  private Map<WordSubUnit, Glyph> generateGlyphs() {
     Map<WordSubUnit, Glyph> glyphs = new HashMap<>();
 
     for (WordSubUnit key : keys) {
       // generate glyph
-      boolean violates = true;
-      Glyph candidate = null;
-
-      while (violates) {
-        violates = false;
-
-        candidate = Glyph.generate(common, maxDistance);
-        if (glyphs.containsValue(candidate)) violates = true;
-      }
-
-      // populate
+      Glyph candidate = Glyph.generate(this);
       glyphs.put(key, candidate);
     }
 
@@ -86,28 +102,11 @@ public class WritingSystem {
     return glyphs;
   }
 
-  private List<GlyphLine> generateCommonElements(int maxDistance) {
-    List<GlyphLine> common = new ArrayList<>();
-    int commonCount = 3 + (int)(Math.random() * 2);
-
-    for (int i = 0; i < commonCount; i++) {
-      GlyphLine candidate = GlyphLine.random(maxDistance);
-
-      if (common.contains(candidate)) {
-        i--;
-        continue;
-      }
-      common.add(candidate);
-    }
-
-    return common;
-  }
-
   private List<WordSubUnit> enumerateKeys() {
     List<WordSubUnit> keys = new ArrayList<>();
 
     switch (type) {
-      case SYLLABIC:
+      case COMPONENT_SYLLABARY:
         Set<Syllable> vowelsOnly = new HashSet<>();
         Set<Syllable> prefixVowel = new HashSet<>();
         Set<Syllable> vowelSuffix = new HashSet<>();
@@ -146,7 +145,7 @@ public class WritingSystem {
         keys.addAll(prefixVowelSuffix);
         keys.addAll(vowelSuffix);
         break;
-      case ALPHABETICAL:
+      case ALPHABET:
         for (String vowel : phonology.VOWEL_PHONEMES)
           keys.add(new Phoneme(vowel));
         for (String prefix : phonology.PREFIX_CONS_PHONEMES)
@@ -165,7 +164,7 @@ public class WritingSystem {
     List<Glyph> glyphs = new ArrayList<>();
 
     for (Syllable syllable : word.getSyllables()) {
-      if (type == Type.SYLLABIC) {
+      if (type == Type.COMPONENT_SYLLABARY) {
         glyphs.add(this.glyphs.get(syllable));
       } else {
         Phoneme prefix = new Phoneme(syllable.getPrefix());
@@ -207,13 +206,13 @@ public class WritingSystem {
     return glyphs;
   }
 
-  public BufferedImage draw(String[] lines, final int SCALE_UP) {
+  public BufferedImage draw(String[] lines, final int SIZE) {
     List<BufferedImage> images = new ArrayList<>();
     int widest = Integer.MIN_VALUE;
     int height = 0;
 
     for (String line : lines) {
-      BufferedImage image = draw(line, SCALE_UP);
+      BufferedImage image = draw(line, SIZE);
       images.add(image);
       widest = Math.max(widest, image.getWidth());
       height += image.getHeight();
@@ -224,26 +223,25 @@ public class WritingSystem {
     Graphics2D g = (Graphics2D) allLines.getGraphics();
 
     height = 0;
-    for (int i = 0; i < images.size(); i++) {
-      g.drawImage(images.get(i), 0, height, null);
-      height += images.get(i).getHeight();
+    for (BufferedImage image : images) {
+      g.drawImage(image, 0, height, null);
+      height += image.getHeight();
     }
 
     return allLines;
   }
 
-  public BufferedImage draw(String text, final int SCALE_UP) {
+  public BufferedImage draw(String text, final int SIZE) {
     List<Glyph> glyphs = translate(text.toLowerCase());
 
     BufferedImage writing =
-            new BufferedImage(Glyph.SIZE * glyphs.size() * SCALE_UP,
-            Glyph.SIZE * SCALE_UP, BufferedImage.TYPE_INT_ARGB);
+            new BufferedImage(glyphs.size() * SIZE,
+            SIZE, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) writing.getGraphics();
 
     for (int i = 0; i < glyphs.size(); i++) {
-      BufferedImage img = glyphs.get(i).draw();
-      g.drawImage(img, Glyph.SIZE * i * SCALE_UP, 0,
-              img.getWidth() * SCALE_UP, img.getHeight() * SCALE_UP, null);
+      BufferedImage img = glyphs.get(i).draw(SIZE);
+      g.drawImage(img, SIZE * i, 0, null);
     }
 
     return writing;

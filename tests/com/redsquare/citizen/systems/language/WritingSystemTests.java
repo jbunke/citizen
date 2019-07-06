@@ -24,7 +24,7 @@ public class WritingSystemTests {
     WritingSystem[] wss = new WritingSystem[10];
 
     for (int i = 0; i < 10; i++) {
-      wss[i] = WritingSystem.generate(p, WritingSystem.Type.ALPHABETICAL);
+      wss[i] = WritingSystem.generate(p, WritingSystem.Type.ALPHABET);
     }
 
     StringBuilder testText = new StringBuilder();
@@ -39,7 +39,7 @@ public class WritingSystemTests {
     BufferedImage[] wsis = new BufferedImage[wss.length];
 
     for (int i = 0; i < 10; i++) {
-      wsis[i] = wss[i].draw(testText.toString().split("\n"), 1);
+      wsis[i] = wss[i].draw(testText.toString().split("\n"), 40);
     }
 
     BufferedImage fi =

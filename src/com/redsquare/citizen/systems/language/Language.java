@@ -11,7 +11,7 @@ public class Language {
   private Language() {
     phonology = Phonology.generate();
     writingSystem = WritingSystem.generate(phonology,
-            WritingSystem.Type.ALPHABETICAL); // TEMP explicitly alphabets
+            WritingSystem.Type.ALPHABET); // TEMP explicitly alphabets
     grammar = Grammar.generate(phonology);
     words = WordVocabulary.generate(phonology);
 
