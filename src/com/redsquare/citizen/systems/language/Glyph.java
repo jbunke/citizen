@@ -13,17 +13,29 @@ class Glyph {
 
   private final List<GlyphComponent> components;
 
+  private final boolean hasP;
+  private final boolean hasS;
+
   private Glyph(WritingSystem ws) {
+    hasP = false;
+    hasS = false;
+
     components = new ArrayList<>();
     buildComponents(ws);
     centering();
   }
 
   private Glyph() {
+    hasP = false;
+    hasS = false;
+
     components = new ArrayList<>();
   }
 
-  private Glyph(List<GlyphComponent> components) {
+  private Glyph(List<GlyphComponent> components, boolean hasP, boolean hasS) {
+    this.hasP = hasP;
+    this.hasS = hasS;
+
     this.components = components;
   }
 
@@ -130,7 +142,7 @@ class Glyph {
     components.addAll(prefixes);
     components.addAll(suffixes);
 
-    return new Glyph(components);
+    return new Glyph(components, p != null, s != null);
   }
 
   static Glyph empty() {
@@ -138,11 +150,11 @@ class Glyph {
   }
 
   private static double halveAndPushForth(double d) {
-    return (d * 0.5) + 0.6;
+    return (d * 0.5) + 0.55;
   }
 
   private static double halveAndNudgeBack(double d) {
-    return (d * 0.5) - 0.1;
+    return (d * 0.5) - 0.05;
   }
 
   private static double halveAndCenter(double d) {
@@ -161,10 +173,83 @@ class Glyph {
     return d;
   }
 
-  BufferedImage draw(int size) {
+  BufferedImage draw(int size, boolean debug, WritingSystem ws) {
     BufferedImage glyph = new BufferedImage(size, size,
             BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) glyph.getGraphics();
+
+    if (debug) {
+      // debugging info
+      if (ws.type == WritingSystem.Type.COMPONENT_SYLLABARY) {
+
+        BufferedImage v =
+                new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage p =
+                new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage s =
+                new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D vg = (Graphics2D) v.getGraphics();
+        vg.setColor(new Color(255, 0, 0, 100));
+        vg.fillRect(0, 0, size, size);
+
+        Graphics2D pg = (Graphics2D) p.getGraphics();
+        pg.setColor(new Color(0, 255, 0, 100));
+        pg.fillRect(0, 0, size, size);
+
+        Graphics2D sg = (Graphics2D) s.getGraphics();
+        sg.setColor(new Color(0, 0, 255, 100));
+        sg.fillRect(0, 0, size, size);
+
+
+        switch (ws.compSyllabaryConfig) {
+          case PVS_TTB:
+            if (hasP && hasS) {
+              g.drawImage(p, 0, 0, size, size / 3, null);
+              g.drawImage(v, 0, size / 3, size, size / 3, null);
+              g.drawImage(s, 0, (size * 2) / 3, size, size / 3, null);
+            } else if (hasP) {
+              g.drawImage(p, 0, 0, size, size / 2, null);
+              g.drawImage(v, 0, size / 2, size, size / 2, null);
+            } else if (hasS) {
+              g.drawImage(v, 0, 0, size, size / 2, null);
+              g.drawImage(s, 0, size / 2, size, size / 2, null);
+            } else {
+              g.drawImage(v, 0, 0, null);
+            }
+            break;
+          case PVS_LTR:
+            if (hasP && hasS) {
+              g.drawImage(p, 0, 0, size / 3, size, null);
+              g.drawImage(v, size / 3, 0, size / 3, size, null);
+              g.drawImage(s, (size * 2) / 3, 0, size / 3, size, null);
+            } else if (hasP) {
+              g.drawImage(p, 0, 0, size / 2, size, null);
+              g.drawImage(v, size / 2, 0, size / 2, size, null);
+            } else if (hasS) {
+              g.drawImage(v, 0, 0, size / 2, size, null);
+              g.drawImage(s, size / 2, 0, size / 2, size, null);
+            } else {
+              g.drawImage(v, 0, 0, null);
+            }
+            break;
+          case PS_ABOVE_V:
+            if (hasP && hasS) {
+              g.drawImage(p, 0, 0, size / 2, size / 2, null);
+              g.drawImage(s, size / 2, 0, size / 2, size / 2, null);
+            } else {
+              if (hasP) {
+                g.drawImage(p, 0, 0, size, size / 2, null);
+              } else if (hasS) {
+                g.drawImage(s, 0, 0, size, size / 2, null);
+              }
+            }
+
+            g.drawImage(v, 0, size / 2, size, size / 2, null);
+            break;
+        }
+      }
+    }
 
     for (GlyphComponent component : components) {
       g.drawImage(component.draw(size), 0, 0, null);

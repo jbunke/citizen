@@ -259,13 +259,13 @@ public class WritingSystem {
     return glyphs;
   }
 
-  public BufferedImage draw(String[] lines, final int SIZE) {
+  public BufferedImage draw(String[] lines, final int SIZE, boolean debug) {
     List<BufferedImage> images = new ArrayList<>();
     int widest = Integer.MIN_VALUE;
     int height = 0;
 
     for (String line : lines) {
-      BufferedImage image = draw(line, SIZE);
+      BufferedImage image = draw(line, SIZE, debug);
       images.add(image);
       widest = Math.max(widest, image.getWidth());
       height += image.getHeight() + (SIZE / 4);
@@ -284,7 +284,7 @@ public class WritingSystem {
     return allLines;
   }
 
-  public BufferedImage draw(String text, final int SIZE) {
+  public BufferedImage draw(String text, final int SIZE, boolean debug) {
     List<Glyph> glyphs = translate(text.toLowerCase());
 
     BufferedImage writing =
@@ -293,7 +293,7 @@ public class WritingSystem {
     Graphics2D g = (Graphics2D) writing.getGraphics();
 
     for (int i = 0; i < glyphs.size(); i++) {
-      BufferedImage img = glyphs.get(i).draw(SIZE);
+      BufferedImage img = glyphs.get(i).draw(SIZE, debug, this);
       g.drawImage(img, SIZE * i, 0, null);
     }
 
