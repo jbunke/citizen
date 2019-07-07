@@ -40,7 +40,7 @@ public class WritingSystemTests {
     BufferedImage[] wsis = new BufferedImage[wss.length];
 
     for (int i = 0; i < 10; i++) {
-      wsis[i] = wss[i].draw(testText.toString().split("\n"), 52, false);
+      wsis[i] = wss[i].draw(testText.toString().split("\n"), 40, false);
     }
 
     BufferedImage fi =

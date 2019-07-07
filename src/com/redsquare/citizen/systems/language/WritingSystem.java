@@ -55,7 +55,7 @@ public class WritingSystem {
     else if (prob < 2/3f) compSyllabaryConfig = CompSyllabaryConfig.PVS_LTR;
     else compSyllabaryConfig = CompSyllabaryConfig.PVS_TTB;
 
-    int amountCommonElements = Randoms.bounded(2, 5);
+    int amountCommonElements = Randoms.bounded(4, 7);
     commonElements = new HashSet<>();
 
     while (commonElements.size() < amountCommonElements) {
