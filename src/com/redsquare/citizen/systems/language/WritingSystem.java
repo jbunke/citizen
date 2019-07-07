@@ -12,7 +12,7 @@ public class WritingSystem {
   private final Phonology phonology;
   private final Map<WordSubUnit, Glyph> glyphs;
   private final List<WordSubUnit> keys;
-  private final Type type;
+  final Type type;
 
   // VISUAL CRITERIA
   final double avgLineCurve; // 0 - 1 skewed ^2
@@ -26,6 +26,9 @@ public class WritingSystem {
   final int prefDirection; // 0 - 359
   final int maxDirectionSkew; // 0 - 180
 
+  final boolean compSyllabaryConnected;
+  final CompSyllabaryConfig compSyllabaryConfig;
+
   final Set<GlyphComponent> commonElements;
 
   private WritingSystem(Phonology phonology, Type type) {
@@ -33,16 +36,24 @@ public class WritingSystem {
     this.phonology = phonology;
     this.type = type;
 
-    avgLineCurve = Math.random() * Math.random();
+    avgLineCurve = Math.pow(Math.random(), 1.3);
     avgLineLength = Randoms.bounded(0.4, 1d);
-    curveDeviationMax = Randoms.bounded(0.1, 0.5);
-    avgContinuationProb = 1 - Math.pow(Randoms.bounded(0d, 0.5), 2);
-    continuationDeviationMax = Math.pow(Randoms.bounded(0d, Math.sqrt(0.5)), 2);
+    curveDeviationMax = Randoms.bounded(0.1, 0.8);
+    avgContinuationProb = 1 - Math.pow(Randoms.bounded(0d, 0.3), 2);
+    continuationDeviationMax = Math.pow(Randoms.bounded(0d, 0.5), 2);
     commonElemProbability = Math.random();
 
     directionalProclivity = Math.random();
     prefDirection = Randoms.bounded(0, 360);
     maxDirectionSkew = Randoms.bounded(0, 180);
+
+    compSyllabaryConnected = Math.random() < 0.5;
+
+    double prob = Math.random();
+
+    if (prob < 1/3f) compSyllabaryConfig = CompSyllabaryConfig.PS_ABOVE_V;
+    else if (prob < 2/3f) compSyllabaryConfig = CompSyllabaryConfig.PVS_LTR;
+    else compSyllabaryConfig = CompSyllabaryConfig.PVS_TTB;
 
     int amountCommonElements = Randoms.bounded(2, 5);
     commonElements = new HashSet<>();
@@ -61,8 +72,11 @@ public class WritingSystem {
   public static WritingSystem generate(Phonology phonology) {
     Type type;
 
-    if (Math.random() < 0.5) type = Type.ALPHABET;
-    else type = Type.COMPONENT_SYLLABARY;
+    double p = Math.random();
+
+    if (p < 1/2f) type = Type.ALPHABET;
+    else if (p < 3/4f) type = Type.COMPONENT_SYLLABARY;
+    else type = Type.DISTINCT_SYLLABARY;
 
     return new WritingSystem(phonology, type);
   }
@@ -74,6 +88,10 @@ public class WritingSystem {
 
   public enum Type {
     ALPHABET, COMPONENT_SYLLABARY, DISTINCT_SYLLABARY
+  }
+
+  public enum CompSyllabaryConfig {
+    PS_ABOVE_V, PVS_LTR, PVS_TTB
   }
 
   private void sortKeys() {
@@ -91,9 +109,43 @@ public class WritingSystem {
   private Map<WordSubUnit, Glyph> generateGlyphs() {
     Map<WordSubUnit, Glyph> glyphs = new HashMap<>();
 
+    Map<Phoneme, Glyph> vowels = new HashMap<>();
+    Map<Phoneme, Glyph> prefixes = new HashMap<>();
+    Map<Phoneme, Glyph> suffixes = new HashMap<>();
+
+    if (this.type == Type.COMPONENT_SYLLABARY) {
+      for (String v : phonology.VOWEL_PHONEMES) {
+        Phoneme vowel = new Phoneme(v);
+        vowels.put(vowel, Glyph.generate(this));
+      }
+
+      for (String p : phonology.PREFIX_CONS_PHONEMES) {
+        Phoneme prefix = new Phoneme(p);
+        prefixes.put(prefix, Glyph.generate(this));
+      }
+
+      for (String s : phonology.SUFFIX_CONS_PHONEMES) {
+        Phoneme suffix = new Phoneme(s);
+        suffixes.put(suffix, Glyph.generate(this));
+      }
+    }
+
     for (WordSubUnit key : keys) {
+      Glyph candidate;
+
+      if (key.equals(new Phoneme(" "))) continue;
+
+      if (type == Type.COMPONENT_SYLLABARY) {
+        Glyph vGlyph = vowels.get(new Phoneme(((Syllable) key).getVowel()));
+        Glyph pGlyph = prefixes.get(new Phoneme(((Syllable) key).getPrefix()));
+        Glyph sGlyph = suffixes.get(new Phoneme(((Syllable) key).getSuffix()));
+
+        candidate = Glyph.componentBased(this, vGlyph, pGlyph, sGlyph);
+      } else {
+        candidate = Glyph.generate(this);
+      }
+
       // generate glyph
-      Glyph candidate = Glyph.generate(this);
       glyphs.put(key, candidate);
     }
 
@@ -107,6 +159,7 @@ public class WritingSystem {
 
     switch (type) {
       case COMPONENT_SYLLABARY:
+      case DISTINCT_SYLLABARY:
         Set<Syllable> vowelsOnly = new HashSet<>();
         Set<Syllable> prefixVowel = new HashSet<>();
         Set<Syllable> vowelSuffix = new HashSet<>();
@@ -215,7 +268,7 @@ public class WritingSystem {
       BufferedImage image = draw(line, SIZE);
       images.add(image);
       widest = Math.max(widest, image.getWidth());
-      height += image.getHeight();
+      height += image.getHeight() + (SIZE / 4);
     }
 
     BufferedImage allLines =
@@ -225,7 +278,7 @@ public class WritingSystem {
     height = 0;
     for (BufferedImage image : images) {
       g.drawImage(image, 0, height, null);
-      height += image.getHeight();
+      height += image.getHeight() + (SIZE / 4);
     }
 
     return allLines;

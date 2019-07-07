@@ -24,7 +24,8 @@ public class WritingSystemTests {
     WritingSystem[] wss = new WritingSystem[10];
 
     for (int i = 0; i < 10; i++) {
-      wss[i] = WritingSystem.generate(p, WritingSystem.Type.ALPHABET);
+      wss[i] = WritingSystem.generate(p);
+      GameDebug.printMessage(wss[i].type.toString(), GameDebug::printDebug);
     }
 
     StringBuilder testText = new StringBuilder();

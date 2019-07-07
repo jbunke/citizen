@@ -7,8 +7,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
-public class Glyph {
+class Glyph {
 
   private final List<GlyphComponent> components;
 
@@ -22,12 +23,142 @@ public class Glyph {
     components = new ArrayList<>();
   }
 
+  private Glyph(List<GlyphComponent> components) {
+    this.components = components;
+  }
+
   static Glyph generate(WritingSystem ws) {
     return new Glyph(ws);
   }
 
+  static Glyph componentBased(WritingSystem ws, Glyph v, Glyph p, Glyph s) {
+    List<GlyphComponent> components = new ArrayList<>();
+    List<GlyphComponent> vowels = new ArrayList<>();
+    List<GlyphComponent> prefixes = new ArrayList<>();
+    List<GlyphComponent> suffixes = new ArrayList<>();
+
+    Function<Double, Double> vXFunc = Glyph::identity;
+    Function<Double, Double> vYFunc = Glyph::identity;
+    Function<Double, Double> pXFunc = Glyph::identity;
+    Function<Double, Double> pYFunc = Glyph::identity;
+    Function<Double, Double> sXFunc = Glyph::identity;
+    Function<Double, Double> sYFunc = Glyph::identity;
+
+    switch (ws.compSyllabaryConfig) {
+      case PS_ABOVE_V:
+        if (s != null) pXFunc = Glyph::halve;
+        pYFunc = Glyph::halve;
+
+        if (p != null) sXFunc = Glyph::halveAndOffset;
+        sYFunc = Glyph::halve;
+
+        vYFunc = Glyph::halveAndOffset;
+
+        break;
+      case PVS_LTR:
+        if (p == null && s == null) {
+          pXFunc = Glyph::identity;
+
+          vXFunc = Glyph::identity;
+
+          sXFunc = Glyph::identity;
+        } else if (p == null) {
+          vXFunc = Glyph::halve;
+
+          sXFunc = Glyph::halveAndOffset;
+        } else if (s == null) {
+          pXFunc = Glyph::halve;
+
+          vXFunc = Glyph::halveAndOffset;
+        } else {
+          pXFunc = Glyph::halveAndNudgeBack;
+
+          vXFunc = Glyph::halveAndCenter;
+
+          sXFunc = Glyph::halveAndPushForth;
+        }
+        break;
+      case PVS_TTB:
+      default:
+        if (p == null && s != null) {
+          vYFunc = Glyph::halve;
+
+          sYFunc = Glyph::halveAndOffset;
+        } else if (s == null && p != null) {
+          pYFunc = Glyph::halve;
+
+          vYFunc = Glyph::halveAndOffset;
+        } else {
+          pYFunc = Glyph::halveAndNudgeBack;
+
+          vYFunc = Glyph::halveAndCenter;
+
+          sYFunc = Glyph::halveAndPushForth;
+        }
+        break;
+    }
+
+    // Vowels
+    for (GlyphComponent vComp : v.components) {
+      vowels.add(GlyphComponent.copyAndScale(vComp, vXFunc, vYFunc));
+    }
+
+    // Prefixes
+    if (p != null) {
+      for (GlyphComponent pComp : p.components) {
+        prefixes.add(GlyphComponent.copyAndScale(pComp, pXFunc, pYFunc));
+      }
+    }
+
+    // Suffixes
+    if (s != null) {
+      for (GlyphComponent sComp : s.components) {
+        suffixes.add(GlyphComponent.copyAndScale(sComp, sXFunc, sYFunc));
+      }
+    }
+
+    if (ws.compSyllabaryConnected) {
+      if (!prefixes.isEmpty())
+        components.add(GlyphComponent.connector(
+                prefixes.get(prefixes.size() - 1), vowels.get(0)));
+      if (!suffixes.isEmpty())
+        components.add(GlyphComponent.connector(
+                vowels.get(vowels.size() - 1), suffixes.get(0)));
+    }
+
+    components.addAll(vowels);
+    components.addAll(prefixes);
+    components.addAll(suffixes);
+
+    return new Glyph(components);
+  }
+
   static Glyph empty() {
     return new Glyph();
+  }
+
+  private static double halveAndPushForth(double d) {
+    return (d * 0.5) + 0.6;
+  }
+
+  private static double halveAndNudgeBack(double d) {
+    return (d * 0.5) - 0.1;
+  }
+
+  private static double halveAndCenter(double d) {
+    return (d * 0.5) + 0.25;
+  }
+
+  private static double halveAndOffset(double d) {
+    return (d * 0.5) + 0.4;
+  }
+
+  private static double halve(double d) {
+    return (d * 0.5) + 0.1;
+  }
+
+  private static double identity(double d) {
+    return d;
   }
 
   BufferedImage draw(int size) {
@@ -43,7 +174,7 @@ public class Glyph {
   }
 
   private void buildComponents(WritingSystem ws) {
-    int compCount = Randoms.bounded(2, 8);
+    int compCount = 8 - (int) Math.round(Math.pow(Math.random(), 2) * 6);
 
     // common element
     if (Math.random() < ws.commonElemProbability)

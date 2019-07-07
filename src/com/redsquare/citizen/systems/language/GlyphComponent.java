@@ -6,8 +6,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
-public class GlyphComponent {
+class GlyphComponent {
   private static final double MAX_DIST_BETWEEN_POINTS = 0.02;
   private static final int DEGREES_IN_A_CIRCLE = 360;
   private static final int LINE_WIDTH = 2;
@@ -18,6 +19,15 @@ public class GlyphComponent {
   private final int amountPoints;
   private final double distanceBetween;
   private final List<GlyphPoint> points;
+
+  private GlyphComponent(List<GlyphPoint> points) {
+    this.initialDirection = 0;
+    this.directionChange = 0;
+    this.amountPoints = points.size();
+    this.distanceBetween = 0d;
+
+    this.points = points;
+  }
 
   private GlyphComponent(WritingSystem ws) {
     this.initialDirection = (ws.directionalProclivity > Math.random()
@@ -65,6 +75,36 @@ public class GlyphComponent {
     this.points.add(startPoint);
 
     generateRestFrom(startPoint);
+  }
+
+  static GlyphComponent orig(WritingSystem ws) {
+    return new GlyphComponent(ws);
+  }
+
+  static GlyphComponent continuing(GlyphComponent last, boolean directionChange,
+                                   WritingSystem ws) {
+    return new GlyphComponent(last, directionChange, ws);
+  }
+
+  static GlyphComponent connector(GlyphComponent last, GlyphComponent next) {
+    GlyphPoint l = last.points.get(last.points.size() - 1);
+    GlyphPoint n = next.points.get(0);
+
+    return new GlyphComponent(List.of(l, n));
+  }
+
+  static GlyphComponent copyAndScale(GlyphComponent original,
+                                     Function<Double, Double> xFunc,
+                                     Function<Double, Double> yFunc) {
+    List<GlyphPoint> points = new ArrayList<>();
+
+    for (GlyphPoint origPoint : original.points) {
+      double x = xFunc.apply(origPoint.x);
+      double y = yFunc.apply(origPoint.y);
+      points.add(new GlyphPoint(x, y));
+    }
+
+    return new GlyphComponent(points);
   }
 
   double minX() {
@@ -135,15 +175,6 @@ public class GlyphComponent {
     }
   }
 
-  static GlyphComponent orig(WritingSystem ws) {
-    return new GlyphComponent(ws);
-  }
-
-  static GlyphComponent continuing(GlyphComponent last, boolean directionChange,
-                            WritingSystem ws) {
-    return new GlyphComponent(last, directionChange, ws);
-  }
-
   private int endDirection() {
     int d = initialDirection * ((amountPoints - 1) * directionChange);
 
@@ -173,14 +204,14 @@ public class GlyphComponent {
 
     return comp;
   }
+}
 
-  private class GlyphPoint {
-    double x;
-    double y;
+class GlyphPoint {
+  double x;
+  double y;
 
-    GlyphPoint(double x, double y) {
-      this.x = x;
-      this.y = y;
-    }
+  GlyphPoint(double x, double y) {
+    this.x = x;
+    this.y = y;
   }
 }

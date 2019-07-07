@@ -5,6 +5,7 @@ import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
+import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
@@ -651,7 +652,8 @@ public class World {
         // Don't print names of lowest-tier settlements
         if (powerLevel < 3) {
           BufferedImage name = Font.CLEAN.getText(
-                  settlement.getName() + " (" + settlement.getSetupPower() + ")");
+                  Formatter.capitaliseFirstLetter(settlement.getName()) +
+                          " (" + settlement.getSetupPower() + ")");
           WritingSystem ws =
                   settlement.getState().getLanguage().getWritingSystem();
           BufferedImage wsName = ws.draw(settlement.getName(), 40);
