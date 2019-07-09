@@ -1,11 +1,13 @@
 package com.redsquare.citizen.systems.language;
 
 import com.redsquare.citizen.util.Randoms;
+import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 class GlyphComponent {
@@ -18,7 +20,7 @@ class GlyphComponent {
   private final int directionChange; // -5 - 5
   private final int amountPoints;
   private final double distanceBetween;
-  private final List<GlyphPoint> points;
+  final List<GlyphPoint> points;
 
   private GlyphComponent(List<GlyphPoint> points) {
     this.initialDirection = 0;
@@ -32,20 +34,27 @@ class GlyphComponent {
   private GlyphComponent(WritingSystem ws) {
     this.initialDirection = (ws.directionalProclivity > Math.random()
             ? Randoms.degreeDeviation(
-            ws.prefDirection, ws.maxDirectionSkew)
+                    Sets.randomEntry(ws.directionSet), ws.maxDirectionSkew)
             : Randoms.bounded(0, DEGREES_IN_A_CIRCLE));
-    int scalarDir = (int) Math.round(Math.pow(Randoms.deviation(
+    int scalarDir = Math.random() < ws.deviationProb
+            ? (int) Math.round(ws.avgLineCurve * 5)
+            : (int) Math.round(Math.pow(Randoms.deviation(
             ws.avgLineCurve, ws.curveDeviationMax), 1.5) * 5);
     this.directionChange = Math.random() < 0.5 ? scalarDir : scalarDir * -1;
 
     this.distanceBetween = ws.avgLineLength *
             MAX_DIST_BETWEEN_POINTS * Randoms.bounded(0.3, 1d);
 
-    this.amountPoints = Randoms.bounded(10, 120);
+    this.amountPoints = Randoms.bounded(25, 120);
     this.points = new ArrayList<>();
 
-    GlyphPoint startPoint =new GlyphPoint(Randoms.bounded(0.2, 0.8),
+    double[] potentialStartPoint = Sets.randomEntry(ws.startPoints);
+
+    GlyphPoint startPoint = Math.random() < ws.startPointProclivity
+            ? new GlyphPoint(potentialStartPoint[0], potentialStartPoint[1])
+            : new GlyphPoint(Randoms.bounded(0.2, 0.8),
             Randoms.bounded(0.2, 0.8));
+
     this.points.add(startPoint);
 
     generateRestFrom(startPoint);
@@ -56,18 +65,20 @@ class GlyphComponent {
     this.initialDirection = directionChange ?
             (ws.directionalProclivity > Math.random()
                     ? Randoms.degreeDeviation(
-                            ws.prefDirection, ws.maxDirectionSkew)
+                            Sets.randomEntry(ws.directionSet), ws.maxDirectionSkew)
                     : Randoms.bounded(0, DEGREES_IN_A_CIRCLE)) :
             last.endDirection();
 
-    int scalarDir = (int) Math.round(Math.pow(Randoms.deviation(
+    int scalarDir = Math.random() < ws.deviationProb
+            ? (int) Math.round(ws.avgLineCurve * 5)
+            : (int) Math.round(Math.pow(Randoms.deviation(
             ws.avgLineCurve, ws.curveDeviationMax), 1.5) * 5);
     this.directionChange = Math.random() < 0.5 ? scalarDir : scalarDir * -1;
 
     this.distanceBetween = ws.avgLineLength *
             MAX_DIST_BETWEEN_POINTS * Randoms.bounded(0.3, 1d);
 
-    this.amountPoints = Randoms.bounded(10, 73);
+    this.amountPoints = Randoms.bounded(25, 120);
     this.points = new ArrayList<>();
 
     GlyphPoint lastInLast = last.points.get(last.points.size() - 1);
@@ -105,6 +116,12 @@ class GlyphComponent {
     }
 
     return new GlyphComponent(points);
+  }
+
+  boolean endsOutOfBounds() {
+    GlyphPoint last = points.get(points.size() - 1);
+    return last.x < 0.5 - DANGER_ZONE || last.x > 0.5 + DANGER_ZONE ||
+            last.y < 0.5 - DANGER_ZONE || last.y > 0.5 + DANGER_ZONE;
   }
 
   double minX() {
@@ -183,6 +200,33 @@ class GlyphComponent {
     while (d >= DEGREES_IN_A_CIRCLE) d -= DEGREES_IN_A_CIRCLE;
 
     return d;
+  }
+
+  BufferedImage drawWithFont(int size, int startWidth, int endWidth,
+                             BiFunction<Double, Double, Double> xFunc,
+                             BiFunction<Double, Double, Double> yFunc) {
+    BufferedImage comp = new BufferedImage(size, size,
+            BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) comp.getGraphics();
+
+    g.setColor(new Color(0, 0, 0));
+
+    for (int i = 1; i < points.size(); i++) {
+
+      g.setStroke(new BasicStroke(startWidth +
+              (int) Math.round((i / (double)points.size()) * (endWidth - startWidth))));
+
+      Point from = new Point((int) (
+              xFunc.apply(points.get(i - 1).x, points.get(i - 1).y) * size),
+              (int) (yFunc.apply(points.get(i - 1).x, points.get(i - 1).y) * size));
+      Point to = new Point((int) (
+              xFunc.apply(points.get(i).x, points.get(i).y) * size),
+              (int) (yFunc.apply(points.get(i).x, points.get(i).y) * size));
+
+      g.drawLine(from.x, from.y, to.x, to.y);
+    }
+
+    return comp;
   }
 
   BufferedImage draw(int size) {

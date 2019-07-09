@@ -17,8 +17,21 @@ public class Language {
     name = words.lookUp(Meaning.THIS_LANGUAGE);
   }
 
+  private Language(WritingSystem writingSystem) {
+    this.phonology = writingSystem.phonology;
+    this.writingSystem = writingSystem;
+    grammar = Grammar.generate(phonology);
+    words = WordVocabulary.generate(phonology);
+
+    name = words.lookUp(Meaning.THIS_LANGUAGE);
+  }
+
   public static Language generate() {
     return new Language();
+  }
+
+  public static Language generate(WritingSystem ws) {
+    return new Language(ws);
   }
 
   public Phonology getPhonology() {

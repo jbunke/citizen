@@ -1,30 +1,51 @@
 package com.redsquare.citizen.systems.language;
 
 import com.redsquare.citizen.util.Randoms;
+import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class WritingSystem {
 
-  private final Phonology phonology;
+  private static final Set<Set<Integer>> directionSets = Set.of(
+          Set.of(0, 90, 180, 270), Set.of(45, 135, 225, 315),
+          Set.of(60, 120, 240, 300), Set.of(0), Set.of(90, 210, 330)
+  );
+
+  private static final Set<Set<double[]>> startPointSets = Set.of(
+          Set.of(new double[] { 0.5, 0.2 }, new double[] { 0.5, 0.5 },
+                  new double[] { 0.5, 0.8 }, new double[] { 0.2, 0.5 },
+                  new double[] { 0.8, 0.5 } ),
+          Set.of(new double[] { 0.25, 0.25 }, new double[] { 0.25, 0.75 },
+                  new double[] { 0.75, 0.25 }, new double[] { 0.75, 0.75 } ),
+          Set.of(new double[] { 0.5, 0.2 }, new double[] { 0.5, 0.8 },
+                  new double[] { 0.2, 0.5 }, new double[] { 0.8, 0.5 } )
+  );
+
+  final Phonology phonology;
   private final Map<WordSubUnit, Glyph> glyphs;
   private final List<WordSubUnit> keys;
   final Type type;
 
   // VISUAL CRITERIA
   final double avgLineCurve; // 0 - 1 skewed ^2
-  final double curveDeviationMax; // 0.1 - 0.5
+  final double curveDeviationMax; // 0.1 - 0.9
+  final double deviationProb; // 0 - 1
   final double avgLineLength; // 0 - 1
   final double avgContinuationProb; // 0.5 - 1
   final double continuationDeviationMax; // 0 - 0.5
   final double commonElemProbability; // 0 - 1
 
   final double directionalProclivity; // 0 - 1
-  final int prefDirection; // 0 - 359
-  final int maxDirectionSkew; // 0 - 180
+  final Set<Integer> directionSet;
+  final int maxDirectionSkew; // 0 - 30
+
+  final double startPointProclivity; // 0.5 - 1
+  final Set<double[]> startPoints;
 
   final boolean compSyllabaryConnected;
   final CompSyllabaryConfig compSyllabaryConfig;
@@ -36,16 +57,20 @@ public class WritingSystem {
     this.phonology = phonology;
     this.type = type;
 
-    avgLineCurve = Math.pow(Math.random(), 1.3);
+    avgLineCurve = Math.pow(Math.random(), 1.5);
     avgLineLength = Randoms.bounded(0.4, 1d);
-    curveDeviationMax = Randoms.bounded(0.1, 0.8);
+    curveDeviationMax = Randoms.bounded(0.1, 0.9);
+    deviationProb = Math.random();
     avgContinuationProb = 1 - Math.pow(Randoms.bounded(0d, 0.3), 2);
     continuationDeviationMax = Math.pow(Randoms.bounded(0d, 0.5), 2);
     commonElemProbability = Math.random();
 
     directionalProclivity = Math.random();
-    prefDirection = Randoms.bounded(0, 360);
-    maxDirectionSkew = Randoms.bounded(0, 180);
+    directionSet = Sets.randomEntry(directionSets);
+    maxDirectionSkew = Randoms.bounded(0, 30);
+
+    startPointProclivity = Randoms.bounded(0.5, 1.0);
+    startPoints = Sets.randomEntry(startPointSets);
 
     compSyllabaryConnected = Math.random() < 0.5;
 
@@ -67,6 +92,69 @@ public class WritingSystem {
     sortKeys();
 
     glyphs = generateGlyphs();
+  }
+
+  private WritingSystem(Phonology phonology, Type type,
+                        double avgLineCurve, double curveDeviationMax,
+                        double deviationProb,
+                        double avgLineLength, double avgContinuationProb,
+                        double continuationDeviationMax,
+                        double commonElemProbability,
+                        double directionalProclivity,
+                        Set<Integer> directionSet, int maxDirectionSkew,
+                        double startPointProclivity,
+                        Set<double[]> startPoints,
+                        boolean compSyllabaryConnected,
+                        CompSyllabaryConfig compSyllabaryConfig) {
+    this.phonology = phonology;
+    this.type = type;
+
+    this.avgLineCurve = avgLineCurve;
+    this.avgLineLength = avgLineLength;
+    this.curveDeviationMax = curveDeviationMax;
+    this.deviationProb = deviationProb;
+    this.avgContinuationProb = avgContinuationProb;
+    this.continuationDeviationMax = continuationDeviationMax;
+    this.commonElemProbability = commonElemProbability;
+
+    this.directionalProclivity = directionalProclivity;
+    this.directionSet = directionSet;
+    this.maxDirectionSkew = maxDirectionSkew;
+
+    this.startPointProclivity = startPointProclivity;
+    this.startPoints = startPoints;
+
+    this.compSyllabaryConnected = compSyllabaryConnected;
+
+    this.compSyllabaryConfig = compSyllabaryConfig;
+
+    int amountCommonElements = Randoms.bounded(4, 7);
+    commonElements = new HashSet<>();
+
+    while (commonElements.size() < amountCommonElements) {
+      commonElements.add(GlyphComponent.orig(this));
+    }
+
+    // populate and sort keys
+    keys = enumerateKeys();
+    sortKeys();
+
+    glyphs = generateGlyphs();
+  }
+
+  public static WritingSystem generate(Phonology phonology, Type type,
+        double avgLineCurve, double curveDeviationMax, double deviationProb,
+        double avgLineLength, double avgContinuationProb,
+        double continuationDeviationMax, double commonElemProbability,
+        double directionalProclivity, Set<Integer> directionSet, int maxDirectionSkew,
+        double startPointProclivity, Set<double[]> startPoints,
+        boolean compSyllabaryConnected, CompSyllabaryConfig compSyllabaryConfig) {
+
+    return new WritingSystem(phonology, type, avgLineCurve, curveDeviationMax,
+            deviationProb, avgLineLength, avgContinuationProb, continuationDeviationMax,
+            commonElemProbability, directionalProclivity, directionSet,
+            maxDirectionSkew, startPointProclivity, startPoints,
+            compSyllabaryConnected, compSyllabaryConfig);
   }
 
   public static WritingSystem generate(Phonology phonology) {
@@ -268,20 +356,10 @@ public class WritingSystem {
       BufferedImage image = draw(line, SIZE, debug);
       images.add(image);
       widest = Math.max(widest, image.getWidth());
-      height += image.getHeight() + (SIZE / 4);
+      height += image.getHeight() + (SIZE / 2);
     }
 
-    BufferedImage allLines =
-            new BufferedImage(widest, height, BufferedImage.TYPE_INT_ARGB);
-    Graphics2D g = (Graphics2D) allLines.getGraphics();
-
-    height = 0;
-    for (BufferedImage image : images) {
-      g.drawImage(image, 0, height, null);
-      height += image.getHeight() + (SIZE / 4);
-    }
-
-    return allLines;
+    return combineLines(images, widest, height, SIZE);
   }
 
   public BufferedImage draw(String text, final int SIZE, boolean debug) {
@@ -292,11 +370,72 @@ public class WritingSystem {
             SIZE, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) writing.getGraphics();
 
-    for (int i = 0; i < glyphs.size(); i++) {
-      BufferedImage img = glyphs.get(i).draw(SIZE, debug, this);
-      g.drawImage(img, SIZE * i, 0, null);
+    int x = 0;
+
+    for (Glyph glyph : glyphs) {
+      BufferedImage img = glyph.draw(SIZE, debug, this);
+
+      g.drawImage(img, x, 0, null);
+      x += SIZE;
     }
 
     return writing;
+  }
+
+  public BufferedImage drawWithFont(String[] lines, final int SIZE, int startWidth,
+         int endWidth, BiFunction<Double, Double, Double> xFunc,
+         BiFunction<Double, Double, Double> yFunc) {
+    List<BufferedImage> images = new ArrayList<>();
+    int widest = Integer.MIN_VALUE;
+    int height = 0;
+
+    for (String line : lines) {
+      BufferedImage image =
+              drawWithFont(line, SIZE, startWidth, endWidth, xFunc, yFunc);
+      images.add(image);
+      widest = Math.max(widest, image.getWidth());
+      height += image.getHeight() + (SIZE / 2);
+    }
+
+    return combineLines(images, widest, height, SIZE);
+  }
+
+  public BufferedImage drawWithFont(String text, final int SIZE, int startWidth,
+      int endWidth, BiFunction<Double, Double, Double> xFunc,
+                    BiFunction<Double, Double, Double> yFunc) {
+    List<Glyph> glyphs = translate(text.toLowerCase());
+
+    BufferedImage writing =
+            new BufferedImage(glyphs.size() * SIZE,
+                    SIZE, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) writing.getGraphics();
+
+    int x = 0;
+
+    for (int i = 0; i < glyphs.size(); i++) {
+      BufferedImage img = glyphs.get(i).
+              drawWithFont(SIZE, startWidth, endWidth, xFunc, yFunc);
+
+      double tightness = type != Type.ALPHABET ? 1.0 :
+              text.charAt(i) == ' ' ? 2.0 : 0.7;
+      g.drawImage(img, x, 0, null);
+      x += (int)(SIZE * tightness);
+    }
+
+    return writing;
+  }
+
+  private BufferedImage combineLines(List<BufferedImage> lines, int widest, int height, final int SIZE) {
+    BufferedImage allLines =
+            new BufferedImage(widest, height, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) allLines.getGraphics();
+
+    height = 0;
+    for (BufferedImage image : lines) {
+      g.drawImage(image, 0, height, null);
+      height += image.getHeight() + (SIZE / 2);
+    }
+
+    return allLines;
   }
 }

@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 class Glyph {
@@ -150,27 +151,42 @@ class Glyph {
   }
 
   private static double halveAndPushForth(double d) {
-    return (d * 0.5) + 0.55;
+    return (d * 0.4) + 0.65;
   }
 
   private static double halveAndNudgeBack(double d) {
-    return (d * 0.5) - 0.05;
+    return (d * 0.4) - 0.05;
   }
 
   private static double halveAndCenter(double d) {
-    return (d * 0.5) + 0.25;
+    return (d * 0.4) + 0.3;
   }
 
   private static double halveAndOffset(double d) {
-    return (d * 0.5) + 0.4;
+    return (d * 0.5) + 0.45;
   }
 
   private static double halve(double d) {
-    return (d * 0.5) + 0.1;
+    return (d * 0.5) + 0.05;
   }
 
   private static double identity(double d) {
     return d;
+  }
+
+  BufferedImage drawWithFont(int size, int startWidth, int endWidth,
+                             BiFunction<Double, Double, Double> xFunc,
+                             BiFunction<Double, Double, Double> yFunc) {
+    BufferedImage glyph = new BufferedImage(size, size,
+            BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) glyph.getGraphics();
+
+    for (GlyphComponent component : components) {
+      g.drawImage(component.drawWithFont(size, startWidth, endWidth,
+              xFunc, yFunc), 0, 0, null);
+    }
+
+    return glyph;
   }
 
   BufferedImage draw(int size, boolean debug, WritingSystem ws) {
@@ -248,7 +264,13 @@ class Glyph {
             g.drawImage(v, 0, size / 2, size, size / 2, null);
             break;
         }
+      } else {
+        g.setColor(new Color(255, 150, 0, 100));
+        g.fillRect(size / 10, 0, (int)(size * (9 / 10d)), size);
       }
+
+      g.setColor(new Color(255, 255, 0, 100));
+      g.fillRect(0, 0, size / 10, size);
     }
 
     for (GlyphComponent component : components) {
@@ -259,7 +281,7 @@ class Glyph {
   }
 
   private void buildComponents(WritingSystem ws) {
-    int compCount = 8 - (int) Math.round(Math.pow(Math.random(), 2) * 6);
+    int compCount = 9 - (int) Math.round(Math.pow(Math.random(), 2) * 6);
 
     // common element
     if (Math.random() < ws.commonElemProbability)
@@ -272,7 +294,7 @@ class Glyph {
                     Math.random() > 0.25)) {
       GlyphComponent current = last == null ? GlyphComponent.orig(ws) :
               (Randoms.deviation(ws.avgContinuationProb,
-                      ws.continuationDeviationMax) <= Math.random()
+                      ws.continuationDeviationMax) <= Math.random() || last.endsOutOfBounds()
                       ? GlyphComponent.orig(ws) :
                       (Math.random() < 0.5 ?
                               GlyphComponent.continuing(last, true, ws) :
