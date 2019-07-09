@@ -281,7 +281,10 @@ class Glyph {
   }
 
   private void buildComponents(WritingSystem ws) {
-    int compCount = 9 - (int) Math.round(Math.pow(Math.random(), 2) * 6);
+    int max = ws.type == WritingSystem.Type.COMPONENT_SYLLABARY
+            ? 5 : 7;
+
+    int compCount = max - (int) Math.round(Math.pow(Math.random(), 2) * (max - 3));
 
     // common element
     if (Math.random() < ws.commonElemProbability)
@@ -299,6 +302,8 @@ class Glyph {
                       (Math.random() < 0.5 ?
                               GlyphComponent.continuing(last, true, ws) :
                               GlyphComponent.continuing(last, false, ws)));
+
+      if (current.endsOutOfBounds()) continue;
 
       components.add(current);
       last = current;

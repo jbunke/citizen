@@ -13,7 +13,6 @@ import java.util.function.Function;
 class GlyphComponent {
   private static final double MAX_DIST_BETWEEN_POINTS = 0.02;
   private static final int DEGREES_IN_A_CIRCLE = 360;
-  private static final int LINE_WIDTH = 2;
   private static final double DANGER_ZONE = 0.4;
 
   private final int initialDirection; // deg 0 - 359 (unit circle ->, counter-clockwise)
@@ -235,7 +234,7 @@ class GlyphComponent {
     Graphics2D g = (Graphics2D) comp.getGraphics();
 
     g.setColor(new Color(0, 0, 0));
-    g.setStroke(new BasicStroke(LINE_WIDTH));
+    g.setStroke(new BasicStroke(Math.max(1, size / 20)));
 
     for (int i = 1; i < points.size(); i++) {
       Point from = new Point((int) (points.get(i - 1).x * size),
