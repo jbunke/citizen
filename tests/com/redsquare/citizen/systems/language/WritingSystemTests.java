@@ -31,10 +31,10 @@ public class WritingSystemTests {
   public static void main(String[] args) {
     WritingSystemTests testInstance = new WritingSystemTests();
 
-    testLoop(testInstance::customiseEverything, 50);
-    testLoop(testInstance::fontCompare, 50);
-    testLoop(testInstance::allSettlementsInNativeTongue, 50);
-    testLoop(testInstance::glyphGeneration, 100);
+    testLoop(testInstance::customiseEverything, 10);
+    testLoop(testInstance::fontCompare, 100);
+    testLoop(testInstance::allSettlementsInNativeTongue, 0);
+    testLoop(testInstance::glyphGeneration, 10);
   }
 
   private static void testLoop(Runnable test, int iterations) {
@@ -43,7 +43,13 @@ public class WritingSystemTests {
     for (int i = 0; i < iterations; i++) {
       archiveCount = i;
 
+      GameDebug.deactivate();
+
       test.run();
+
+      GameDebug.activate();
+      GameDebug.printMessage("Test: [" + (i + 1) + "/" +
+              iterations + "]", GameDebug::printDebug);
     }
   }
 
@@ -101,22 +107,23 @@ public class WritingSystemTests {
 
     WritingSystem.Type type = WritingSystem.Type.ALPHABET;
 
-    double avgLineCurve = 0.2; // 0 - 1 skewed ^2
-    double curveDeviationMax = 0.3; // 0.1 - 0.9
-    double deviationProb = 0.1;
-    double avgLineLength = 0.8; // 0 - 1
+    double avgLineCurve = 0.0; // 0 - 1 skewed ^2
+    double curveDeviationMax = 0.5; // 0.1 - 0.9
+    double deviationProb = 0.06;
+    double avgLineLength = 0.95; // 0 - 1
     double avgContinuationProb = 0.95; // 0.5 - 1
-    double continuationDeviationMax = 0.1; // 0 - 0.5
-    double commonElemProbability = 0.8; // 0 - 1
+    double continuationDeviationMax = 0.0; // 0 - 0.5
+    double commonElemProbability = 0.4; // 0 - 1
 
     double directionalProclivity = 0.9; // 0 - 1
-    Set<Integer> directionSet = Set.of(270, 300, 0);
-    int maxDirectionSkew = 5; // 0 - 30
+    Set<Integer> directionSet = Set.of(0, 60, 90, 120, 180, 240, 270, 300);
+    int maxDirectionSkew = 0; // 0 - 30
 
     double startPointProclivity = 0.75; // 0.5 - 1
-    Set<double[]> startPoints = Set.of(new double[] { 0.5, 0.15 },
-            new double[] { 0.5, 0.5 }, new double[] { 0.15, 0.5 },
-            new double[] { 0.85, 0.5 }  );
+    Set<double[]> startPoints = Set.of(new double[] { 0.22, 0.15 },
+            new double[] { 0.78, 0.15 }, new double[] { 0.22, 0.85 },
+            new double[] { 0.78, 0.85 }, new double[] { 0.5, 0.15 },
+            new double[] { 0.5, 0.5 }  );
 
     boolean compSyllabaryConnected = false;
     WritingSystem.CompSyllabaryConfig compSyllabaryConfig =
@@ -133,8 +140,8 @@ public class WritingSystemTests {
 
     int size = 100;
     int startWidth = 3;
-    int endWidth = 1;
-    BiFunction<Double, Double, Double> xFunc = Fonts::fontItalicX;
+    int endWidth = 2;
+    BiFunction<Double, Double, Double> xFunc = Fonts::fontIdentityX;
     BiFunction<Double, Double, Double> yFunc = Fonts::fontCompressY;
 
     StringBuilder word = new StringBuilder();

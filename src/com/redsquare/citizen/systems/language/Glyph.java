@@ -282,7 +282,7 @@ class Glyph {
 
   private void buildComponents(WritingSystem ws) {
     int max = ws.type == WritingSystem.Type.COMPONENT_SYLLABARY
-            ? 5 : 7;
+            ? 4 : 5;
 
     int compCount = max - (int) Math.round(Math.pow(Math.random(), 2) * (max - 3));
 

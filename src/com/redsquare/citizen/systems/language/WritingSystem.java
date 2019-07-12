@@ -32,8 +32,8 @@ public class WritingSystem {
   final Type type;
 
   // VISUAL CRITERIA
-  final double avgLineCurve; // 0 - 1 skewed ^2
-  final double curveDeviationMax; // 0.1 - 0.9
+  final double avgLineCurve; // 0 - 0.6 skewed ^2
+  final double curveDeviationMax; // 0.1 - 0.6
   final double deviationProb; // 0 - 1
   final double avgLineLength; // 0 - 1
   final double avgContinuationProb; // 0.5 - 1
@@ -57,11 +57,11 @@ public class WritingSystem {
     this.phonology = phonology;
     this.type = type;
 
-    avgLineCurve = Math.pow(Math.random(), 1.5);
+    avgLineCurve = Math.pow(Math.random(), 1.5) * 0.6;
     avgLineLength = Randoms.bounded(0.4, 1d);
-    curveDeviationMax = Randoms.bounded(0.1, 0.9);
+    curveDeviationMax = Randoms.bounded(0.1, 0.6);
     deviationProb = Math.random();
-    avgContinuationProb = 1 - Math.pow(Randoms.bounded(0d, 0.3), 2);
+    avgContinuationProb = 1 - Math.pow(Randoms.bounded(0d, Math.sqrt(0.5)), 2);
     continuationDeviationMax = Math.pow(Randoms.bounded(0d, 0.5), 2);
     commonElemProbability = Math.random();
 

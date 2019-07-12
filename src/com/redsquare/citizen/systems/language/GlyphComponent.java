@@ -19,7 +19,7 @@ class GlyphComponent {
   private final int directionChange; // -5 - 5
   private final int amountPoints;
   private final double distanceBetween;
-  final List<GlyphPoint> points;
+  private final List<GlyphPoint> points;
 
   private GlyphComponent(List<GlyphPoint> points) {
     this.initialDirection = 0;
@@ -44,7 +44,7 @@ class GlyphComponent {
     this.distanceBetween = ws.avgLineLength *
             MAX_DIST_BETWEEN_POINTS * Randoms.bounded(0.3, 1d);
 
-    this.amountPoints = Randoms.bounded(25, 120);
+    this.amountPoints = Randoms.bounded(60, 120);
     this.points = new ArrayList<>();
 
     double[] potentialStartPoint = Sets.randomEntry(ws.startPoints);
@@ -77,7 +77,7 @@ class GlyphComponent {
     this.distanceBetween = ws.avgLineLength *
             MAX_DIST_BETWEEN_POINTS * Randoms.bounded(0.3, 1d);
 
-    this.amountPoints = Randoms.bounded(25, 120);
+    this.amountPoints = Randoms.bounded(40, 120);
     this.points = new ArrayList<>();
 
     GlyphPoint lastInLast = last.points.get(last.points.size() - 1);
