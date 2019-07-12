@@ -17,7 +17,7 @@ public final class PlayingGameState extends GameState {
     int x = WorldConfig.getXDim();
     int y = (x * 9) / 16;
     world = World.safeCreate(x, y, WorldConfig.getPlateCount(), 20);
-    player = Player.temp();
+    player = Player.temp(world);
   }
 
   public static PlayingGameState init() {

@@ -2,6 +2,7 @@ package com.redsquare.citizen.systems.politics;
 
 import com.redsquare.citizen.systems.language.PlaceNameGenerator;
 import com.redsquare.citizen.systems.language.Word;
+import com.redsquare.citizen.util.Formatter;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -100,5 +101,11 @@ public class Settlement {
     }
 
     return 1 + liege.powerLevel();
+  }
+
+  @Override
+  public String toString() {
+    return Formatter.capitaliseFirstLetter(name.toString()) + "; in " +
+            state.toString() + " at (" + location.x + ", " + location.y + ")";
   }
 }

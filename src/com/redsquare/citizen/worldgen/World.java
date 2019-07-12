@@ -5,6 +5,7 @@ import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
+import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
@@ -231,6 +232,10 @@ public class World {
     settlements = Sets.union(settlementsPerState);
 
     return settlements;
+  }
+
+  public Settlement randomSettlement() {
+    return Sets.randomEntry(allSettlements());
   }
 
   private void generatePoles() {
@@ -647,10 +652,11 @@ public class World {
         // Don't print names of lowest-tier settlements
         if (powerLevel < 3) {
           BufferedImage name = Font.CLEAN.getText(
-                  settlement.getName() + " (" + settlement.getSetupPower() + ")");
+                  Formatter.capitaliseFirstLetter(settlement.getName()) +
+                          " (" + settlement.getSetupPower() + ")");
           WritingSystem ws =
                   settlement.getState().getLanguage().getWritingSystem();
-          BufferedImage wsName = ws.draw(settlement.getName(), 1);
+          BufferedImage wsName = ws.draw(settlement.getName(), 40, false);
           g.drawImage(name, location.x * SCALE_UP + dotSize * SCALE_UP,
                   location.y * SCALE_UP - (name.getHeight() / 2),null);
           g.drawImage(wsName, location.x * SCALE_UP + dotSize * SCALE_UP,

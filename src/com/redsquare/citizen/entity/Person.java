@@ -39,6 +39,8 @@ public class Person extends Animal {
   private final Set<Language> languages;
   private Culture culture;
 
+  private Point worldLocation;
+
   protected Person(Person father, Person mother, GameDate birthday,
                    Settlement birthplace) {
     sex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
@@ -47,6 +49,8 @@ public class Person extends Animal {
     this.mother = mother;
     this.birthday = birthday;
     this.birthplace = birthplace;
+
+    this.worldLocation = birthplace.getLocation();
 
     this.children = new HashSet<>();
 
@@ -309,7 +313,7 @@ public class Person extends Animal {
 
   @Override
   Point worldLocation() {
-    return null;
+    return worldLocation;
   }
 
   @Override
