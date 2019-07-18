@@ -28,6 +28,14 @@ public class GamePanel extends JPanel implements Runnable {
     requestFocus();
   }
 
+  public int getWidth() {
+    return width;
+  }
+
+  public int getHeight() {
+    return height;
+  }
+
   @Override
   public void addNotify() {
     super.addNotify();

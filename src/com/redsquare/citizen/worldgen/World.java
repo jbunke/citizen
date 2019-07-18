@@ -5,6 +5,7 @@ import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
+import com.redsquare.citizen.systems.vexillology.Flag;
 import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.util.Sets;
 
@@ -681,6 +682,15 @@ public class World {
 //              null);
 //      g.drawImage(symbols, capitalLoc.x * SCALE_UP - symbols.getWidth() / 2,
 //              capitalLoc.y * SCALE_UP, null);
+    }
+
+    for (State state : states) {
+      Settlement capital = state.getCapital();
+      Point location = capital.getLocation();
+      Flag flag = state.getFlag();
+
+      g.drawImage(flag.draw(2), location.x * SCALE_UP, location.y * SCALE_UP + 30,
+              null);
     }
 
     return map;

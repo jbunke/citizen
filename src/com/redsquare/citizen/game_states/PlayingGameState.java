@@ -37,6 +37,6 @@ public final class PlayingGameState extends GameState {
 
   @Override
   public void input(InputHandler inputHandler) {
-
+    player.input(inputHandler);
   }
 }

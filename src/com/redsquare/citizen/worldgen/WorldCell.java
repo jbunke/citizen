@@ -3,7 +3,7 @@ package com.redsquare.citizen.worldgen;
 import com.redsquare.citizen.systems.politics.Settlement;
 
 public class WorldCell {
-  private boolean generated = false;
+  private boolean generated;
   private int elevation = 0;
   private Type type;
   private Region region;
@@ -41,7 +41,23 @@ public class WorldCell {
   }
 
   public enum Type {
-    PLAIN, DESERT, SEA, SHALLOW, BEACH, MOUNTAIN, HILL, FOREST
+    PLAIN, DESERT, SEA, SHALLOW, BEACH, MOUNTAIN, HILL, FOREST;
+
+    boolean isLand() {
+      switch (this) {
+        case PLAIN:
+        case DESERT:
+        case FOREST:
+        case MOUNTAIN:
+        case HILL:
+        case BEACH:
+          return true;
+        case SHALLOW:
+        case SEA:
+        default:
+          return false;
+      }
+    }
   }
 
   Type getType() {

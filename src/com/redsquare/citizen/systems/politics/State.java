@@ -1,6 +1,7 @@
 package com.redsquare.citizen.systems.politics;
 
 import com.redsquare.citizen.systems.language.*;
+import com.redsquare.citizen.systems.vexillology.Flag;
 import com.redsquare.citizen.util.Formatter;
 
 import java.util.HashSet;
@@ -15,10 +16,12 @@ public class State {
   //culture
   private Language language;
   private Culture culture;
+  private Flag flag;
 
   public State() {
     culture = Culture.generate();
     language = Language.generate();
+    flag = Flag.generate(culture);
     this.name = language.lookUpWord(Meaning.THIS_STATE);
   }
 
@@ -32,6 +35,10 @@ public class State {
 
   public Culture getCulture() {
     return culture;
+  }
+
+  public Flag getFlag() {
+    return flag;
   }
 
   public Settlement getCapital() {
