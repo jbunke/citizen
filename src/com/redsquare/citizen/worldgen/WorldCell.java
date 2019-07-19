@@ -8,11 +8,16 @@ public class WorldCell {
   private Type type;
   private Region region;
   private Settlement settlement = null;
+  private Settlement province = null;
 
   public WorldCell(Type type) {
     generated = false;
     this.type = type;
     region = Region.TEMPERATE;
+  }
+
+  void populateProvince(Settlement province) {
+    this.province = province;
   }
 
   void populateSettlement(Settlement settlement) {
@@ -25,6 +30,10 @@ public class WorldCell {
 
   Settlement getSettlement() {
     return settlement;
+  }
+
+  Settlement getProvince() {
+    return province;
   }
 
   void setRegion(Region region) {

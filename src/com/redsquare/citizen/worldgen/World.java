@@ -90,7 +90,7 @@ public class World {
 
     // OCEANIC PLATES
     sortPlatesByArea();
-    int oceanicCount = (int) (plateCount * 0.2);
+    int oceanicCount = (int) (plateCount * 0.3);
 
     for (int i = 0; i < oceanicCount; i++) {
       plates[i * 2].makeOceanic();
@@ -166,7 +166,7 @@ public class World {
     removeTrivialStates();
 
     // BORDERS
-    borders = establishBorders();
+    establishBorders();
   }
 
   private void removeTrivialStates() {
@@ -177,8 +177,8 @@ public class World {
     states.removeAll(toRemove);
   }
 
-  private State[][] establishBorders() {
-    State[][] borders = new State[width][height];
+  private void establishBorders() {
+    borders = new State[width][height];
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
@@ -186,18 +186,20 @@ public class World {
           // check for settlement on tile
           if (cells[x][y].hasSettlement()) {
             borders[x][y] = cells[x][y].getSettlement().getState();
+            cells[x][y].populateProvince(cells[x][y].getSettlement().regionCapital());
             continue;
           }
 
           // find closest settlement
           Settlement closest = closestTo(x, y);
 
-          if (closest != null) borders[x][y] = closest.getState();
+          if (closest != null) {
+            borders[x][y] = closest.getState();
+            cells[x][y].populateProvince(closest.regionCapital());
+          }
         }
       }
     }
-
-    return borders;
   }
 
   private Settlement closestTo(int x, int y) {
@@ -570,19 +572,14 @@ public class World {
 
           // Check if it's a regional border
           boolean regionalBorder = false;
-          Settlement closest = closestTo(x, y);
+          Settlement closest = cells[x][y].getProvince();
 
-          for (int x1 = x - 1; x1 <= x + 1; x1++) {
-            for (int y1 = y - 1; y1 <= y + 1; y1++) {
-              Settlement other = closestTo(x1, y1);
+          for (int x1 = x - 1; !regionalBorder && x1 <= x + 1; x1++) {
+            for (int y1 = y - 1; !regionalBorder && y1 <= y + 1; y1++) {
+              if (x == x1 && y == y1) continue;
+              Settlement other = cells[x1][y1].getProvince();
               if (borders[x1][y1] != null && !other.equals(closest)) {
-                if (closest.isLiege()) {
-                  regionalBorder = other.isLiege() || !other.getLiege().equals(closest);
-                } else if (other.isLiege()) {
-                  regionalBorder = closest.isLiege() || !closest.getLiege().equals(other);
-                } else {
-                  regionalBorder = !other.getLiege().equals(closest.getLiege());
-                }
+                regionalBorder = true;
               }
             }
           }

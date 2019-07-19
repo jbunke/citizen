@@ -19,22 +19,24 @@ public class FlagTests {
     final String filepath = "res/test_output/vexillology/flags.png";
     final String IMAGE_FORMAT = "png";
 
-    Culture culture = Culture.generate();
-    List<Flag> flags = new ArrayList<>();
-
-    while (flags.size() < 100) flags.add(Flag.generate(culture));
-
-    BufferedImage canvas = new BufferedImage(800, 400, BufferedImage.TYPE_INT_ARGB);
+    BufferedImage canvas = new BufferedImage(800, 1300, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) canvas.getGraphics();
 
     g.setColor(new Color(255, 255, 255));
-    g.fillRect(0, 0, 800, 400);
+    g.fillRect(0, 0, 800, 1300);
 
-    for (int i = 0; i < flags.size(); i++) {
-      int x = ((i % 10) * 80) + 10;
-      int y = ((i / 10) * 40) + 5;
+    for (int j = 0; j < 3; j++) {
+      Culture culture = Culture.generate();
+      List<Flag> flags = new ArrayList<>();
 
-      g.drawImage(flags.get(i).draw(1), x, y, null);
+      while (flags.size() < 100) flags.add(Flag.generate(culture));
+
+      for (int i = 0; i < flags.size(); i++) {
+        int x = ((i % 10) * 80) + 10;
+        int y = ((i / 10) * 40) + 5 + (450 * j);
+
+        g.drawImage(flags.get(i).draw(1), x, y, null);
+      }
     }
 
     try {

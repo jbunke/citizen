@@ -64,7 +64,7 @@ public class WorldGenTests {
     BufferedImage landSeaMap = testWorld.physicalGeography(10);
     BufferedImage regionMap = testWorld.regionMap(10);
     BufferedImage politicalMap = testWorld.politicalMap(10, false, true, false);
-    BufferedImage borderMap = testWorld.politicalMap(10, true, false, false);
+    BufferedImage borderMap = testWorld.politicalMap(10, true, false, true);
 
     try {
       ImageIO.write(tectonicMap, IMAGE_FORMAT, new File(tectonicPath));
@@ -86,20 +86,20 @@ public class WorldGenTests {
     String regionPath = "res/test_output/worldgen/stress_test/region_map.png";
 
     World testWorld = null;
-    int width = 960;
-    int height = 540;
+    int width = 1280; //960;
+    int height = 720; //540;
 
     while (testWorld == null) {
-      testWorld = World.safeCreate(width, height, 55, 1000);
+      testWorld = World.safeCreate(width, height, 55, 10);
       width -= 16;
       height -= 9;
     }
 
-    BufferedImage tectonicMap = testWorld.tectonicMap(10);
-    BufferedImage landSeaMap = testWorld.physicalGeography(10);
-    BufferedImage regionMap = testWorld.regionMap(10);
-    BufferedImage politicalMap = testWorld.politicalMap(10, false, true, false);
-    BufferedImage borderMap = testWorld.politicalMap(10, true, false, true);
+    BufferedImage tectonicMap = testWorld.tectonicMap(5);
+    BufferedImage landSeaMap = testWorld.physicalGeography(5);
+    BufferedImage regionMap = testWorld.regionMap(5);
+    BufferedImage politicalMap = testWorld.politicalMap(5, false, true, false);
+    BufferedImage borderMap = testWorld.politicalMap(5, true, false, true);
 
     try {
       ImageIO.write(tectonicMap, IMAGE_FORMAT, new File(tectonicPath));

@@ -28,8 +28,8 @@ public class Flag {
     private static AspectRatio random() {
       double r = Math.random();
 
-      if (r < 1/3.) return _1_2;
-      else if (r < 2/3.) return _2_3;
+      if (r < 1/2.) return _1_2;
+      else if (r < 3/4.) return _2_3;
       else return _3_5;
     }
 
