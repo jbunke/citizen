@@ -10,7 +10,6 @@ public class SettlementLayout {
   final int maxDepth;
   final boolean[][] streetMap;
   final Stack<StreetNode> priority = new Stack<>();
-  int iterCounter = 0;
 
   private final StreetNode anchor;
 
@@ -35,26 +34,13 @@ public class SettlementLayout {
   }
 
   public BufferedImage draw() {
-    BufferedImage layout = new BufferedImage(2000, 2000,
+    BufferedImage layout = new BufferedImage(2048, 2048,
             BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) layout.getGraphics();
     g.setColor(new Color(0, 150, 200));
-    g.fillRect(0, 0, 2000, 2000);
+    g.fillRect(0, 0, 2048, 2048);
 
     anchor.draw(g);
-
-    g.setColor(new Color(0, 200, 0, 100));
-    g.fillRect(0, 0, 2000, 2000);
-
-    g.setColor(new Color(200, 0, 0, 200));
-    for (int x = 0; x < 100; x++) {
-      for (int y = 0; y < 100; y++) {
-        int tx = 995 + (30 * (49 - x));
-        int ty = 995 + (30 * (49 - y));
-
-        if (streetMap[x][y]) g.fillRect(tx, ty, 10, 10);
-      }
-    }
 
     return layout;
   }

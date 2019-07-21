@@ -45,9 +45,9 @@ public class LayoutTests {
     final String filepath = "res/test_output/settlements/capitals/";
     final String IMAGE_FORMAT = "png";
 
-    World world = World.safeCreate(640, 360, 35, 10);
+    World world = World.safeCreate(800, 450, 45, 10);
 
-    BufferedImage wIm = world.politicalMap(5, true, false, true);
+    BufferedImage wIm = world.politicalMap(10, true, false, true);
 
     Set<State> states = world.getStates();
     List<BufferedImage> capitals = new ArrayList<>();

@@ -22,14 +22,14 @@ class Street {
 
   private Street(Direction direction, StreetNode parent) {
     this.direction = direction;
-    this.length = Randoms.bounded(2, 6) * BLOCK_WIDTH;
-
-    // TODO - not just residential
-    this.purpose = Purpose.RESIDENTIAL;
+    double r = Math.random();
+    this.length = (2 + (int)(Math.pow(r, 2) * 9)) * BLOCK_WIDTH;
 
     this.parent = parent;
 
-    boolean conflicts = false; // conflicts();
+    this.purpose = generatePurpose();
+
+    boolean conflicts = conflicts();
 
     this.child = conflicts ? null : StreetNode.fromStreet(this);
 
@@ -51,6 +51,27 @@ class Street {
     RESIDENTIAL, MARKET
   }
 
+  private Purpose generatePurpose() {
+    // TODO - Flesh out
+    int depth = parent.depth();
+    int maxDepth = parent.layout.maxDepth;
+    double prob = Math.random();
+
+    if (depth < 2) {
+      if (prob < 0.5) return Purpose.MARKET;
+
+      return Purpose.RESIDENTIAL;
+    } else if (depth < maxDepth - 3) {
+      if (prob < 0.2) return Purpose.MARKET;
+
+      return Purpose.RESIDENTIAL;
+    }
+
+    if (depth == maxDepth) return Purpose.RESIDENTIAL;
+
+    return Purpose.RESIDENTIAL;
+  }
+
   private boolean conflicts() {
     int x = 49 + ((999 - parent.location.x) / BLOCK_WIDTH);
     int y = 49 + ((999 - parent.location.y) / BLOCK_WIDTH);
@@ -61,16 +82,16 @@ class Street {
 
       switch (direction) {
         case NORTH:
-          y -= 1;
-          break;
-        case EAST:
-          x += 1;
-          break;
-        case SOUTH:
           y += 1;
           break;
-        case WEST:
+        case EAST:
           x -= 1;
+          break;
+        case SOUTH:
+          y -= 1;
+          break;
+        case WEST:
+          x += 1;
           break;
       }
     }
@@ -87,16 +108,16 @@ class Street {
 
       switch (direction) {
         case NORTH:
-          y -= 1;
+          y += 1;
           break;
         case EAST:
-          x += 1;
-          break;
-        case WEST:
           x -= 1;
           break;
+        case WEST:
+          x += 1;
+          break;
         case SOUTH:
-          y += 1;
+          y -= 1;
           break;
       }
     }
@@ -118,11 +139,27 @@ class Street {
     switch (purpose) {
       case RESIDENTIAL:
         for (int i = 0; i < buildingsPerSide; i++) {
-          if (Math.random() < 0.7) buildings.add(Residence.generate(this, true, i));
-          if (Math.random() < 0.7) buildings.add(Residence.generate(this, false, i));
+          double prob = i == 0 || i + 1 == buildingsPerSide ? (length > 90 ? 0.2 : 0.6) : 0.7;
+          if (Math.random() < prob) buildings.add(Residence.generate(this, true, i));
+          if (Math.random() < prob) buildings.add(Residence.generate(this, false, i));
         }
         break;
       case MARKET:
+        for (int i = 0; i < buildingsPerSide; i++) {
+          double prob = i == 0 || i + 1 == buildingsPerSide ? 0.2 : 1.0;
+          switch (direction) {
+            case WEST:
+              if (Math.random() < prob) buildings.add(Residence.generate(this, false, i));
+              break;
+            case EAST:
+              if (Math.random() < prob) buildings.add(MarketStall.generate(this, true, i));
+              break;
+            default:
+              if (Math.random() < prob) buildings.add(MarketStall.generate(this, true, i));
+              if (Math.random() < prob) buildings.add(MarketStall.generate(this, false, i));
+              break;
+          }
+        }
         break;
     }
 

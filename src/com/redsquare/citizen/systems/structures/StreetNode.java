@@ -2,11 +2,7 @@ package com.redsquare.citizen.systems.structures;
 
 import com.redsquare.citizen.util.Sets;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,36 +27,13 @@ class StreetNode {
   }
 
   static StreetNode startNode(SettlementLayout layout) {
-    return new StreetNode(new Point(999, 999), Type.OMNI, null, layout);
+    return new StreetNode(new Point(1023, 1023), Type.OMNI, null, layout);
   }
 
   void generate() {
     while (!layout.priority.empty()) {
       StreetNode top = layout.priority.pop();
       top.generateOffshoots();
-
-      // TODO - remove
-      BufferedImage test = new BufferedImage(400, 400, BufferedImage.TYPE_INT_ARGB);
-      Graphics2D g = (Graphics2D) test.getGraphics();
-
-      g.setColor(new Color(0, 180, 0));
-      g.fillRect(0, 0, 400, 400);
-
-      for (int x = 0; x < 100; x++) {
-        for (int y = 0; y < 100; y++) {
-          if (layout.streetMap[x][y]) {
-            g.setColor(new Color(255, 0, 0));
-            g.fillRect(x * 4, y * 4, 4, 4);
-          }
-        }
-      }
-
-      try {
-        ImageIO.write(test, "png", new File("res/test_output/settlements/streetmap" + layout.iterCounter + ".png"));
-        layout.iterCounter++;
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
     }
   }
 
@@ -133,6 +106,9 @@ class StreetNode {
 
   private void generateOffshoots()  {
     Set<Street> offshoots = new HashSet<>();
+
+    if (Math.abs(1023 - location.x) > 800 ||
+            Math.abs(1023 - location.y) > 800) return;
 
     switch (type) {
       case OMNI:

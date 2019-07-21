@@ -3,12 +3,12 @@ package com.redsquare.citizen.systems.structures;
 import java.awt.*;
 
 abstract class Building {
-  private static final int HOUSE_LENGTH = 10;
-  private static final int HOUSE_DEPTH = 8;
+  static final int HOUSE_LENGTH = 14;
+  static final int HOUSE_DEPTH = 8;
 
   private final Street street;
-  private final Point location;
-  private final Direction direction;
+  final Point location;
+  final Direction direction;
 
   Building(Street street, boolean lhs, int location) {
     this.street = street;
@@ -68,7 +68,11 @@ abstract class Building {
   }
 
   void draw(Graphics2D g) {
-    g.setColor(new Color(255, 0, 0, 120));
+    draw(g, new Color(0, 0, 0));
+  }
+
+  void draw(Graphics2D g, Color c) {
+    g.setColor(c);
 
     switch (direction) {
       case WEST:
