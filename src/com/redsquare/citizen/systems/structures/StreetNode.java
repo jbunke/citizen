@@ -27,7 +27,7 @@ class StreetNode {
   }
 
   static StreetNode startNode(SettlementLayout layout) {
-    return new StreetNode(new Point(1023, 1023), Type.OMNI, null, layout);
+    return new StreetNode(new Point(192, 192), Type.OMNI, null, layout);
   }
 
   void generate() {
@@ -107,8 +107,8 @@ class StreetNode {
   private void generateOffshoots()  {
     Set<Street> offshoots = new HashSet<>();
 
-    if (Math.abs(1023 - location.x) > 800 ||
-            Math.abs(1023 - location.y) > 800) return;
+    if (Math.abs(192 - location.x) > 150 ||
+            Math.abs(192 - location.y) > 150) return;
 
     switch (type) {
       case OMNI:

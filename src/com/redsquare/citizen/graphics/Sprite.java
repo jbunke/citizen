@@ -101,7 +101,7 @@ public class Sprite {
   }
 
   /**
-   * Designed to only be called by the code version of getSprite
+   * Designed to only be called by the String code version of getSprite
    *
    * Make public if it is more convenient is certain cases to call directly
    * */

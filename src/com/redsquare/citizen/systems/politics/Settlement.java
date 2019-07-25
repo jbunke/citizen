@@ -4,6 +4,7 @@ import com.redsquare.citizen.systems.language.PlaceNameGenerator;
 import com.redsquare.citizen.systems.language.Word;
 import com.redsquare.citizen.systems.structures.SettlementLayout;
 import com.redsquare.citizen.util.Formatter;
+import com.redsquare.citizen.worldgen.WorldCell;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -18,6 +19,8 @@ public class Settlement {
   private House rulingHouse;
   private int setupPower;
   private double economy = 1.0;
+
+  private WorldCell cell;
 
   private Point location;
   private SettlementLayout layout;
@@ -61,6 +64,10 @@ public class Settlement {
     economy = Math.min(Math.max(1/2.0, newEconomy), 2/1.0);
 
     setupPower += (int)(economy * rawPower);
+  }
+
+  public void setWorldCell(WorldCell cell) {
+    this.cell = cell;
   }
 
   /** Conquest system function for state reassignment */

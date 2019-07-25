@@ -15,7 +15,7 @@ public class SettlementLayout {
 
   private SettlementLayout(Settlement settlement) {
     this.maxDepth = setupPowerToStreetMaxDepth(settlement);
-    this.streetMap = new boolean[100][100];
+    this.streetMap = new boolean[130][130];
     this.anchor = StreetNode.startNode(this);
 
     anchor.generate();
@@ -34,11 +34,11 @@ public class SettlementLayout {
   }
 
   public BufferedImage draw() {
-    BufferedImage layout = new BufferedImage(2048, 2048,
+    BufferedImage layout = new BufferedImage(768, 768,
             BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) layout.getGraphics();
     g.setColor(new Color(0, 150, 200));
-    g.fillRect(0, 0, 2048, 2048);
+    g.fillRect(0, 0, 768, 768);
 
     anchor.draw(g);
 

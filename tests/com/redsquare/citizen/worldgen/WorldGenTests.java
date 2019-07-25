@@ -51,6 +51,21 @@ public class WorldGenTests {
   }
 
   @Test
+  public void chunkMapTest() {
+    String filepath = "res/test_output/worldgen/chunk_map/chunks.png";
+
+    World world = World.safeCreate(480, 270, 30, 10);
+
+    BufferedImage i = world.chunkMap();
+
+    try {
+      ImageIO.write(i, IMAGE_FORMAT, new File(filepath));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
   public void generateWorldToMaps() {
     String tectonicPath = "res/test_output/worldgen/tectonic_map.png";
     String landSeaPath = "res/test_output/worldgen/land_sea_map.png";

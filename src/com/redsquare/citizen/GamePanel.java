@@ -1,10 +1,14 @@
 package com.redsquare.citizen;
 
+import com.redsquare.citizen.config.Settings;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class GamePanel extends JPanel implements Runnable {
+
+  private static GamePanel instance = null;
 
   private int width, height;
 
@@ -16,9 +20,9 @@ public class GamePanel extends JPanel implements Runnable {
   private BufferedImage image;
   private Graphics2D g;
 
-  GamePanel(int width, int height) {
-    this.width = width;
-    this.height = height;
+  private GamePanel() {
+    this.width = Settings.SCREEN_DIM[0];
+    this.height = Settings.SCREEN_DIM[1];
 
     gameManager = GameManager.init();
     inputHandler = InputHandler.create(this);
@@ -26,6 +30,13 @@ public class GamePanel extends JPanel implements Runnable {
     setPreferredSize(new Dimension(width, height));
     setFocusable(true);
     requestFocus();
+  }
+
+  public static GamePanel instance() {
+    if (instance != null) return instance;
+
+    instance = new GamePanel();
+    return instance;
   }
 
   public int getWidth() {

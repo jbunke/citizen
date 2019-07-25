@@ -6,13 +6,17 @@ import com.redsquare.citizen.systems.politics.Family;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.util.ColorMath;
+import com.redsquare.citizen.util.FloatPoint;
 import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.redsquare.citizen.GameManager.WorldMaths;
 
 public class Person extends Animal {
   protected String[] name;
@@ -39,7 +43,10 @@ public class Person extends Animal {
   private final Set<Language> languages;
   private Culture culture;
 
-  private Point worldLocation;
+  Point worldLocation;
+  Point cellLocation;
+  FloatPoint subCellLocation;
+  double speed;
 
   protected Person(Person father, Person mother, GameDate birthday,
                    Settlement birthplace) {
@@ -51,6 +58,11 @@ public class Person extends Animal {
     this.birthplace = birthplace;
 
     this.worldLocation = birthplace.getLocation();
+    this.cellLocation = new Point(WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2,
+            WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2);
+    this.subCellLocation = new FloatPoint(WorldMaths.CELL_DIMENSION_LENGTH / 2,
+            WorldMaths.CELL_DIMENSION_LENGTH);
+    this.speed = 6.;
 
     this.children = new HashSet<>();
 
@@ -77,6 +89,13 @@ public class Person extends Animal {
 
     this.father = null;
     this.mother = null;
+
+    this.worldLocation = birthplace.getLocation();
+    this.cellLocation = new Point(WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2,
+            WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2);
+    this.subCellLocation = new FloatPoint(WorldMaths.CELL_DIMENSION_LENGTH / 2,
+            WorldMaths.CELL_DIMENSION_LENGTH);
+    this.speed = 6.;
 
     this.children = new HashSet<>();
 
@@ -312,12 +331,33 @@ public class Person extends Animal {
   }
 
   @Override
-  Point worldLocation() {
+  public Point worldLocation() {
     return worldLocation;
   }
 
   @Override
-  Point cellLocation() {
-    return null;
+  public Point cellLocation() {
+    return cellLocation;
+  }
+
+  @Override
+  public FloatPoint subCellLocation() {
+    return subCellLocation;
+  }
+
+  @Override
+  public BufferedImage getSprite() {
+    BufferedImage placeholder = new BufferedImage(32, 60, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) placeholder.getGraphics();
+
+    g.setColor(new Color(255, 0, 0));
+    g.fillRect(0, 0, 32, 60);
+
+    return placeholder;
+  }
+
+  @Override
+  public Point getSpriteOffset() {
+    return new Point(-16, -60);
   }
 }

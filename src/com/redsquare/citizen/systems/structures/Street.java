@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 class Street {
-  static final int BLOCK_WIDTH = 30;
+  static final int BLOCK_WIDTH = 3;
 
   private final Direction direction;
   private final int length;
@@ -73,8 +73,8 @@ class Street {
   }
 
   private boolean conflicts() {
-    int x = 49 + ((999 - parent.location.x) / BLOCK_WIDTH);
-    int y = 49 + ((999 - parent.location.y) / BLOCK_WIDTH);
+    int x = 64 + ((192 - parent.location.x) / BLOCK_WIDTH);
+    int y = 64 + ((192 - parent.location.y) / BLOCK_WIDTH);
 
     for (int i = 0; i <= length; i += BLOCK_WIDTH) {
       if (parent.layout.streetMap[x][y] && i > 0)
@@ -100,8 +100,8 @@ class Street {
   }
 
   private void fillStreetMap() {
-    int x = 49 + ((999 - parent.location.x) / BLOCK_WIDTH);
-    int y = 49 + ((999 - parent.location.y) / BLOCK_WIDTH);
+    int x = 64 + ((192 - parent.location.x) / BLOCK_WIDTH);
+    int y = 64 + ((192 - parent.location.y) / BLOCK_WIDTH);
 
     for (int i = 0; i <= length; i += BLOCK_WIDTH) {
       parent.layout.streetMap[x][y] = true;
@@ -134,29 +134,28 @@ class Street {
   private Set<Building> generateBuildings() {
     Set<Building> buildings = new HashSet<>();
 
-    int buildingsPerSide = length / BLOCK_WIDTH;
+    int buildingsPerSide = length;
 
     switch (purpose) {
       case RESIDENTIAL:
-        for (int i = 0; i < buildingsPerSide; i++) {
-          double prob = i == 0 || i + 1 == buildingsPerSide ? (length > 90 ? 0.2 : 0.6) : 0.7;
+        for (int i = 1; i < buildingsPerSide - 1; i++) {
+          double prob = 0.7;
           if (Math.random() < prob) buildings.add(Residence.generate(this, true, i));
           if (Math.random() < prob) buildings.add(Residence.generate(this, false, i));
         }
         break;
       case MARKET:
-        for (int i = 0; i < buildingsPerSide; i++) {
-          double prob = i == 0 || i + 1 == buildingsPerSide ? 0.2 : 1.0;
+        for (int i = 1; i < buildingsPerSide; i++) {
           switch (direction) {
             case WEST:
-              if (Math.random() < prob) buildings.add(Residence.generate(this, false, i));
+              buildings.add(Residence.generate(this, false, i));
               break;
             case EAST:
-              if (Math.random() < prob) buildings.add(MarketStall.generate(this, true, i));
+              buildings.add(MarketStall.generate(this, true, i));
               break;
             default:
-              if (Math.random() < prob) buildings.add(MarketStall.generate(this, true, i));
-              if (Math.random() < prob) buildings.add(MarketStall.generate(this, false, i));
+              buildings.add(MarketStall.generate(this, true, i));
+              buildings.add(MarketStall.generate(this, false, i));
               break;
           }
         }
@@ -184,10 +183,10 @@ class Street {
 
   void draw(Graphics2D g) {
     g.setColor(new Color(0, 0, 0));
-    g.setStroke(new BasicStroke(breadth));
+    g.setStroke(new BasicStroke(1));
 
-    g.drawLine(parent.location.x, parent.location.y,
-            child.location.x, child.location.y);
+    g.drawLine(parent.location.x * 2, parent.location.y * 2,
+            child.location.x * 2, child.location.y * 2);
 
     for (Building building : buildings) {
       building.draw(g);

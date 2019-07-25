@@ -20,43 +20,43 @@ abstract class Building {
       case NORTH:
         if (lhs) {
           direction = Direction.EAST;
-          x = streetStart.x - (HOUSE_DEPTH + 1);
+          x = streetStart.x - 1;
         } else {
           direction = Direction.WEST;
-          x = streetStart.x + 2;
+          x = streetStart.x + 1;
         }
-        y = streetStart.y - (Street.BLOCK_WIDTH * (location + 1)) + (Street.BLOCK_WIDTH - HOUSE_LENGTH) / 2;
+        y = streetStart.y - location;
         break;
       case SOUTH:
         if (lhs) {
           direction = Direction.WEST;
-          x = streetStart.x + 2;
+          x = streetStart.x + 1;
         } else {
           direction = Direction.EAST;
-          x = streetStart.x - (HOUSE_DEPTH + 1);
+          x = streetStart.x - 1;
         }
-        y = streetStart.y + (Street.BLOCK_WIDTH * location) + (Street.BLOCK_WIDTH - HOUSE_LENGTH) / 2;
+        y = streetStart.y + location;
         break;
       case EAST:
         if (lhs) {
           direction = Direction.SOUTH;
-          y = streetStart.y - (HOUSE_DEPTH + 1);
+          y = streetStart.y - 1;
         } else {
           direction = Direction.NORTH;
-          y = streetStart.y + 2;
+          y = streetStart.y + 1;
         }
-        x = streetStart.x + (Street.BLOCK_WIDTH * location) + (Street.BLOCK_WIDTH - HOUSE_LENGTH) / 2;
+        x = streetStart.x + location;
         break;
       case WEST:
       default:
         if (lhs) {
           direction = Direction.NORTH;
-          y = streetStart.y + 2;
+          y = streetStart.y + 1;
         } else {
           direction = Direction.SOUTH;
-          y = streetStart.y - (HOUSE_DEPTH + 1);
+          y = streetStart.y - 1;
         }
-        x = streetStart.x - (Street.BLOCK_WIDTH * (location + 1)) + (Street.BLOCK_WIDTH - HOUSE_LENGTH) / 2;
+        x = streetStart.x - location;
         break;
     }
 
@@ -73,16 +73,6 @@ abstract class Building {
 
   void draw(Graphics2D g, Color c) {
     g.setColor(c);
-
-    switch (direction) {
-      case WEST:
-      case EAST:
-        g.fillRect(location.x, location.y, HOUSE_DEPTH, HOUSE_LENGTH);
-        break;
-      case NORTH:
-      case SOUTH:
-        g.fillRect(location.x, location.y, HOUSE_LENGTH, HOUSE_DEPTH);
-        break;
-    }
+    g.fillRect(location.x * 2, location.y * 2, 1, 1);
   }
 }

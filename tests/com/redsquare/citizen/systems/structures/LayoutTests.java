@@ -58,8 +58,8 @@ public class LayoutTests {
       Graphics2D g = (Graphics2D) cIm.getGraphics();
 
       g.drawImage(Font.CLEAN.getText(Formatter.capitaliseFirstLetter(
-              state.getCapital().getName())), 10, 1950, null);
-      g.drawImage(state.getFlag().draw(2), 10, 1850, null);
+              state.getCapital().getName())), 10, 710, null);
+      g.drawImage(state.getFlag().draw(1), 10, 732, null);
 
       capitals.add(cIm);
     }
