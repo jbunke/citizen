@@ -33,7 +33,7 @@ public abstract class Entity implements Comparable<Entity> {
     else {
       if (cellLocation().y > other.cellLocation().y) return -1;
       else if (cellLocation().y < other.cellLocation().y) return 1;
-      else return Double.compare(other.subCellLocation().y, subCellLocation().y);
+      else return Double.compare(subCellLocation().y, other.subCellLocation().y);
     }
   }
 

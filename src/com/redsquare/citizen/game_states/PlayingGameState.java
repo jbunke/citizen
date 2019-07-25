@@ -39,6 +39,7 @@ public final class PlayingGameState extends GameState {
   public void update() {
     // TODO - Macro/micro scope sorting
     for (Entity citizen : citizens) citizen.update();
+    camera.update();
   }
 
   @Override

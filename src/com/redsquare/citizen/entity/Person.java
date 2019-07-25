@@ -1,5 +1,6 @@
 package com.redsquare.citizen.entity;
 
+import com.redsquare.citizen.graphics.Sprite;
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.politics.Culture;
 import com.redsquare.citizen.systems.politics.Family;
@@ -14,6 +15,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static com.redsquare.citizen.GameManager.WorldMaths;
@@ -64,6 +66,8 @@ public class Person extends Animal {
             WorldMaths.CELL_DIMENSION_LENGTH);
     this.speed = 6.;
 
+    this.layers = spriteSetup();
+
     this.children = new HashSet<>();
 
     // TODO: name generation
@@ -97,6 +101,8 @@ public class Person extends Animal {
             WorldMaths.CELL_DIMENSION_LENGTH);
     this.speed = 6.;
 
+    this.layers = spriteSetup();
+
     this.children = new HashSet<>();
 
     motherTongue = birthplace.getState().getLanguage();
@@ -120,6 +126,16 @@ public class Person extends Animal {
   public static Person birth(Person mother, Person father, GameDate birthday,
                              Settlement birthplace) {
     return new Person(father, mother, birthday, birthplace);
+  }
+
+  Sprite[] spriteSetup() {
+    Sprite[] layers = new Sprite[1];
+    layers[0] = new Sprite("res/img_assets/sprite_sheets/test/test_sprite.png", "BASIC GREY PERSON", 112, 176, Map.ofEntries(Map.entry("all", new Point(0, 0))));
+    return layers;
+  }
+
+  public Settlement getBirthplace() {
+    return birthplace;
   }
 
   Sex getSex() {
@@ -347,17 +363,11 @@ public class Person extends Animal {
 
   @Override
   public BufferedImage getSprite() {
-    BufferedImage placeholder = new BufferedImage(32, 60, BufferedImage.TYPE_INT_ARGB);
-    Graphics2D g = (Graphics2D) placeholder.getGraphics();
-
-    g.setColor(new Color(255, 0, 0));
-    g.fillRect(0, 0, 32, 60);
-
-    return placeholder;
+    return layers[0].getSprite("all");
   }
 
   @Override
   public Point getSpriteOffset() {
-    return new Point(-16, -60);
+    return new Point(-56, -164);
   }
 }

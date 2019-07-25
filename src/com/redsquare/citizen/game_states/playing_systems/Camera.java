@@ -1,5 +1,6 @@
 package com.redsquare.citizen.game_states.playing_systems;
 
+import com.redsquare.citizen.GameDebug;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.config.Settings;
 import com.redsquare.citizen.entity.Entity;
@@ -69,6 +70,34 @@ public class Camera {
     ref = referenceEntityLocation(target);
   }
 
+  private void track() {
+    double distance = MathExt.distance(ref, new FloatPoint(0, 0));
+    double screenAcross = MathExt.distance(new Point(0, 0),
+            new Point(Settings.SCREEN_DIM[0], Settings.SCREEN_DIM[1]));
+
+    if (distance < 3) {
+      // MATCH LOCATION
+      worldLocation = target.worldLocation();
+      cellLocation = target.cellLocation();
+      subCellLocation = target.subCellLocation();
+    } else {
+      double taperOff;
+      if (distance / screenAcross < 0.2) taperOff = 0.05;
+      else if (distance / screenAcross < 0.5) taperOff = 0.1;
+      else taperOff = 0.2;
+
+      FloatPoint adj = new FloatPoint(ref.x * taperOff,
+              ref.y * taperOff);
+      subCellLocation = new FloatPoint(subCellLocation.x + adj.x,
+              subCellLocation.y + adj.y);
+    }
+  }
+
+  public void update() {
+    adjustRef();
+    track();
+  }
+
   public void input(InputHandler inputHandler) {
     List<Event> events = inputHandler.getUnprocessedEvents();
     for (int i = 0; i < events.size(); i++) {
@@ -103,6 +132,15 @@ public class Camera {
     Collections.sort(entities);
 
     entities.forEach(x -> renderEntity(g, x));
+
+    if (GameDebug.isActive()) {
+      g.setColor(new Color(0, 0, 0));
+      g.setStroke(new BasicStroke(1));
+      g.drawLine(Settings.SCREEN_DIM[0] / 2, 0,
+              Settings.SCREEN_DIM[0] / 2, Settings.SCREEN_DIM[1]);
+      g.drawLine(0, Settings.SCREEN_DIM[1] / 2,
+              Settings.SCREEN_DIM[0], Settings.SCREEN_DIM[1] / 2);
+    }
   }
 
   private void renderEntity(Graphics2D g, Entity entity) {
@@ -121,8 +159,8 @@ public class Camera {
     int[] centerOffset = new int[] { (int)(distance.x / zoomLevel),
             (int)(distance.y / zoomLevel) };
 
-    int[] loc = new int[] { center[X] + centerOffset[X] - offset.x,
-            center[Y] + centerOffset[Y] - offset.y };
+    int[] loc = new int[] { center[X] + centerOffset[X] + offset.x,
+            center[Y] + centerOffset[Y] + offset.y };
 
     int[] pixelLock = new int[] { (4 / zoomLevel) - (loc[X] % (4 / zoomLevel)),
             (4 / zoomLevel) - (loc[Y] % (4 / zoomLevel)) };
