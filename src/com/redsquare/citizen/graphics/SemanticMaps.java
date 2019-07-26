@@ -15,14 +15,14 @@ import java.util.Map;
  * */
 public class SemanticMaps {
   public static final Map<String, Point> HOMINID_BODY = Map.ofEntries(
-          Map.entry("L-CALM-IDLE-BASE", new Point(0, 0)),
-          Map.entry("DL-CALM-IDLE-BASE", new Point(1, 0)),
-          Map.entry("D-CALM-IDLE-BASE", new Point(2, 0)),
-          Map.entry("DR-CALM-IDLE-BASE", new Point(3, 0)),
-          Map.entry("R-CALM-IDLE-BASE", new Point(4, 0)),
-          Map.entry("UR-CALM-IDLE-BASE", new Point(5, 0)),
-          Map.entry("U-CALM-IDLE-BASE", new Point(6, 0)),
-          Map.entry("UL-CALM-IDLE-BASE", new Point(7, 0))
+          Map.entry("DL-CALM-IDLE-BASE", new Point(0, 0)),
+          Map.entry("L-CALM-IDLE-BASE", new Point(1, 0)),
+          Map.entry("UL-CALM-IDLE-BASE", new Point(2, 0)),
+          Map.entry("U-CALM-IDLE-BASE", new Point(3, 0)),
+          Map.entry("UR-CALM-IDLE-BASE", new Point(4, 0)),
+          Map.entry("R-CALM-IDLE-BASE", new Point(5, 0)),
+          Map.entry("DR-CALM-IDLE-BASE", new Point(6, 0)),
+          Map.entry("D-CALM-IDLE-BASE", new Point(7, 0))
           // rest
   );
 

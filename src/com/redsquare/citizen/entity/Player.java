@@ -2,6 +2,7 @@ package com.redsquare.citizen.entity;
 
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.game_states.playing_systems.ControlScheme;
+import com.redsquare.citizen.graphics.RenderDirection;
 import com.redsquare.citizen.input_events.Event;
 import com.redsquare.citizen.input_events.KeyPressEvent;
 import com.redsquare.citizen.systems.politics.Settlement;
@@ -106,8 +107,15 @@ public final class Player extends Person {
   @Override
   public void update() {
     // TODO
+    setDirection();
     setMovementVector();
     move();
+  }
+
+  private void setDirection() {
+    double angle = Math.atan((-1. * lookingRef.y) / lookingRef.x);
+    if (lookingRef.x < 0) angle += Math.PI;
+    direction = RenderDirection.fromAngle(angle);
   }
 
   private void setMovementVector() {

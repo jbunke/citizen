@@ -1,6 +1,6 @@
 package com.redsquare.citizen.entity;
 
-import com.redsquare.citizen.graphics.Sprite;
+import com.redsquare.citizen.graphics.*;
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.politics.Culture;
 import com.redsquare.citizen.systems.politics.Family;
@@ -15,7 +15,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static com.redsquare.citizen.GameManager.WorldMaths;
@@ -66,6 +65,11 @@ public class Person extends Animal {
             WorldMaths.CELL_DIMENSION_LENGTH);
     this.speed = 6.;
 
+    this.direction = RenderDirection.D;
+    this.posture = RenderPosture.CALM;
+    this.activity = RenderActivity.IDLE;
+    this.poseNum = 0;
+
     this.layers = spriteSetup();
 
     this.children = new HashSet<>();
@@ -101,6 +105,11 @@ public class Person extends Animal {
             WorldMaths.CELL_DIMENSION_LENGTH);
     this.speed = 6.;
 
+    this.direction = RenderDirection.D;
+    this.posture = RenderPosture.CALM;
+    this.activity = RenderActivity.IDLE;
+    this.poseNum = 0;
+
     this.layers = spriteSetup();
 
     this.children = new HashSet<>();
@@ -128,9 +137,11 @@ public class Person extends Animal {
     return new Person(father, mother, birthday, birthplace);
   }
 
-  Sprite[] spriteSetup() {
+  private Sprite[] spriteSetup() {
     Sprite[] layers = new Sprite[1];
-    layers[0] = new Sprite("res/img_assets/sprite_sheets/test/test_sprite_sheet.png", "BASIC GREY PERSON", 112, 176, Map.ofEntries(Map.entry("all", new Point(0, 0))));
+    layers[0] = new Sprite(
+            "res/img_assets/sprite_sheets/test/test_sprite_sheet.png",
+            "BASIC GREY PERSON", 112, 176, SemanticMaps.HOMINID_BODY);
     return layers;
   }
 
@@ -363,7 +374,8 @@ public class Person extends Animal {
 
   @Override
   public BufferedImage getSprite() {
-    return layers[0].getSprite("all");
+    String spriteCode = getSpriteCode();
+    return layers[0].getSprite(spriteCode);
   }
 
   @Override
