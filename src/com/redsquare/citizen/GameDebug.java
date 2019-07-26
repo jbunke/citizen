@@ -5,6 +5,10 @@ import java.util.function.Consumer;
 public class GameDebug {
   private static boolean active = true;
 
+  public static boolean isActive() {
+    return active;
+  }
+
   public static void activate() {
     active = true;
   }

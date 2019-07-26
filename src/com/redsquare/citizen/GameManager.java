@@ -8,6 +8,11 @@ import java.awt.*;
 
 public class GameManager {
 
+  public static class WorldMaths {
+    public static final int CELLS_IN_WORLD_CELL_DIM = 384;
+    public static final double CELL_DIMENSION_LENGTH = 200.;
+  }
+
   private static GameManager instance = new GameManager();
 
   private GameState[] states;

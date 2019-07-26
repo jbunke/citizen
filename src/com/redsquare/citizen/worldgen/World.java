@@ -5,6 +5,7 @@ import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
+import com.redsquare.citizen.systems.vexillology.Flag;
 import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.util.Sets;
 
@@ -89,7 +90,7 @@ public class World {
 
     // OCEANIC PLATES
     sortPlatesByArea();
-    int oceanicCount = (int) (plateCount * 0.2);
+    int oceanicCount = (int) (plateCount * 0.3);
 
     for (int i = 0; i < oceanicCount; i++) {
       plates[i * 2].makeOceanic();
@@ -107,7 +108,7 @@ public class World {
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
         if (plateIndex(x, y) == -1)
-          cells[x][y] = new WorldCell(WorldCell.Type.SEA);
+          cells[x][y] = new WorldCell(WorldCell.Type.SEA, this, new Point(x, y));
       }
     }
 
@@ -165,7 +166,7 @@ public class World {
     removeTrivialStates();
 
     // BORDERS
-    borders = establishBorders();
+    establishBorders();
   }
 
   private void removeTrivialStates() {
@@ -176,8 +177,8 @@ public class World {
     states.removeAll(toRemove);
   }
 
-  private State[][] establishBorders() {
-    State[][] borders = new State[width][height];
+  private void establishBorders() {
+    borders = new State[width][height];
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
@@ -185,18 +186,20 @@ public class World {
           // check for settlement on tile
           if (cells[x][y].hasSettlement()) {
             borders[x][y] = cells[x][y].getSettlement().getState();
+            cells[x][y].populateProvince(cells[x][y].getSettlement().regionCapital());
             continue;
           }
 
           // find closest settlement
           Settlement closest = closestTo(x, y);
 
-          if (closest != null) borders[x][y] = closest.getState();
+          if (closest != null) {
+            borders[x][y] = closest.getState();
+            cells[x][y].populateProvince(closest.regionCapital());
+          }
         }
       }
     }
-
-    return borders;
   }
 
   private Settlement closestTo(int x, int y) {
@@ -217,6 +220,18 @@ public class World {
     }
 
     return closest;
+  }
+
+  int getWidth() {
+    return width;
+  }
+
+  int getHeight() {
+    return height;
+  }
+
+  WorldCell getCell(int x, int y) {
+    return (x >= 0 && x < width && y >= 0 && y < height) ? cells[x][y] : null;
   }
 
   public Set<State> getStates() {
@@ -466,7 +481,7 @@ public class World {
         }
 
         if (peers >= LAND_PEER_THRESHOLD)
-          cells[x][y] = new WorldCell(WorldCell.Type.PLAIN);
+          cells[x][y] = new WorldCell(WorldCell.Type.PLAIN, this, new Point(x, y));
       }
     }
   }
@@ -483,6 +498,23 @@ public class World {
         }
       }
     }
+  }
+
+  /** TEST FUNCTION */
+  BufferedImage chunkMap() {
+    BufferedImage map = new BufferedImage(width * 16, height * 16,
+            BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) map.getGraphics();
+
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) {
+        cells[x][y].generate();
+
+        g.drawImage(cells[x][y].getChunkImage(), x * 16, y * 16, null);
+      }
+    }
+
+    return map;
   }
 
   BufferedImage regionMap(final int SCALE_UP) {
@@ -569,19 +601,14 @@ public class World {
 
           // Check if it's a regional border
           boolean regionalBorder = false;
-          Settlement closest = closestTo(x, y);
+          Settlement closest = cells[x][y].getProvince();
 
-          for (int x1 = x - 1; x1 <= x + 1; x1++) {
-            for (int y1 = y - 1; y1 <= y + 1; y1++) {
-              Settlement other = closestTo(x1, y1);
+          for (int x1 = x - 1; !regionalBorder && x1 <= x + 1; x1++) {
+            for (int y1 = y - 1; !regionalBorder && y1 <= y + 1; y1++) {
+              if (x == x1 && y == y1) continue;
+              Settlement other = cells[x1][y1].getProvince();
               if (borders[x1][y1] != null && !other.equals(closest)) {
-                if (closest.isLiege()) {
-                  regionalBorder = other.isLiege() || !other.getLiege().equals(closest);
-                } else if (other.isLiege()) {
-                  regionalBorder = closest.isLiege() || !closest.getLiege().equals(other);
-                } else {
-                  regionalBorder = !other.getLiege().equals(closest.getLiege());
-                }
+                regionalBorder = true;
               }
             }
           }
@@ -683,6 +710,15 @@ public class World {
 //              capitalLoc.y * SCALE_UP, null);
     }
 
+    for (State state : states) {
+      Settlement capital = state.getCapital();
+      Point location = capital.getLocation();
+      Flag flag = state.getFlag();
+
+      g.drawImage(flag.draw(2), location.x * SCALE_UP, location.y * SCALE_UP + 30,
+              null);
+    }
+
     return map;
   }
 
@@ -694,98 +730,8 @@ public class World {
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
-        switch (cells[x][y].getType()) {
-          case SHALLOW:
-            switch (cells[x][y].getRegion()) {
-              case POLAR:
-                g.setColor(new Color(40,
-                        150 + (int)(10 * Math.random()),
-                        200 + (int)(10 * Math.random())));
-                break;
-              case TROPICAL:
-                g.setColor(new Color(0,
-                        140, 190 + (int)(15 * Math.random())));
-                break;
-              default:
-                g.setColor(new Color(0,
-                        120, 180 + (int)(15 * Math.random())));
-            }
-            break;
-          case SEA:
-            switch (cells[x][y].getRegion()) {
-              case POLAR:
-                g.setColor(new Color(0,
-                        95 + (int)(10 * Math.random()),
-                        160 + (int)(10 * Math.random())));
-                break;
-              case TROPICAL:
-                g.setColor(new Color(0,
-                        105 + (int)(10 * Math.random()),
-                        155 + (int)(10 * Math.random())));
-                break;
-              default:
-                g.setColor(new Color(0,
-                        100 + (int)(10 * Math.random()),
-                        150 + (int)(10 * Math.random())));
-            }
-            break;
-          case FOREST:
-            switch (cells[x][y].getRegion()) {
-              case POLAR:
-                g.setColor(new Color(40 + (int)(30 * Math.random()),
-                        80 + (int)(30 * Math.random()), 25));
-                break;
-              case TROPICAL:
-              case SUBTROPICAL:
-                g.setColor(new Color(10,
-                        90 + (int)(30 * Math.random()), 5));
-                break;
-              default:
-                g.setColor(new Color(20,
-                        85 + (int)(30 * Math.random()), 10));
-            }
-            break;
-          case DESERT:
-            switch (cells[x][y].getRegion()) {
-              case POLAR:
-                g.setColor(new Color(200 + (int)(30 * Math.random()),
-                        200 + (int)(30 * Math.random()), 220));
-                break;
-              default:
-                g.setColor(new Color(120 + (int)(30 * Math.random()),
-                        96 + (int)(30 * Math.random()), 10));
-            }
-            break;
-          case PLAIN:
-            switch (cells[x][y].getRegion()) {
-              case POLAR:
-                g.setColor(new Color(200 + (int)(30 * Math.random()),
-                        200 + (int)(30 * Math.random()), 220));
-                break;
-              case TROPICAL:
-              case SUBTROPICAL:
-                g.setColor(new Color(80,
-                        125 + (int)(30 * Math.random()), 15));
-                break;
-              default:
-                g.setColor(new Color(80,
-                        115 + (int)(30 * Math.random()), 15));
-            }
-            break;
-          case MOUNTAIN:
-            g.setColor(new Color(100 + (int)(30 * Math.random()),
-                    100 + (int)(30 * Math.random()),
-                    100 + (int)(30 * Math.random())));
-            break;
-          case HILL:
-            g.setColor(new Color(77,
-                    90 + (int)(30 * Math.random()), 15));
-            break;
-          case BEACH:
-            g.setColor(new Color(150 + (int)(30 * Math.random()),
-                    145 + (int)(30 * Math.random()), 100));
-            break;
-        }
+        g.setColor(WorldCell.getMapColor(
+                cells[x][y].getType(), cells[x][y].getRegion()));
         g.fillRect(x * SCALE_UP, y * SCALE_UP, SCALE_UP, SCALE_UP);
       }
     }
@@ -861,7 +807,7 @@ public class World {
         }
       }
 
-      plates[i] = new TectonicPlate(
+      plates[i] = new TectonicPlate(this,
               potentialOrigin, width, height, plates, i);
     }
   }
@@ -893,6 +839,8 @@ public class World {
     private final static int TRIALS_PER_RIVER = 200;
     private final static int GROWTH_TURNS = 20;
 
+    private final World world;
+
     private final Point origin;
     private int area;
     private final boolean[][] grid;
@@ -908,8 +856,10 @@ public class World {
     private int topmost;
     private int bottommost;
 
-    TectonicPlate(Point origin, int width, int height,
+    TectonicPlate(World world, Point origin, int width, int height,
                   TectonicPlate[] plates, int index) {
+      this.world = world;
+
       this.origin = origin;
       area = 0;
       grid = new boolean[width][height];
@@ -1031,7 +981,7 @@ public class World {
       for (int x = leftmost; x <= rightmost; x++) {
         for (int y = topmost; y <= bottommost; y++) {
           if (cells[x][y] == null)
-            cells[x][y] = new WorldCell(WorldCell.Type.SEA);
+            cells[x][y] = new WorldCell(WorldCell.Type.SEA, world, new Point(x, y));
         }
       }
     }
@@ -1051,7 +1001,7 @@ public class World {
               Math.abs(at.y - origin.y));
 
       if (landLikelihood(dist, maxDist) && onPlate(at)) {
-        cells[at.x][at.y] = new WorldCell(WorldCell.Type.PLAIN);
+        cells[at.x][at.y] = new WorldCell(WorldCell.Type.PLAIN, world, new Point(at));
 
         generateTerrain(new Point(at.x - 1, at.y), cells, maxDist, origin);
         generateTerrain(new Point(at.x + 1, at.y), cells, maxDist, origin);
@@ -1368,6 +1318,8 @@ public class World {
         for (int y = minY; y <= maxY; y++) {
           switch (cells[x][y].getType()) {
             case FOREST:
+            case SEA:
+            case SHALLOW:
               rawPower += 2;
               break;
             case PLAIN:
@@ -1375,10 +1327,6 @@ public class World {
               break;
             case MOUNTAIN:
               rawPower += 3;
-              break;
-            case SHALLOW:
-            case SEA:
-              rawPower += 2;
               break;
           }
         }

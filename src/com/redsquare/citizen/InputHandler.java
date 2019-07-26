@@ -2,6 +2,7 @@ package com.redsquare.citizen;
 
 import com.redsquare.citizen.input_events.ClickEvent;
 import com.redsquare.citizen.input_events.Event;
+import com.redsquare.citizen.input_events.KeyPressEvent;
 
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -56,17 +57,20 @@ public class InputHandler implements KeyListener,
 
   @Override
   public void keyTyped(KeyEvent e) {
-
+    unprocessed.add(new KeyPressEvent(e.getKeyChar(),
+            KeyPressEvent.EventType.TYPED));
   }
 
   @Override
   public void keyPressed(KeyEvent e) {
-
+    unprocessed.add(new KeyPressEvent(e.getKeyChar(),
+            KeyPressEvent.EventType.PRESSED));
   }
 
   @Override
   public void keyReleased(KeyEvent e) {
-
+    unprocessed.add(new KeyPressEvent(e.getKeyChar(),
+            KeyPressEvent.EventType.RELEASED));
   }
 
   @Override

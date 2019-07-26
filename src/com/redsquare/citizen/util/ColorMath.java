@@ -4,6 +4,15 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class ColorMath {
+  public static boolean nighEqual(Color a, Color b) {
+    final int MARGIN = 15;
+
+    return Math.abs(a.getRed() - b.getRed()) < MARGIN &&
+            Math.abs(a.getGreen() - b.getGreen()) < MARGIN &&
+            Math.abs(a.getBlue() - b.getBlue()) < MARGIN &&
+            Math.abs(a.getAlpha() - b.getAlpha()) < MARGIN;
+  }
+
   public static int pop(Color c) {
     return Math.abs(c.getRed() - c.getGreen()) +
             Math.abs(c.getGreen() - c.getBlue()) +
@@ -34,14 +43,16 @@ public class ColorMath {
   }
 
   public static Color colorBetween(Color darker, Color lighter, double skew) {
-    int r = darker.getRed() +
-            (int)(skew * (lighter.getRed() - darker.getRed()));
+    int skew100 = (int)(skew * 100);
+
+    int r = ((darker.getRed() * skew100) +
+            (lighter.getRed() * (100 - skew100))) / 100;
     r = Math.min(Math.max(0, r), 255);
-    int g = darker.getGreen() +
-            (int)(skew * (lighter.getGreen() - darker.getGreen()));
+    int g = ((darker.getGreen() * skew100) +
+            (lighter.getGreen() * (100 - skew100))) / 100;
     g = Math.min(Math.max(0, g), 255);
-    int b = darker.getRed() +
-            (int)(skew * (lighter.getBlue() - darker.getBlue()));
+    int b = ((darker.getBlue() * skew100) +
+            (lighter.getBlue() * (100 - skew100))) / 100;
     b = Math.min(Math.max(0, b), 255);
 
     return new Color(r, g, b);

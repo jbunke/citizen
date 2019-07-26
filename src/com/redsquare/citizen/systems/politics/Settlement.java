@@ -2,7 +2,9 @@ package com.redsquare.citizen.systems.politics;
 
 import com.redsquare.citizen.systems.language.PlaceNameGenerator;
 import com.redsquare.citizen.systems.language.Word;
+import com.redsquare.citizen.systems.structures.SettlementLayout;
 import com.redsquare.citizen.util.Formatter;
+import com.redsquare.citizen.worldgen.WorldCell;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -18,16 +20,27 @@ public class Settlement {
   private int setupPower;
   private double economy = 1.0;
 
+  private WorldCell cell;
+
   private Point location;
+  private SettlementLayout layout;
 
   public Settlement(Point location, State state) {
     this.location = location;
     this.state = state;
 
+    this.layout = null;
+
     this.name = PlaceNameGenerator.generateRandomName(
             2, 4, state.getLanguage().getPhonology());
 
     setupPower = 0;
+  }
+
+  public SettlementLayout getLayout() {
+    if (layout == null) layout = SettlementLayout.generate(this);
+
+    return layout;
   }
 
   public State getState() {
@@ -53,6 +66,11 @@ public class Settlement {
     setupPower += (int)(economy * rawPower);
   }
 
+  public void setWorldCell(WorldCell cell) {
+    this.cell = cell;
+  }
+
+  /** Conquest system function for state reassignment */
   void setState(State state) {
     this.state = state;
     vassals.forEach(x -> x.setState(state));
@@ -90,6 +108,16 @@ public class Settlement {
 
   void removeLiege() {
     liege = null;
+  }
+
+  public Settlement regionCapital() {
+    switch (powerLevel()) {
+      case 1:
+      case 2:
+        return this;
+      default:
+        return liege;
+    }
   }
 
   public int powerLevel() {
