@@ -3,6 +3,7 @@ package com.redsquare.citizen;
 import com.redsquare.citizen.game_states.GameState;
 import com.redsquare.citizen.game_states.MenuGameState;
 import com.redsquare.citizen.game_states.PlayingGameState;
+import com.redsquare.citizen.game_states.SplashScreenGameState;
 
 import java.awt.*;
 
@@ -22,13 +23,15 @@ public class GameManager {
   public static final int PLAYING = 0;
   public static final int PAUSED = 1;
   public static final int MENU = 2;
+  private static final int SPLASH_SCREEN = 3;
 
   private GameManager() {
-    current = MENU;
+    current = SPLASH_SCREEN;
 
-    states = new GameState[3];
+    states = new GameState[4];
     // states[PLAYING] = PlayingGameState.init();
 
+    states[SPLASH_SCREEN] = SplashScreenGameState.init();
     states[MENU] = MenuGameState.init();
     // TODO - PAUSE, MENU, & PERHAPS MORE
   }
