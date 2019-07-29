@@ -1,4 +1,4 @@
-package com.redsquare.citizen.testing;
+package com.redsquare.citizen.devkit;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

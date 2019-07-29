@@ -1,5 +1,6 @@
 package com.redsquare.citizen.entity;
 
+import com.redsquare.citizen.devkit.sprite_gen.SpriteUniqueColorMapping;
 import com.redsquare.citizen.graphics.*;
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.politics.Culture;
@@ -11,8 +12,11 @@ import com.redsquare.citizen.util.FloatPoint;
 import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,6 +24,34 @@ import java.util.Set;
 import static com.redsquare.citizen.GameManager.WorldMaths;
 
 public class Person extends Animal {
+  /* Person constants */
+
+  // Animation
+  private final static int SPRITE_WIDTH = 112;
+  private final static int SPRITE_HEIGHT = 176;
+
+  private final static int LAYER_AMOUNT = 17;
+
+  private final static int BODY_LAYER = 0;
+  private final static int BODY_SCARRING_LAYER = 1;
+  private final static int LEGWEAR_LAYER = 2;
+  private final static int FOOTWEAR_LAYER = 3;
+  private final static int UPPER_BODY_LAYER = 4;
+  private final static int BELT_LAYER = 5;
+  private final static int GLOVES_LAYER = 6;
+  private final static int HEAD_LAYER = 7;
+  private final static int EYELID_LAYER = 8;
+  private final static int EYEBROW_LAYER = 9;
+  private final static int FACIAL_SCARRING_LAYER = 10;
+  private final static int TRENCH_COAT_LAYER = 11;
+  private final static int NECK_LAYER = 12;
+  private final static int HAIR_LAYER = 13;
+  private final static int MASK_LAYER = 14;
+  private final static int HEADWEAR_LAYER = 15;
+  private final static int WEAPON_LAYER = 16;
+
+
+  /* Instance fields */
   protected String[] name;
   protected String called;
 
@@ -49,6 +81,15 @@ public class Person extends Animal {
   FloatPoint subCellLocation;
   double speed;
 
+  /* Animation */
+  private RenderMood mood;
+  private boolean talking;
+  private boolean blinking;
+
+  private int blinkCounter = 0;
+  private int blinkDuration = 5;
+  private int betweenBlinks = 50;
+
   protected Person(Person father, Person mother, GameDate birthday,
                    Settlement birthplace) {
     sex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
@@ -70,7 +111,9 @@ public class Person extends Animal {
     this.activity = RenderActivity.IDLE;
     this.poseNum = 0;
 
-    this.layers = spriteSetup();
+    this.mood = RenderMood.NEUTRAL;
+    this.talking = false;
+    this.blinking = false;
 
     this.children = new HashSet<>();
 
@@ -88,6 +131,8 @@ public class Person extends Animal {
 
     this.mother.children.add(this);
     this.father.children.add(this);
+
+    this.layers = spriteSetup();
   }
 
   protected Person(Sex sex, GameDate birthday, Settlement birthplace) {
@@ -110,7 +155,9 @@ public class Person extends Animal {
     this.activity = RenderActivity.IDLE;
     this.poseNum = 0;
 
-    this.layers = spriteSetup();
+    this.mood = RenderMood.NEUTRAL;
+    this.talking = false;
+    this.blinking = false;
 
     this.children = new HashSet<>();
 
@@ -125,6 +172,8 @@ public class Person extends Animal {
             getNativeRace().generateHairColor();
     height = randomHeight();
     bodyType = randomBodyType();
+
+    this.layers = spriteSetup();
   }
 
   public static Person create(Sex sex, GameDate birthday,
@@ -138,10 +187,25 @@ public class Person extends Animal {
   }
 
   private Sprite[] spriteSetup() {
-    Sprite[] layers = new Sprite[1];
-    layers[0] = new Sprite(
+    Sprite[] layers = new Sprite[LAYER_AMOUNT];
+    layers[BODY_LAYER] = new Sprite(
             "res/img_assets/sprite_sheets/test/test_sprite_sheet.png",
-            "BASIC GREY PERSON", 112, 176, SemanticMaps.HOMINID_BODY);
+            "BASIC GREY PERSON", SPRITE_WIDTH, SPRITE_HEIGHT, SemanticMaps.HOMINID_BODY);
+
+    final String SOURCE = "res/img_assets/sprite_gen/heads/head_skin_colour_mapping.png";
+    final String MAPPING = "res/img_assets/sprite_gen/heads/head_mapping.png";
+
+    try {
+      BufferedImage source = ImageIO.read(new File(SOURCE));
+      BufferedImage mapping = ImageIO.read(new File(MAPPING));
+      BufferedImage intermediate =
+              SpriteUniqueColorMapping.skinColorApplication(source, skinColor, 4);
+      BufferedImage img = SpriteUniqueColorMapping.expandTexture(intermediate, mapping, 4);
+      layers[HEAD_LAYER] = new Sprite(img, "HEAD LAYER", 80, 100, SemanticMaps.HOMINID_FACE);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
     return layers;
   }
 
@@ -352,6 +416,33 @@ public class Person extends Animal {
     return father.descendantOf(p) || mother.descendantOf(p);
   }
 
+  private String getFaceSpriteCode() {
+    return direction.name() + "-" + mood.name() + "-" +
+            (talking ? "TALK" : "NOT_TALK") + "-" +
+            (blinking ? "BLINK" : "NOT_BLINK");
+  }
+
+  private void blinkingUpdate() {
+    final int[] INTERVAL_RANGE = new int[] { 60, 140 };
+    final int[] DURATION_RANGE = new int[] { 10, 16 };
+
+    blinkCounter++;
+
+    if (blinking) {
+      if (blinkCounter >= blinkDuration) {
+        blinking = false;
+        betweenBlinks = Randoms.bounded(INTERVAL_RANGE[0], INTERVAL_RANGE[1]);
+        blinkCounter = 0;
+      }
+    } else {
+      if (blinkCounter >= betweenBlinks) {
+        blinking = true;
+        blinkDuration = Randoms.bounded(DURATION_RANGE[0], DURATION_RANGE[1]);
+        blinkCounter = 0;
+      }
+    }
+  }
+
   @Override
   int age(GameDate now) {
     return GameDate.yearsBetween(birthday, now);
@@ -374,12 +465,47 @@ public class Person extends Animal {
 
   @Override
   public BufferedImage getSprite() {
+    BufferedImage sprite = new BufferedImage(SPRITE_WIDTH, SPRITE_HEIGHT,
+            BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) sprite.getGraphics();
     String spriteCode = getSpriteCode();
-    return layers[0].getSprite(spriteCode);
+    String faceSpriteCode = getFaceSpriteCode();
+
+    for (int i = 0; i < LAYER_AMOUNT; i++) {
+      switch (i) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 11:
+        case 12:
+        case 16:
+          // TODO: temp null checker
+          if (i != BODY_LAYER) break;
+          g.drawImage(layers[i].getSprite(spriteCode), 0, 0, null);
+          break;
+        default:
+          if (i != HEAD_LAYER) break;
+          Point offset = SemanticMaps.faceOffset(faceSpriteCode);
+          g.drawImage(layers[i].getSprite(faceSpriteCode),
+                  offset.x, offset.y, null);
+          break;
+      }
+    }
+
+    return sprite;
   }
 
   @Override
   public Point getSpriteOffset() {
     return new Point(-56, -164);
+  }
+
+  @Override
+  public void renderUpdate() {
+    blinkingUpdate();
   }
 }

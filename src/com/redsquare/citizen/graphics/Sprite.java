@@ -42,6 +42,24 @@ public class Sprite {
     SEMANTIC_MAP = map;
   }
 
+  public Sprite(final BufferedImage SPRITE_SHEET, String ID, int tileWidth, int tileHeight,
+                Map<String, Point> map) {
+    this.ID = ID;
+
+    this.SPRITE_SHEET = SPRITE_SHEET;
+
+    this.tileWidth = tileWidth;
+    this.tileHeight = tileHeight;
+
+    tilesAlongX = SPRITE_SHEET.getWidth() / tileWidth;
+    tilesAlongY = SPRITE_SHEET.getHeight() / tileHeight;
+
+    SPRITE_ARRAY = new BufferedImage[tilesAlongX][tilesAlongY];
+    loadSpriteArray();
+
+    SEMANTIC_MAP = map;
+  }
+
   public Sprite(String file, String ID, int tileWidth, int tileHeight,
                 Map<String, Point> map) {
     this.ID = ID;
@@ -70,7 +88,7 @@ public class Sprite {
 
   private BufferedImage loadSprite(int x, int y) {
     return SPRITE_SHEET.getSubimage(
-            x * tileWidth, y * tileWidth, tileWidth, tileHeight);
+            x * tileWidth, y * tileHeight, tileWidth, tileHeight);
   }
 
   private BufferedImage loadSpriteSheet(String file) {

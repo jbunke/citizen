@@ -42,4 +42,6 @@ public abstract class Entity implements Comparable<Entity> {
   public abstract Point getSpriteOffset();
 
   public void update() {  }
+
+  public void renderUpdate() {  }
 }

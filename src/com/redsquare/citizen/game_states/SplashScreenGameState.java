@@ -15,7 +15,7 @@ public final class SplashScreenGameState extends GameState {
   private static final int TICK_DURATION = 400;
 
   private static final String S_S_FOLDER = "res/img_assets/splash_screens/";
-  private static final int S_S_AMOUNT = 4;
+  private static final int S_S_AMOUNT = 5;
 
   private static final String[] S_S = new String[S_S_AMOUNT];
 
@@ -34,7 +34,7 @@ public final class SplashScreenGameState extends GameState {
     counter = 0;
 
     double prob = Math.random();
-    final double shrink = 0.5;
+    final double shrink = 0.4;
     double comp = shrink;
 
     String splashScreen = S_S[0];

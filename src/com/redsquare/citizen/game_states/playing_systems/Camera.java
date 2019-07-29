@@ -144,7 +144,10 @@ public class Camera {
 
     Collections.sort(entities);
 
-    entities.forEach(x -> renderEntity(g, x));
+    entities.forEach(x -> {
+      x.renderUpdate();
+      renderEntity(g, x);
+    });
 
     if (GameDebug.isActive()) {
       g.setColor(new Color(0, 0, 0));

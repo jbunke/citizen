@@ -1,4 +1,4 @@
-package com.redsquare.citizen.testing;
+package com.redsquare.citizen.devkit;
 
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.util.Orientation;
