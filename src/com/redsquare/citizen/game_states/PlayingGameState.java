@@ -4,8 +4,11 @@ import com.redsquare.citizen.GameDebug;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.config.WorldConfig;
 import com.redsquare.citizen.entity.Entity;
+import com.redsquare.citizen.entity.Person;
 import com.redsquare.citizen.entity.Player;
+import com.redsquare.citizen.entity.Sex;
 import com.redsquare.citizen.game_states.playing_systems.Camera;
+import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.worldgen.World;
 
 import java.awt.*;
@@ -28,6 +31,9 @@ public final class PlayingGameState extends GameState {
 
     citizens = new HashSet<>();
     citizens.add(player);
+
+    Person temp = Person.create(Sex.MALE, new GameDate(1, 1), player.getBirthplace());
+    citizens.add(temp);
   }
 
   public static PlayingGameState init() {

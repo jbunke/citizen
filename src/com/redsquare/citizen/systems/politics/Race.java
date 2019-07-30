@@ -9,6 +9,8 @@ public class Race {
   public static final Color DARKEST = new Color(51, 19, 0);
   public static final Color LIGHTEST = new Color(206, 158, 107);
 
+  private static final Color DIFF = DIFF();
+
   private static final Color PLAT_BLONDE = new Color(234, 213, 136);
   private static final Color BLONDE = new Color(219, 170, 81);
   private static final Color GINGE = new Color(225, 120, 43);
@@ -28,9 +30,9 @@ public class Race {
   public Color generateSkinColor() {
     double skew = Randoms.bounded(-0.1, 0.1) + this.skew;
 
-    int r = DARKEST.getRed() + (int)(skew * DIFF().getRed());
-    int g = DARKEST.getGreen() + (int)(skew * DIFF().getGreen());
-    int b = DARKEST.getBlue() + (int)(skew * DIFF().getBlue());
+    int r = DARKEST.getRed() + (int)(skew * DIFF.getRed());
+    int g = DARKEST.getGreen() + (int)(skew * DIFF.getGreen());
+    int b = DARKEST.getBlue() + (int)(skew * DIFF.getBlue());
 
     return new Color(r, g, b);
   }

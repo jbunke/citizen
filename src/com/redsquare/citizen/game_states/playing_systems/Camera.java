@@ -178,8 +178,8 @@ public class Camera {
     int[] loc = new int[] { center[X] + centerOffset[X] + offset.x,
             center[Y] + centerOffset[Y] + offset.y };
 
-    int[] pixelLock = new int[] { (4 / zoomLevel) - (loc[X] % (4 / zoomLevel)),
-            (4 / zoomLevel) - (loc[Y] % (4 / zoomLevel)) };
+    int[] pixelLock = new int[] { (4 / zoomLevel) - ((int) (entity.subCellLocation().x / zoomLevel) % (4 / zoomLevel)),
+            (4 / zoomLevel) - ((int) (entity.subCellLocation().y / zoomLevel) % (4 / zoomLevel)) };
 
     if (pixelLock[0] > (4 / zoomLevel) / 2) pixelLock[0] -= (4 / zoomLevel);
     if (pixelLock[1] > (4 / zoomLevel) / 2) pixelLock[1] -= (4 / zoomLevel);

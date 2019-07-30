@@ -1,6 +1,7 @@
 package com.redsquare.citizen.entity;
 
 import com.redsquare.citizen.devkit.sprite_gen.SpriteUniqueColorMapping;
+import com.redsquare.citizen.devkit.sprite_gen.Tilemapping;
 import com.redsquare.citizen.graphics.*;
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.politics.Culture;
@@ -30,7 +31,7 @@ public class Person extends Animal {
   private final static int SPRITE_WIDTH = 112;
   private final static int SPRITE_HEIGHT = 176;
 
-  private final static int LAYER_AMOUNT = 17;
+  private final static int LAYER_AMOUNT = 15;
 
   private final static int BODY_LAYER = 0;
   private final static int BODY_SCARRING_LAYER = 1;
@@ -40,15 +41,13 @@ public class Person extends Animal {
   private final static int BELT_LAYER = 5;
   private final static int GLOVES_LAYER = 6;
   private final static int HEAD_LAYER = 7;
-  private final static int EYELID_LAYER = 8;
-  private final static int EYEBROW_LAYER = 9;
-  private final static int FACIAL_SCARRING_LAYER = 10;
-  private final static int TRENCH_COAT_LAYER = 11;
-  private final static int NECK_LAYER = 12;
-  private final static int HAIR_LAYER = 13;
-  private final static int MASK_LAYER = 14;
-  private final static int HEADWEAR_LAYER = 15;
-  private final static int WEAPON_LAYER = 16;
+  private final static int FACIAL_SCARRING_LAYER = 8;
+  private final static int TRENCH_COAT_LAYER = 9;
+  private final static int NECK_LAYER = 10;
+  private final static int HAIR_LAYER = 11;
+  private final static int MASK_LAYER = 12;
+  private final static int HEADWEAR_LAYER = 13;
+  private final static int WEAPON_LAYER = 14;
 
 
   /* Instance fields */
@@ -132,7 +131,8 @@ public class Person extends Animal {
     this.mother.children.add(this);
     this.father.children.add(this);
 
-    this.layers = spriteSetup();
+    this.layers = new Sprite[LAYER_AMOUNT];
+    spriteSetup();
   }
 
   protected Person(Sex sex, GameDate birthday, Settlement birthplace) {
@@ -173,7 +173,8 @@ public class Person extends Animal {
     height = randomHeight();
     bodyType = randomBodyType();
 
-    this.layers = spriteSetup();
+    this.layers = new Sprite[LAYER_AMOUNT];
+    spriteSetup();
   }
 
   public static Person create(Sex sex, GameDate birthday,
@@ -186,27 +187,48 @@ public class Person extends Animal {
     return new Person(father, mother, birthday, birthplace);
   }
 
-  private Sprite[] spriteSetup() {
-    Sprite[] layers = new Sprite[LAYER_AMOUNT];
+  private void spriteSetup() {
+    /* BODY */
     layers[BODY_LAYER] = new Sprite(
             "res/img_assets/sprite_sheets/test/test_sprite_sheet.png",
             "BASIC GREY PERSON", SPRITE_WIDTH, SPRITE_HEIGHT, SemanticMaps.HOMINID_BODY);
 
-    final String SOURCE = "res/img_assets/sprite_gen/heads/head_skin_colour_mapping.png";
-    final String MAPPING = "res/img_assets/sprite_gen/heads/head_mapping.png";
+    spriteHeadSetup();
+  }
+
+  private void spriteHeadSetup() {
+    /* HEAD */
+    final String SKIN_COLOUR_MAPPING =
+            "res/img_assets/sprite_gen/heads/head_skin_colour_mapping.png";
+    final String HEAD_MAPPING =
+            "res/img_assets/sprite_gen/heads/head_mapping.png";
+
+    final String EYEBROW_HAIR_COLOUR_MAPPING =
+            "res/img_assets/sprite_gen/heads/eyebrow_thick_hair_colour_mapping.png";
+    final String EYEBROW_MAPPING =
+            "res/img_assets/sprite_gen/heads/eyebrow_mapping.png";
 
     try {
-      BufferedImage source = ImageIO.read(new File(SOURCE));
-      BufferedImage mapping = ImageIO.read(new File(MAPPING));
+      BufferedImage skinColor = ImageIO.read(new File(SKIN_COLOUR_MAPPING));
+      BufferedImage headMapping = ImageIO.read(new File(HEAD_MAPPING));
       BufferedImage intermediate =
-              SpriteUniqueColorMapping.skinColorApplication(source, skinColor, 4);
-      BufferedImage img = SpriteUniqueColorMapping.expandTexture(intermediate, mapping, 4);
+              SpriteUniqueColorMapping.skinColorApplication(skinColor, this.skinColor, 4);
+      BufferedImage img = SpriteUniqueColorMapping.expandTexture(intermediate, headMapping, 4);
+      img = Tilemapping.duplicateVertically(img, RenderMood.values().length);
+
+      BufferedImage eyebrows = ImageIO.read(new File(EYEBROW_HAIR_COLOUR_MAPPING));
+      BufferedImage eyebrowMapping = ImageIO.read(new File(EYEBROW_MAPPING));
+      eyebrows = SpriteUniqueColorMapping.skinColorApplication(eyebrows, this.hairColor, 4);
+      eyebrows = SpriteUniqueColorMapping.expandTexture(eyebrows, eyebrowMapping, 4);
+
+      img.getGraphics().drawImage(eyebrows, 0, 0, null);
+
       layers[HEAD_LAYER] = new Sprite(img, "HEAD LAYER", 80, 100, SemanticMaps.HOMINID_FACE);
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    return layers;
+    /* EYEBROWS */
   }
 
   public Settlement getBirthplace() {
@@ -473,16 +495,16 @@ public class Person extends Animal {
 
     for (int i = 0; i < LAYER_AMOUNT; i++) {
       switch (i) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 11:
-        case 12:
-        case 16:
+        case BODY_LAYER:
+        case BODY_SCARRING_LAYER:
+        case LEGWEAR_LAYER:
+        case FOOTWEAR_LAYER:
+        case UPPER_BODY_LAYER:
+        case BELT_LAYER:
+        case GLOVES_LAYER:
+        case TRENCH_COAT_LAYER:
+        case NECK_LAYER:
+        case WEAPON_LAYER:
           // TODO: temp null checker
           if (i != BODY_LAYER) break;
           g.drawImage(layers[i].getSprite(spriteCode), 0, 0, null);
