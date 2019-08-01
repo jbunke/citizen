@@ -18,11 +18,11 @@ public abstract class Entity implements Comparable<Entity> {
 
   @Override
   public int compareTo(Entity other) {
-    if (position.world().y > other.position.world().y) return -1;
-    else if (position.world().y < other.position.world().y) return 1;
+    if (position.world().y < other.position.world().y) return -1;
+    else if (position.world().y > other.position.world().y) return 1;
     else {
-      if (position.cell().y > other.position.cell().y) return -1;
-      else if (position.cell().y < other.position.cell().y) return 1;
+      if (position.cell().y < other.position.cell().y) return -1;
+      else if (position.cell().y > other.position.cell().y) return 1;
       else return Double.compare(position.subCell().y,
                 other.position.subCell().y);
     }

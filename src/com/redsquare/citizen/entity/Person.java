@@ -98,7 +98,7 @@ public class Person extends Animal {
     Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
             WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
     FloatPoint subCell = new FloatPoint(WorldPosition.CELL_DIMENSION_LENGTH / 2,
-            WorldPosition.CELL_DIMENSION_LENGTH);
+            WorldPosition.CELL_DIMENSION_LENGTH / 2);
     this.position = new WorldPosition(world, cell, subCell);
 
     this.speed = 6.;
@@ -145,7 +145,7 @@ public class Person extends Animal {
     Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
             WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
     FloatPoint subCell = new FloatPoint(WorldPosition.CELL_DIMENSION_LENGTH / 2,
-            WorldPosition.CELL_DIMENSION_LENGTH);
+            WorldPosition.CELL_DIMENSION_LENGTH / 2);
     this.position = new WorldPosition(world, cell, subCell);
 
     this.speed = 6.;
