@@ -1,7 +1,6 @@
 package com.redsquare.citizen.systems.structures;
 
 import com.redsquare.citizen.graphics.Font;
-import com.redsquare.citizen.systems.language.Fonts;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
 import com.redsquare.citizen.util.Formatter;

@@ -2,6 +2,7 @@ package com.redsquare.citizen;
 
 import com.redsquare.citizen.game_states.GameState;
 import com.redsquare.citizen.game_states.MenuGameState;
+import com.redsquare.citizen.game_states.PauseGameState;
 import com.redsquare.citizen.game_states.PlayingGameState;
 import com.redsquare.citizen.game_states.SplashScreenGameState;
 
@@ -28,7 +29,8 @@ public class GameManager {
 
     states[SPLASH_SCREEN] = SplashScreenGameState.init();
     states[MENU] = MenuGameState.init();
-    // TODO - PAUSE, MENU, & PERHAPS MORE
+    states[PAUSED] = PauseGameState.init();
+    // TODO - PAUSE & PERHAPS MORE
   }
 
   public static GameManager get() {

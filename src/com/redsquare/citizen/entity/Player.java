@@ -130,6 +130,11 @@ public final class Player extends Person {
     }
   }
 
+  public void resetDirectionKeys() {
+    for (int i = 0; i < dirKeys.length; i++)
+      dirKeys[i] = false;
+  }
+
   private void move() {
     position.move(movementVector[X] * speed,
             movementVector[Y] * speed);
