@@ -9,7 +9,7 @@ import java.io.IOException;
 public class PlaceNameTests {
   @Test
   public void hundredPlaceNames() {
-    String placeNameFile = "res/test_output/language/place_names.txt";
+    String placeNameFile = "test_output/language/place_names.txt";
 
     try {
       FileWriter fw = new FileWriter(placeNameFile);
@@ -27,7 +27,7 @@ public class PlaceNameTests {
 
   @Test
   public void demonymGeneratorTest() {
-    String demonymFile = "res/test_output/language/demonyms.txt";
+    String demonymFile = "test_output/language/demonyms.txt";
     Phonology p = Phonology.generate();
 
     try {
@@ -49,7 +49,7 @@ public class PlaceNameTests {
 
   @Test
   public void vocabularies() {
-    String vocabulariesFile = "res/test_output/language/vocabularies.txt";
+    String vocabulariesFile = "test_output/language/vocabularies.txt";
 
     try {
       FileWriter fw = new FileWriter(vocabulariesFile);

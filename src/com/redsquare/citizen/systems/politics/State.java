@@ -70,6 +70,6 @@ public class State {
 
   @Override
   public String toString() {
-    return Formatter.capitaliseFirstLetter(name.toString());
+    return Formatter.properNoun(name.toString());
   }
 }

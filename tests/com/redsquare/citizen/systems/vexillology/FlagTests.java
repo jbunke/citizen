@@ -16,7 +16,7 @@ public class FlagTests {
   @Test
   public void hundredFlagsFromCulture() {
 
-    final String filepath = "res/test_output/vexillology/flags.png";
+    final String filepath = "test_output/vexillology/flags.png";
     final String IMAGE_FORMAT = "png";
 
     BufferedImage canvas = new BufferedImage(800, 1300, BufferedImage.TYPE_INT_ARGB);
@@ -49,7 +49,7 @@ public class FlagTests {
   @Test
   public void thousandFlags() {
 
-    final String filepath = "res/test_output/vexillology/thousand_flags.png";
+    final String filepath = "test_output/vexillology/thousand_flags.png";
     final String IMAGE_FORMAT = "png";
 
     BufferedImage canvas = new BufferedImage(800, 4000, BufferedImage.TYPE_INT_ARGB);

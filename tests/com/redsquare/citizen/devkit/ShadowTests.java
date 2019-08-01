@@ -14,7 +14,7 @@ public class ShadowTests {
 
   @Test
   public void castShadowsOverSpriteAtAllHours() {
-    String filepath = "res/test_output/shadows/spriteAt";
+    String filepath = "test_output/shadows/spriteAt";
 
     try {
       BufferedImage sprite =

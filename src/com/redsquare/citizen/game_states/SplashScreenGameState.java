@@ -34,7 +34,7 @@ public final class SplashScreenGameState extends GameState {
     counter = 0;
 
     double prob = Math.random();
-    final double shrink = 0.4;
+    final double shrink = 0.65;
     double comp = shrink;
 
     String splashScreen = S_S[0];

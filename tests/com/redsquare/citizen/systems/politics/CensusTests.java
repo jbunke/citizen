@@ -19,7 +19,7 @@ public class CensusTests {
 
   @Test
   public void saveWorld() {
-    final String filepath = "res/test_output/politics/refWorld.png";
+    final String filepath = "test_output/politics/refWorld.png";
     final String imageFormat = "png";
 
     try {
@@ -32,7 +32,7 @@ public class CensusTests {
 
   @Test
   public void settlementCount() {
-    final String filepath = "res/test_output/politics/settlementCount.txt";
+    final String filepath = "test_output/politics/settlementCount.txt";
 
     Set<State> states = world.getStates();
     Set<Settlement> settlements = world.allSettlements();

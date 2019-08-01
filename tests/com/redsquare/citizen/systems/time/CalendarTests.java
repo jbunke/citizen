@@ -16,7 +16,7 @@ public class CalendarTests {
     final int YEAR_LENGTH_IN_DAYS = 10;
     final int YEARS = 10;
 
-    String filepath = "res/test_output/calendar/dates_for_10_years.txt";
+    String filepath = "test_output/calendar/dates_for_10_years.txt";
 
     Language language = Language.generate();
 

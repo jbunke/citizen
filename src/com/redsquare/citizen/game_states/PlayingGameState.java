@@ -8,6 +8,7 @@ import com.redsquare.citizen.entity.Person;
 import com.redsquare.citizen.entity.Player;
 import com.redsquare.citizen.entity.Sex;
 import com.redsquare.citizen.game_states.playing_systems.Camera;
+import com.redsquare.citizen.graphics.RenderMood;
 import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.worldgen.World;
 
