@@ -15,19 +15,36 @@ import java.util.Map;
  * */
 public class SemanticMaps {
 
-  public static final Map<String, Point> HOMINID_BODY = Map.ofEntries(
-          Map.entry("DL-CALM-IDLE-BASE", new Point(0, 0)),
-          Map.entry("L-CALM-IDLE-BASE", new Point(1, 0)),
-          Map.entry("UL-CALM-IDLE-BASE", new Point(2, 0)),
-          Map.entry("U-CALM-IDLE-BASE", new Point(3, 0)),
-          Map.entry("UR-CALM-IDLE-BASE", new Point(4, 0)),
-          Map.entry("R-CALM-IDLE-BASE", new Point(5, 0)),
-          Map.entry("DR-CALM-IDLE-BASE", new Point(6, 0)),
-          Map.entry("D-CALM-IDLE-BASE", new Point(7, 0))
-          // rest
-  );
-
+  public static final Map<String, Point> HOMINID_BODY = generateHominidBody();
   public static final Map<String, Point> HOMINID_FACE = generateHominidFace();
+
+  private static final Map<String, Point> generateHominidBody() {
+    // TODO: temp with calm assumption
+
+    Map<String, Point> map = new HashMap<>();
+
+    RenderActivity[] activities = RenderActivity.values();
+    int y = 0;
+
+    for (RenderActivity activity : activities) {
+      for (int f = 0; f < RenderActivity.frameCount(activity); f++) {
+        String rest = "CALM-" + activity.name() + "-" + f;
+
+        map.put("DL-" + rest, new Point(0, y));
+        map.put("L-" + rest, new Point(1, y));
+        map.put("UL-" + rest, new Point(2, y));
+        map.put("U-" + rest, new Point(3, y));
+        map.put("UR-" + rest, new Point(4, y));
+        map.put("R-" + rest, new Point(5, y));
+        map.put("DR-" + rest, new Point(6, y));
+        map.put("D-" + rest, new Point(7, y));
+
+        y++;
+      }
+    }
+
+    return map;
+  }
 
   private static Map<String, Point> generateHominidFace() {
     Map<String, Point> map = new HashMap<>();
@@ -55,6 +72,8 @@ public class SemanticMaps {
       }
     }
 
+    // TODO: Further sections where face is not animated independently of the body
+
     return map;
   }
 
@@ -62,7 +81,7 @@ public class SemanticMaps {
     // TODO: Expand as needed
     switch (code) {
       default:
-        return new Point(16, 0);
+        return new Point(72, 0);
     }
   }
 

@@ -13,8 +13,7 @@ public abstract class Lifeform extends Entity {
 
   String getSpriteCode() {
     return direction.name() + "-" + posture.name() + "-" +
-            activity.name() + "-" +
-            (poseNum == 0 ? "BASE" : String.valueOf(poseNum));
+            activity.name() + "-" + poseNum;
   }
 
   /**

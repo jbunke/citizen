@@ -48,10 +48,10 @@ public class SpriteColorMappingCreation {
     final Color skinColor = new Color(167, 113, 68);
     final Color hairColor = new Color(219, 170, 81);
 
-    final String SKIN_MAPPING = "res/img_assets/sprite_gen/heads/head_skin_colour_mapping.png";
+    final String SKIN_MAPPING = "res/img_assets/sprite_gen/heads/head_skin_colour_mapping_round.png";
     final String EYEBROW_MAPPING = "res/img_assets/sprite_gen/heads/eyebrow_mapping.png";
     final String EYEBROW_COLOUR_MAPPING = "res/img_assets/sprite_gen/heads/eyebrow_thick_hair_colour_mapping.png";
-    final String MAPPING = "res/img_assets/sprite_gen/heads/head_mapping.png";
+    final String MAPPING = "res/img_assets/sprite_gen/heads/head_mapping_round.png";
     final String PATH = "res/devkit_output/sprite_gen/example_head_texture.png";
     final String PNG = "png";
 

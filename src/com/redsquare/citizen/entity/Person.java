@@ -28,7 +28,7 @@ public class Person extends Animal {
   /* Person constants */
 
   // Animation
-  private final static int SPRITE_WIDTH = 112;
+  private final static int SPRITE_WIDTH = 224;
   private final static int SPRITE_HEIGHT = 176;
 
   private final static int LAYER_AMOUNT = 15;
@@ -523,7 +523,7 @@ public class Person extends Animal {
 
   @Override
   public Point getSpriteOffset() {
-    return new Point(-56, -164);
+    return new Point(-112, -164);
   }
 
   @Override
