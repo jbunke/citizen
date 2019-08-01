@@ -12,6 +12,7 @@ import com.redsquare.citizen.util.ColorMath;
 import com.redsquare.citizen.util.FloatPoint;
 import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
+import com.redsquare.citizen.worldgen.WorldPosition;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -21,8 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.redsquare.citizen.GameManager.WorldMaths;
 
 public class Person extends Animal {
   /* Person constants */
@@ -75,9 +74,6 @@ public class Person extends Animal {
   private final Set<Language> languages;
   private Culture culture;
 
-  Point worldLocation;
-  Point cellLocation;
-  FloatPoint subCellLocation;
   double speed;
 
   /* Animation */
@@ -98,11 +94,13 @@ public class Person extends Animal {
     this.birthday = birthday;
     this.birthplace = birthplace;
 
-    this.worldLocation = birthplace.getLocation();
-    this.cellLocation = new Point(WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2,
-            WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2);
-    this.subCellLocation = new FloatPoint(WorldMaths.CELL_DIMENSION_LENGTH / 2,
-            WorldMaths.CELL_DIMENSION_LENGTH);
+    Point world = birthplace.getLocation();
+    Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
+            WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
+    FloatPoint subCell = new FloatPoint(WorldPosition.CELL_DIMENSION_LENGTH / 2,
+            WorldPosition.CELL_DIMENSION_LENGTH);
+    this.position = new WorldPosition(world, cell, subCell);
+
     this.speed = 6.;
 
     this.direction = RenderDirection.D;
@@ -143,11 +141,13 @@ public class Person extends Animal {
     this.father = null;
     this.mother = null;
 
-    this.worldLocation = birthplace.getLocation();
-    this.cellLocation = new Point(WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2,
-            WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2);
-    this.subCellLocation = new FloatPoint(WorldMaths.CELL_DIMENSION_LENGTH / 2,
-            WorldMaths.CELL_DIMENSION_LENGTH);
+    Point world = birthplace.getLocation();
+    Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
+            WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
+    FloatPoint subCell = new FloatPoint(WorldPosition.CELL_DIMENSION_LENGTH / 2,
+            WorldPosition.CELL_DIMENSION_LENGTH);
+    this.position = new WorldPosition(world, cell, subCell);
+
     this.speed = 6.;
 
     this.direction = RenderDirection.D;
@@ -468,21 +468,6 @@ public class Person extends Animal {
   @Override
   int age(GameDate now) {
     return GameDate.yearsBetween(birthday, now);
-  }
-
-  @Override
-  public Point worldLocation() {
-    return worldLocation;
-  }
-
-  @Override
-  public Point cellLocation() {
-    return cellLocation;
-  }
-
-  @Override
-  public FloatPoint subCellLocation() {
-    return subCellLocation;
   }
 
   @Override

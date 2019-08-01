@@ -10,6 +10,7 @@ import com.redsquare.citizen.input_events.KeyPressEvent;
 import com.redsquare.citizen.util.FloatPoint;
 import com.redsquare.citizen.util.MathExt;
 import com.redsquare.citizen.worldgen.World;
+import com.redsquare.citizen.worldgen.WorldPosition;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -18,17 +19,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static com.redsquare.citizen.GameManager.WorldMaths;
-
 public class Camera {
   private static final int IN = 1, OUT = 2, X = 0, Y = 1;
 
   private final Entity target;
   private int zoomLevel;
 
-  private Point worldLocation;
-  private Point cellLocation;
-  private FloatPoint subCellLocation;
+  private WorldPosition position;
 
   private FloatPoint ref;
 
@@ -37,9 +34,7 @@ public class Camera {
 
     this.zoomLevel = IN;
 
-    this.worldLocation = target.worldLocation();
-    this.cellLocation = target.cellLocation();
-    this.subCellLocation = target.subCellLocation();
+    this.position = WorldPosition.copy(target.position());
 
     this.ref = new FloatPoint(0, 0);
   }
@@ -51,20 +46,11 @@ public class Camera {
   private boolean tooFar(Entity entity) {
     return MathExt.distance(new FloatPoint(0., 0.),
             referenceEntityLocation(entity)) >
-            20 * WorldMaths.CELL_DIMENSION_LENGTH * zoomLevel;
+            20 * WorldPosition.CELL_DIMENSION_LENGTH * zoomLevel;
   }
 
   private FloatPoint referenceEntityLocation(Entity entity) {
-    double worldCellLength = WorldMaths.CELLS_IN_WORLD_CELL_DIM *
-            WorldMaths.CELL_DIMENSION_LENGTH;
-    double x = ((entity.worldLocation().x - worldLocation.x) * worldCellLength) +
-            ((entity.cellLocation().x - cellLocation.x) * WorldMaths.CELL_DIMENSION_LENGTH) +
-            (entity.subCellLocation().x - subCellLocation.x);
-    double y = ((entity.worldLocation().y - worldLocation.y) * worldCellLength) +
-            ((entity.cellLocation().y - cellLocation.y) * WorldMaths.CELL_DIMENSION_LENGTH) +
-            (entity.subCellLocation().y - subCellLocation.y);
-
-     return new FloatPoint(x, y);
+    return WorldPosition.diff(position, entity.position());
   }
 
   private void adjustRef() {
@@ -78,9 +64,7 @@ public class Camera {
 
     if (distance < 3) {
       // MATCH LOCATION
-      worldLocation = target.worldLocation();
-      cellLocation = target.cellLocation();
-      subCellLocation = target.subCellLocation();
+      position = WorldPosition.copy(target.position());
     } else {
       double taperOff;
       if (distance / screenAcross < 0.2) taperOff = 0.05;
@@ -89,8 +73,7 @@ public class Camera {
 
       FloatPoint adj = new FloatPoint(ref.x * taperOff,
               ref.y * taperOff);
-      subCellLocation = new FloatPoint(subCellLocation.x + adj.x,
-              subCellLocation.y + adj.y);
+      position.move(adj.x, adj.y);
     }
   }
 
@@ -178,8 +161,8 @@ public class Camera {
     int[] loc = new int[] { center[X] + centerOffset[X] + offset.x,
             center[Y] + centerOffset[Y] + offset.y };
 
-    int[] pixelLock = new int[] { (4 / zoomLevel) - ((int) (entity.subCellLocation().x / zoomLevel) % (4 / zoomLevel)),
-            (4 / zoomLevel) - ((int) (entity.subCellLocation().y / zoomLevel) % (4 / zoomLevel)) };
+    int[] pixelLock = new int[] { (4 / zoomLevel) - ((int) (entity.position().subCell().x / zoomLevel) % (4 / zoomLevel)),
+            (4 / zoomLevel) - ((int) (entity.position().subCell().y / zoomLevel) % (4 / zoomLevel)) };
 
     if (pixelLock[0] > (4 / zoomLevel) / 2) pixelLock[0] -= (4 / zoomLevel);
     if (pixelLock[1] > (4 / zoomLevel) / 2) pixelLock[1] -= (4 / zoomLevel);

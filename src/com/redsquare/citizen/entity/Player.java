@@ -131,8 +131,7 @@ public final class Player extends Person {
   }
 
   private void move() {
-    subCellLocation =
-            new FloatPoint(subCellLocation.x + (movementVector[X] * speed),
-            subCellLocation.y + (movementVector[Y] * speed));
+    position.move(movementVector[X] * speed,
+            movementVector[Y] * speed);
   }
 }
