@@ -17,7 +17,7 @@ public class PersonTests {
 
   private static final int DAYS_IN_YEAR = 10;
   private static final String IMAGE_FORMAT = "png";
-  private static final String PATH = "res/test_output/people/parents";
+  private static final String PATH = "test_output/people/parents";
 
   @Test
   public void differentBackgroundParentsTest() {

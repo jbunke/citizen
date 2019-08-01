@@ -1,7 +1,7 @@
 package com.redsquare.citizen.entity;
 
 import com.redsquare.citizen.graphics.Sprite;
-import com.redsquare.citizen.util.FloatPoint;
+import com.redsquare.citizen.worldgen.WorldPosition;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -9,31 +9,22 @@ import java.awt.image.BufferedImage;
 public abstract class Entity implements Comparable<Entity> {
 
   String ID;
-
   Sprite[] layers;
+  WorldPosition position;
 
-  /**
-   * @return The (x, y) coordinates of the cell in the WorldCell[][] that
-   * the entity is located
-   * */
-  public abstract Point worldLocation();
-
-  /**
-   * @return The (x, y) coordinates (potentially rounded) of the location in
-   * the cell that the entity is located
-   * */
-  public abstract Point cellLocation();
-
-  public abstract FloatPoint subCellLocation();
+  public WorldPosition position() {
+    return position;
+  }
 
   @Override
   public int compareTo(Entity other) {
-    if (worldLocation().y > other.worldLocation().y) return -1;
-    else if (worldLocation().y < other.worldLocation().y) return 1;
+    if (position.world().y < other.position.world().y) return -1;
+    else if (position.world().y > other.position.world().y) return 1;
     else {
-      if (cellLocation().y > other.cellLocation().y) return -1;
-      else if (cellLocation().y < other.cellLocation().y) return 1;
-      else return Double.compare(subCellLocation().y, other.subCellLocation().y);
+      if (position.cell().y < other.position.cell().y) return -1;
+      else if (position.cell().y > other.position.cell().y) return 1;
+      else return Double.compare(position.subCell().y,
+                other.position.subCell().y);
     }
   }
 
@@ -42,4 +33,6 @@ public abstract class Entity implements Comparable<Entity> {
   public abstract Point getSpriteOffset();
 
   public void update() {  }
+
+  public void renderUpdate() {  }
 }

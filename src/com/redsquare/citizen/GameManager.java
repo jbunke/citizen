@@ -2,16 +2,13 @@ package com.redsquare.citizen;
 
 import com.redsquare.citizen.game_states.GameState;
 import com.redsquare.citizen.game_states.MenuGameState;
+import com.redsquare.citizen.game_states.PauseGameState;
 import com.redsquare.citizen.game_states.PlayingGameState;
+import com.redsquare.citizen.game_states.SplashScreenGameState;
 
 import java.awt.*;
 
 public class GameManager {
-
-  public static class WorldMaths {
-    public static final int CELLS_IN_WORLD_CELL_DIM = 384;
-    public static final double CELL_DIMENSION_LENGTH = 200.;
-  }
 
   private static GameManager instance = new GameManager();
 
@@ -22,15 +19,18 @@ public class GameManager {
   public static final int PLAYING = 0;
   public static final int PAUSED = 1;
   public static final int MENU = 2;
+  private static final int SPLASH_SCREEN = 3;
 
   private GameManager() {
-    current = MENU;
+    current = SPLASH_SCREEN;
 
-    states = new GameState[3];
+    states = new GameState[4];
     // states[PLAYING] = PlayingGameState.init();
 
+    states[SPLASH_SCREEN] = SplashScreenGameState.init();
     states[MENU] = MenuGameState.init();
-    // TODO - PAUSE, MENU, & PERHAPS MORE
+    states[PAUSED] = PauseGameState.init();
+    // TODO - PAUSE & PERHAPS MORE
   }
 
   public static GameManager get() {

@@ -26,7 +26,7 @@ public class WritingSystemTests {
   private static final String IMAGE_FORMAT = "png";
   private static boolean archiveMode = false;
   private static int archiveCount = 0;
-  private static final String ARCHIVE_PATH = "res/test_output/language/archive/";
+  private static final String ARCHIVE_PATH = "test_output/language/archive/";
 
   public static void main(String[] args) {
     WritingSystemTests testInstance = new WritingSystemTests();
@@ -55,7 +55,7 @@ public class WritingSystemTests {
 
   @Test
   public void allSettlementsInNativeTongue() {
-    final String filepath = "res/test_output/language/settlementsInNative.png";
+    final String filepath = "test_output/language/settlementsInNative.png";
 
     World world = World.safeCreate(480, 270, 30, 10);
 
@@ -103,7 +103,7 @@ public class WritingSystemTests {
 
   @Test
   public void customiseEverything() {
-    String filepath = "res/test_output/language/custom.png";
+    String filepath = "test_output/language/custom.png";
 
     WritingSystem.Type type = WritingSystem.Type.ALPHABET;
 
@@ -181,7 +181,7 @@ public class WritingSystemTests {
 
   @Test
   public void fontCompare() {
-    String filepath = "res/test_output/language/font_compare.png";
+    String filepath = "test_output/language/font_compare.png";
     int size = 100;
     int iterations = 10;
 
@@ -189,7 +189,7 @@ public class WritingSystemTests {
     Word word = l.lookUpWord(Meaning.CAPITAL);
             // Word.generateRandomWord(3, 5, l.getPhonology());
 
-    GameDebug.printMessage(Formatter.capitaliseFirstLetter(word.toString()),
+    GameDebug.printMessage(Formatter.properNoun(word.toString()),
             GameDebug::printDebug);
 
     int maxX = 0;
@@ -239,7 +239,7 @@ public class WritingSystemTests {
 
   @Test
   public void glyphGeneration() {
-    String filepath = "res/test_output/language/writing_systems.png";
+    String filepath = "test_output/language/writing_systems.png";
 
     Phonology p = Phonology.generate();
 

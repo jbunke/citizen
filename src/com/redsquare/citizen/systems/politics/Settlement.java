@@ -133,7 +133,7 @@ public class Settlement {
 
   @Override
   public String toString() {
-    return Formatter.capitaliseFirstLetter(name.toString()) + "; in " +
+    return Formatter.properNoun(name.toString()) + "; in " +
             state.toString() + " at (" + location.x + ", " + location.y + ")";
   }
 }

@@ -17,4 +17,26 @@ public enum RenderDirection {
     else if (rad < (13 * Math.PI) / 8.) return D;
     else return DR;
   }
+
+  public static RenderDirection opposite(RenderDirection d) {
+    switch (d) {
+      case D:
+        return U;
+      case DL:
+        return UR;
+      case L:
+        return R;
+      case UL:
+        return DR;
+      case U:
+        return D;
+      case UR:
+        return DL;
+      case R:
+        return L;
+      case DR:
+      default:
+        return UL;
+    }
+  }
 }

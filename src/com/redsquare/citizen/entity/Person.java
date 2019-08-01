@@ -1,6 +1,8 @@
 package com.redsquare.citizen.entity;
 
-import com.redsquare.citizen.graphics.Sprite;
+import com.redsquare.citizen.devkit.sprite_gen.SpriteUniqueColorMapping;
+import com.redsquare.citizen.devkit.sprite_gen.Tilemapping;
+import com.redsquare.citizen.graphics.*;
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.politics.Culture;
 import com.redsquare.citizen.systems.politics.Family;
@@ -10,17 +12,44 @@ import com.redsquare.citizen.util.ColorMath;
 import com.redsquare.citizen.util.FloatPoint;
 import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
+import com.redsquare.citizen.worldgen.WorldPosition;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-import static com.redsquare.citizen.GameManager.WorldMaths;
-
 public class Person extends Animal {
+  /* Person constants */
+
+  // Animation
+  private final static int SPRITE_WIDTH = 224;
+  private final static int SPRITE_HEIGHT = 176;
+
+  private final static int LAYER_AMOUNT = 15;
+
+  private final static int BODY_LAYER = 0;
+  private final static int BODY_SCARRING_LAYER = 1;
+  private final static int LEGWEAR_LAYER = 2;
+  private final static int FOOTWEAR_LAYER = 3;
+  private final static int UPPER_BODY_LAYER = 4;
+  private final static int BELT_LAYER = 5;
+  private final static int GLOVES_LAYER = 6;
+  private final static int HEAD_LAYER = 7;
+  private final static int FACIAL_SCARRING_LAYER = 8;
+  private final static int TRENCH_COAT_LAYER = 9;
+  private final static int NECK_LAYER = 10;
+  private final static int HAIR_LAYER = 11;
+  private final static int MASK_LAYER = 12;
+  private final static int HEADWEAR_LAYER = 13;
+  private final static int WEAPON_LAYER = 14;
+
+
+  /* Instance fields */
   protected String[] name;
   protected String called;
 
@@ -45,10 +74,16 @@ public class Person extends Animal {
   private final Set<Language> languages;
   private Culture culture;
 
-  Point worldLocation;
-  Point cellLocation;
-  FloatPoint subCellLocation;
   double speed;
+
+  /* Animation */
+  private RenderMood mood;
+  private boolean talking;
+  private boolean blinking;
+
+  private int blinkCounter = 0;
+  private int blinkDuration = 5;
+  private int betweenBlinks = 50;
 
   protected Person(Person father, Person mother, GameDate birthday,
                    Settlement birthplace) {
@@ -59,14 +94,23 @@ public class Person extends Animal {
     this.birthday = birthday;
     this.birthplace = birthplace;
 
-    this.worldLocation = birthplace.getLocation();
-    this.cellLocation = new Point(WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2,
-            WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2);
-    this.subCellLocation = new FloatPoint(WorldMaths.CELL_DIMENSION_LENGTH / 2,
-            WorldMaths.CELL_DIMENSION_LENGTH);
+    Point world = birthplace.getLocation();
+    Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
+            WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
+    FloatPoint subCell = new FloatPoint(WorldPosition.CELL_DIMENSION_LENGTH / 2,
+            WorldPosition.CELL_DIMENSION_LENGTH / 2);
+    this.position = new WorldPosition(world, cell, subCell);
+
     this.speed = 6.;
 
-    this.layers = spriteSetup();
+    this.direction = RenderDirection.D;
+    this.posture = RenderPosture.CALM;
+    this.activity = RenderActivity.IDLE;
+    this.poseNum = 0;
+
+    this.mood = RenderMood.NEUTRAL;
+    this.talking = false;
+    this.blinking = false;
 
     this.children = new HashSet<>();
 
@@ -84,6 +128,9 @@ public class Person extends Animal {
 
     this.mother.children.add(this);
     this.father.children.add(this);
+
+    this.layers = new Sprite[LAYER_AMOUNT];
+    spriteSetup();
   }
 
   protected Person(Sex sex, GameDate birthday, Settlement birthplace) {
@@ -94,14 +141,23 @@ public class Person extends Animal {
     this.father = null;
     this.mother = null;
 
-    this.worldLocation = birthplace.getLocation();
-    this.cellLocation = new Point(WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2,
-            WorldMaths.CELLS_IN_WORLD_CELL_DIM / 2);
-    this.subCellLocation = new FloatPoint(WorldMaths.CELL_DIMENSION_LENGTH / 2,
-            WorldMaths.CELL_DIMENSION_LENGTH);
+    Point world = birthplace.getLocation();
+    Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
+            WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
+    FloatPoint subCell = new FloatPoint(WorldPosition.CELL_DIMENSION_LENGTH / 2,
+            WorldPosition.CELL_DIMENSION_LENGTH / 2);
+    this.position = new WorldPosition(world, cell, subCell);
+
     this.speed = 6.;
 
-    this.layers = spriteSetup();
+    this.direction = RenderDirection.D;
+    this.posture = RenderPosture.CALM;
+    this.activity = RenderActivity.IDLE;
+    this.poseNum = 0;
+
+    this.mood = RenderMood.NEUTRAL;
+    this.talking = false;
+    this.blinking = false;
 
     this.children = new HashSet<>();
 
@@ -116,6 +172,9 @@ public class Person extends Animal {
             getNativeRace().generateHairColor();
     height = randomHeight();
     bodyType = randomBodyType();
+
+    this.layers = new Sprite[LAYER_AMOUNT];
+    spriteSetup();
   }
 
   public static Person create(Sex sex, GameDate birthday,
@@ -128,10 +187,48 @@ public class Person extends Animal {
     return new Person(father, mother, birthday, birthplace);
   }
 
-  Sprite[] spriteSetup() {
-    Sprite[] layers = new Sprite[1];
-    layers[0] = new Sprite("res/img_assets/sprite_sheets/test/test_sprite_sheet.png", "BASIC GREY PERSON", 112, 176, Map.ofEntries(Map.entry("all", new Point(0, 0))));
-    return layers;
+  private void spriteSetup() {
+    /* BODY */
+    layers[BODY_LAYER] = new Sprite(
+            "res/img_assets/sprite_sheets/test/test_sprite_sheet.png",
+            "BASIC GREY PERSON", SPRITE_WIDTH, SPRITE_HEIGHT, SemanticMaps.HOMINID_BODY);
+
+    spriteHeadSetup();
+  }
+
+  private void spriteHeadSetup() {
+    /* HEAD */
+    final String SKIN_COLOUR_MAPPING =
+            "res/img_assets/sprite_gen/heads/head_skin_colour_mapping.png";
+    final String HEAD_MAPPING =
+            "res/img_assets/sprite_gen/heads/head_mapping.png";
+
+    final String EYEBROW_HAIR_COLOUR_MAPPING =
+            "res/img_assets/sprite_gen/heads/eyebrow_thick_hair_colour_mapping.png";
+    final String EYEBROW_MAPPING =
+            "res/img_assets/sprite_gen/heads/eyebrow_mapping.png";
+
+    try {
+      BufferedImage skinColor = ImageIO.read(new File(SKIN_COLOUR_MAPPING));
+      BufferedImage headMapping = ImageIO.read(new File(HEAD_MAPPING));
+      BufferedImage intermediate =
+              SpriteUniqueColorMapping.skinColorApplication(skinColor, this.skinColor, 4);
+      BufferedImage img = SpriteUniqueColorMapping.expandTexture(intermediate, headMapping, 4);
+      img = Tilemapping.duplicateVertically(img, RenderMood.values().length);
+
+      BufferedImage eyebrows = ImageIO.read(new File(EYEBROW_HAIR_COLOUR_MAPPING));
+      BufferedImage eyebrowMapping = ImageIO.read(new File(EYEBROW_MAPPING));
+      eyebrows = SpriteUniqueColorMapping.skinColorApplication(eyebrows, this.hairColor, 4);
+      eyebrows = SpriteUniqueColorMapping.expandTexture(eyebrows, eyebrowMapping, 4);
+
+      img.getGraphics().drawImage(eyebrows, 0, 0, null);
+
+      layers[HEAD_LAYER] = new Sprite(img, "HEAD LAYER", 80, 100, SemanticMaps.HOMINID_FACE);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    /* EYEBROWS */
   }
 
   public Settlement getBirthplace() {
@@ -341,33 +438,81 @@ public class Person extends Animal {
     return father.descendantOf(p) || mother.descendantOf(p);
   }
 
+  private String getFaceSpriteCode() {
+    return direction.name() + "-" + mood.name() + "-" +
+            (talking ? "TALK" : "NOT_TALK") + "-" +
+            (blinking ? "BLINK" : "NOT_BLINK");
+  }
+
+  private void blinkingUpdate() {
+    final int[] INTERVAL_RANGE = new int[] { 60, 140 };
+    final int[] DURATION_RANGE = new int[] { 10, 16 };
+
+    blinkCounter++;
+
+    if (blinking) {
+      if (blinkCounter >= blinkDuration) {
+        blinking = false;
+        betweenBlinks = Randoms.bounded(INTERVAL_RANGE[0], INTERVAL_RANGE[1]);
+        blinkCounter = 0;
+      }
+    } else {
+      if (blinkCounter >= betweenBlinks) {
+        blinking = true;
+        blinkDuration = Randoms.bounded(DURATION_RANGE[0], DURATION_RANGE[1]);
+        blinkCounter = 0;
+      }
+    }
+  }
+
   @Override
   int age(GameDate now) {
     return GameDate.yearsBetween(birthday, now);
   }
 
   @Override
-  public Point worldLocation() {
-    return worldLocation;
-  }
-
-  @Override
-  public Point cellLocation() {
-    return cellLocation;
-  }
-
-  @Override
-  public FloatPoint subCellLocation() {
-    return subCellLocation;
-  }
-
-  @Override
   public BufferedImage getSprite() {
-    return layers[0].getSprite("all");
+    BufferedImage sprite = new BufferedImage(SPRITE_WIDTH, SPRITE_HEIGHT,
+            BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) sprite.getGraphics();
+    String spriteCode = getSpriteCode();
+    String faceSpriteCode = getFaceSpriteCode();
+
+    for (int i = 0; i < LAYER_AMOUNT; i++) {
+      switch (i) {
+        case BODY_LAYER:
+        case BODY_SCARRING_LAYER:
+        case LEGWEAR_LAYER:
+        case FOOTWEAR_LAYER:
+        case UPPER_BODY_LAYER:
+        case BELT_LAYER:
+        case GLOVES_LAYER:
+        case TRENCH_COAT_LAYER:
+        case NECK_LAYER:
+        case WEAPON_LAYER:
+          // TODO: temp null checker
+          if (i != BODY_LAYER) break;
+          g.drawImage(layers[i].getSprite(spriteCode), 0, 0, null);
+          break;
+        default:
+          if (i != HEAD_LAYER) break;
+          Point offset = SemanticMaps.faceOffset(faceSpriteCode);
+          g.drawImage(layers[i].getSprite(faceSpriteCode),
+                  offset.x, offset.y, null);
+          break;
+      }
+    }
+
+    return sprite;
   }
 
   @Override
   public Point getSpriteOffset() {
-    return new Point(-56, -164);
+    return new Point(-112, -164);
+  }
+
+  @Override
+  public void renderUpdate() {
+    blinkingUpdate();
   }
 }

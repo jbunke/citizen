@@ -37,7 +37,7 @@ public class WorldGenTests {
 
     System.out.println(dimensions);
 
-    String maxPath = "res/test_output/worldgen/boundaries/maxPossible.png";
+    String maxPath = "test_output/worldgen/boundaries/maxPossible.png";
     BufferedImage maxMap = maxWorld.physicalGeography(5);
     Graphics2D g = (Graphics2D) maxMap.getGraphics();
 
@@ -52,7 +52,7 @@ public class WorldGenTests {
 
   @Test
   public void chunkMapTest() {
-    String filepath = "res/test_output/worldgen/chunk_map/chunks.png";
+    String filepath = "test_output/worldgen/chunk_map/chunks.png";
 
     World world = World.safeCreate(480, 270, 30, 10);
 
@@ -67,11 +67,11 @@ public class WorldGenTests {
 
   @Test
   public void generateWorldToMaps() {
-    String tectonicPath = "res/test_output/worldgen/tectonic_map.png";
-    String landSeaPath = "res/test_output/worldgen/land_sea_map.png";
-    String politicalPath = "res/test_output/worldgen/political_map.png";
-    String borderPath = "res/test_output/worldgen/political_border_map.png";
-    String regionPath = "res/test_output/worldgen/region_map.png";
+    String tectonicPath = "test_output/worldgen/tectonic_map.png";
+    String landSeaPath = "test_output/worldgen/land_sea_map.png";
+    String politicalPath = "test_output/worldgen/political_map.png";
+    String borderPath = "test_output/worldgen/political_border_map.png";
+    String regionPath = "test_output/worldgen/region_map.png";
 
     World testWorld = World.safeCreate(640, 360, 35, 20);
 
@@ -94,11 +94,11 @@ public class WorldGenTests {
 
   @Test
   public void stressTest() {
-    String tectonicPath = "res/test_output/worldgen/stress_test/tectonic_map.png";
-    String landSeaPath = "res/test_output/worldgen/stress_test/land_sea_map.png";
-    String politicalPath = "res/test_output/worldgen/stress_test/political_map.png";
-    String borderPath = "res/test_output/worldgen/stress_test/political_border_map.png";
-    String regionPath = "res/test_output/worldgen/stress_test/region_map.png";
+    String tectonicPath = "test_output/worldgen/stress_test/tectonic_map.png";
+    String landSeaPath = "test_output/worldgen/stress_test/land_sea_map.png";
+    String politicalPath = "test_output/worldgen/stress_test/political_map.png";
+    String borderPath = "test_output/worldgen/stress_test/political_border_map.png";
+    String regionPath = "test_output/worldgen/stress_test/region_map.png";
 
     World testWorld = null;
     int width = 1280; //960;
@@ -129,7 +129,7 @@ public class WorldGenTests {
 
   @Test
   public void variablePlateCount() {
-    String templatePath = "res/test_output/worldgen/platecount/";
+    String templatePath = "test_output/worldgen/platecount/";
 
     for (int i = 20; i < 80; i += 5) {
       World testWorld = new World(480, 270, i);
@@ -149,7 +149,7 @@ public class WorldGenTests {
 
   @Test
   public void tenWorldsPhysicalGeography() {
-    String templatePath = "res/test_output/worldgen/worlddump/number";
+    String templatePath = "test_output/worldgen/worlddump/number";
 
     for (int i = 0; i < 10; i++) {
       World testWorld = World.safeCreate(320, 180, 30, 10);

@@ -679,7 +679,7 @@ public class World {
         // Don't print names of lowest-tier settlements
         if (powerLevel < 3) {
           BufferedImage name = Font.CLEAN.getText(
-                  Formatter.capitaliseFirstLetter(settlement.getName()) +
+                  Formatter.properNoun(settlement.getName()) +
                           " (" + settlement.getSetupPower() + ")");
           WritingSystem ws =
                   settlement.getState().getLanguage().getWritingSystem();
@@ -695,7 +695,7 @@ public class World {
 //      WritingSystem ws = state.getLanguage().getWritingSystem();
 //
 //      BufferedImage text = Font.CLEAN.getText(
-//              Formatter.capitaliseFirstLetter(state.getName()));
+//              Formatter.properNoun(state.getName()));
 //      BufferedImage symbols = ws.draw(state.getName(), 2);
 //
 //      g.setColor(new Color(255, 255, 255, 150));

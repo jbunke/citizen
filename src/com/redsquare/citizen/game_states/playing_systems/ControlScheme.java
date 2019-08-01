@@ -4,18 +4,28 @@ import java.util.Map;
 
 public class ControlScheme {
 
+  private static final char ESC_KEY = 27;
+
+  private static final char W_KEY = 'w';
+  private static final char A_KEY = 'a';
+  private static final char D_KEY = 'd';
+  private static final char S_KEY = 's';
+  private static final char Z_KEY = 'z';
+
   private Map<Character, Action> controlScheme = Map.ofEntries(
-          Map.entry('w', Action.UP),
-          Map.entry('a', Action.LEFT),
-          Map.entry('d', Action.RIGHT),
-          Map.entry('s', Action.DOWN),
-          Map.entry('z', Action.ZOOM)
+          Map.entry(W_KEY, Action.UP),
+          Map.entry(A_KEY, Action.LEFT),
+          Map.entry(D_KEY, Action.RIGHT),
+          Map.entry(S_KEY, Action.DOWN),
+          Map.entry(Z_KEY, Action.ZOOM),
+          Map.entry(ESC_KEY, Action.PAUSE)
   );
 
   public enum Action {
     DO_NOTHING,
     UP, LEFT, RIGHT, DOWN,
-    ZOOM
+    ZOOM,
+    PAUSE
   }
 
   private static ControlScheme instance = new ControlScheme();

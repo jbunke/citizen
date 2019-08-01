@@ -13,4 +13,8 @@ public class MathExt {
     return Math.sqrt(Math.pow(Math.abs(a.x - b.x), 2) +
             Math.pow(Math.abs(a.y - b.y), 2));
   }
+
+  public static double bounded(final double VALUE, final double MIN, final double MAX) {
+    return Math.min(Math.max(VALUE, MIN), MAX);
+  }
 }
