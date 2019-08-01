@@ -48,10 +48,16 @@ public class GameManager {
 
   void update() {
     states[current].update();
+
+    if (GameDebug.isActive())
+      GameDebug.update();
   }
 
   void render(Graphics2D g) {
     states[current].render(g);
+
+    if (GameDebug.isActive())
+      GameDebug.render(g);
   }
 
   void input(InputHandler inputHandler) {

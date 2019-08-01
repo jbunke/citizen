@@ -42,7 +42,8 @@ public final class PlayingGameState extends GameState {
   }
 
   public static PlayingGameState init() {
-    GameDebug.printDebug("Initialising \"playing\" game state...");
+    GameDebug.printMessage("Initialising \"playing\" game state...",
+            GameDebug::printDebug);
     return new PlayingGameState();
   }
 
