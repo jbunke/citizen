@@ -1,4 +1,4 @@
-package com.redsquare.citizen.systems.vexillology;
+package com.redsquare.citizen.systems.vexillography;
 
 import com.redsquare.citizen.systems.politics.Culture;
 

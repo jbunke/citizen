@@ -1,6 +1,7 @@
 package com.redsquare.citizen;
 
 import com.redsquare.citizen.config.Settings;
+import com.redsquare.citizen.debug.GameDebug;
 
 import javax.swing.*;
 import java.awt.*;

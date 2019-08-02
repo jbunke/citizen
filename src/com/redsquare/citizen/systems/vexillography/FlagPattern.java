@@ -1,6 +1,6 @@
-package com.redsquare.citizen.systems.vexillology;
+package com.redsquare.citizen.systems.vexillography;
 
-import com.redsquare.citizen.GameDebug;
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.systems.politics.Culture;
 import com.redsquare.citizen.util.Sets;
 
@@ -31,6 +31,7 @@ public class FlagPattern {
   private static final Set<File> symbols = Set.of(
           new File("res/flag_pattern_templates/symbols/fpt_symbol_pillar.png"),
           new File("res/flag_pattern_templates/symbols/fpt_symbol_torch.png"),
+          new File("res/flag_pattern_templates/symbols/fpt_symbol_sun.png"),
           new File("res/flag_pattern_templates/symbols/fpt_symbol_x_cross.png")
   );
 

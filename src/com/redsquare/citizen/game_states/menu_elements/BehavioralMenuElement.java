@@ -36,8 +36,13 @@ public class BehavioralMenuElement extends MenuElement {
         System.exit(0);
         break;
       case START_GAME:
-        GameManager.get().initPlaying();
-        GameManager.get().setGameState(GameManager.PLAYING);
+        GameManager gm = GameManager.get();
+        Thread initializer = new Thread(gm::initPlaying);
+        initializer.start();
+
+        MenuGameState state = (MenuGameState)(gm.getGameState());
+        state.setStateCode(MenuStateCode.GENERATING_WORLD, MenuStateCode.START_GAME);
+        // gm.setGameState(GameManager.PLAYING);
         break;
     }
   }

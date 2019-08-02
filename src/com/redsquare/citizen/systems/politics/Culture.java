@@ -1,6 +1,6 @@
 package com.redsquare.citizen.systems.politics;
 
-import com.redsquare.citizen.systems.vexillology.FlagPattern;
+import com.redsquare.citizen.systems.vexillography.FlagPattern;
 import com.redsquare.citizen.util.Randoms;
 
 import java.util.HashSet;

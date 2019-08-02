@@ -1,6 +1,6 @@
 package com.redsquare.citizen.game_states.playing_systems;
 
-import com.redsquare.citizen.GameDebug;
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.config.Settings;
 import com.redsquare.citizen.entity.Entity;

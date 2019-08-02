@@ -1,7 +1,7 @@
 package com.redsquare.citizen.systems.politics;
 
 import com.redsquare.citizen.systems.language.*;
-import com.redsquare.citizen.systems.vexillology.Flag;
+import com.redsquare.citizen.systems.vexillography.Flag;
 import com.redsquare.citizen.util.Formatter;
 
 import java.util.HashSet;

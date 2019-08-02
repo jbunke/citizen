@@ -1,6 +1,6 @@
 package com.redsquare.citizen.game_states;
 
-import com.redsquare.citizen.GameDebug;
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.GameManager;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.config.WorldConfig;

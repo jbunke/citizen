@@ -94,12 +94,7 @@ public class Person extends Animal {
     this.birthday = birthday;
     this.birthplace = birthplace;
 
-    Point world = birthplace.getLocation();
-    Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
-            WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
-    FloatPoint subCell = new FloatPoint(WorldPosition.CELL_DIMENSION_LENGTH / 2,
-            WorldPosition.CELL_DIMENSION_LENGTH / 2);
-    this.position = new WorldPosition(world, cell, subCell);
+    this.position = tempSpawnPosition();
 
     this.speed = 6.;
 
@@ -141,12 +136,7 @@ public class Person extends Animal {
     this.father = null;
     this.mother = null;
 
-    Point world = birthplace.getLocation();
-    Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
-            WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
-    FloatPoint subCell = new FloatPoint(WorldPosition.CELL_DIMENSION_LENGTH / 2,
-            WorldPosition.CELL_DIMENSION_LENGTH / 2);
-    this.position = new WorldPosition(world, cell, subCell);
+    this.position = tempSpawnPosition();
 
     this.speed = 6.;
 
@@ -185,6 +175,17 @@ public class Person extends Animal {
   public static Person birth(Person mother, Person father, GameDate birthday,
                              Settlement birthplace) {
     return new Person(father, mother, birthday, birthplace);
+  }
+
+  private WorldPosition tempSpawnPosition() {
+    Point world = birthplace.getLocation();
+    Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
+            WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
+    FloatPoint subCell = new FloatPoint(
+            Randoms.bounded(0, WorldPosition.CELL_DIMENSION_LENGTH - 1.),
+            Randoms.bounded(0, WorldPosition.CELL_DIMENSION_LENGTH - 1.));
+
+    return new WorldPosition(world, cell, subCell);
   }
 
   private void spriteSetup() {

@@ -1,11 +1,11 @@
 package com.redsquare.citizen.worldgen;
 
-import com.redsquare.citizen.GameDebug;
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
-import com.redsquare.citizen.systems.vexillology.Flag;
+import com.redsquare.citizen.systems.vexillography.Flag;
 import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.util.Sets;
 

@@ -1,4 +1,4 @@
-package com.redsquare.citizen;
+package com.redsquare.citizen.debug;
 
 import com.redsquare.citizen.config.Settings;
 import com.redsquare.citizen.graphics.Font;
@@ -12,7 +12,7 @@ public class GameDebug {
   private static final int MAX_AGE = 200;
   private static final int MAX_MESSAGE_AMOUNT = 10;
 
-  private static boolean active = true;
+  private static boolean active = false;
   private static Message[] messages = new Message[MAX_MESSAGE_AMOUNT];
 
   public static class Message {
