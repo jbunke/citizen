@@ -1,5 +1,6 @@
 package com.redsquare.citizen.worldgen;
 
+import com.redsquare.citizen.entity.Entity;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.util.ColorMath;
 import com.redsquare.citizen.util.MathExt;
@@ -10,12 +11,15 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class WorldCell {
   private final Point location;
   private final World world;
+
+  private final Set<Entity> entities;
 
   private final Type[][] surroundings;
   private final Type[][] chunks;
@@ -33,12 +37,22 @@ public class WorldCell {
     this.location = location;
     this.world = world;
 
+    this.entities = new HashSet<>();
+
     generated = false;
     this.type = type;
     region = Region.TEMPERATE;
 
     surroundings = new Type[3][3];
     chunks = new Type[16][16];
+  }
+
+  void addEntity(Entity e) {
+    entities.add(e);
+  }
+
+  void removeEntity(Entity e) {
+    entities.remove(e);
   }
 
   void populateProvince(Settlement province) {

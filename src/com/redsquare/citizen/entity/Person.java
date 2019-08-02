@@ -12,6 +12,7 @@ import com.redsquare.citizen.util.ColorMath;
 import com.redsquare.citizen.util.FloatPoint;
 import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
+import com.redsquare.citizen.worldgen.World;
 import com.redsquare.citizen.worldgen.WorldPosition;
 
 import javax.imageio.ImageIO;
@@ -86,7 +87,7 @@ public class Person extends Animal {
   private int betweenBlinks = 50;
 
   protected Person(Person father, Person mother, GameDate birthday,
-                   Settlement birthplace) {
+                   Settlement birthplace, World world) {
     sex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
 
     this.father = father;
@@ -94,7 +95,7 @@ public class Person extends Animal {
     this.birthday = birthday;
     this.birthplace = birthplace;
 
-    this.position = tempSpawnPosition();
+    this.position = tempSpawnPosition(world);
 
     this.speed = 6.;
 
@@ -128,7 +129,7 @@ public class Person extends Animal {
     spriteSetup();
   }
 
-  protected Person(Sex sex, GameDate birthday, Settlement birthplace) {
+  protected Person(Sex sex, GameDate birthday, Settlement birthplace, World world) {
     this.sex = sex;
     this.birthday = birthday;
     this.birthplace = birthplace;
@@ -136,7 +137,7 @@ public class Person extends Animal {
     this.father = null;
     this.mother = null;
 
-    this.position = tempSpawnPosition();
+    this.position = tempSpawnPosition(world);
 
     this.speed = 6.;
 
@@ -168,24 +169,24 @@ public class Person extends Animal {
   }
 
   public static Person create(Sex sex, GameDate birthday,
-                              Settlement birthplace) {
-    return new Person(sex, birthday, birthplace);
+                              Settlement birthplace, World world) {
+    return new Person(sex, birthday, birthplace, world);
   }
 
   public static Person birth(Person mother, Person father, GameDate birthday,
-                             Settlement birthplace) {
-    return new Person(father, mother, birthday, birthplace);
+                             Settlement birthplace, World world) {
+    return new Person(father, mother, birthday, birthplace, world);
   }
 
-  private WorldPosition tempSpawnPosition() {
-    Point world = birthplace.getLocation();
+  private WorldPosition tempSpawnPosition(World world) {
+    Point worldPos = birthplace.getLocation();
     Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
             WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
     FloatPoint subCell = new FloatPoint(
             Randoms.bounded(0, WorldPosition.CELL_DIMENSION_LENGTH - 1.),
             Randoms.bounded(0, WorldPosition.CELL_DIMENSION_LENGTH - 1.));
 
-    return new WorldPosition(world, cell, subCell);
+    return new WorldPosition(worldPos, cell, subCell, world, this);
   }
 
   private void spriteSetup() {

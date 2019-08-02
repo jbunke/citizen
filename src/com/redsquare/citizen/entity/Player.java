@@ -24,8 +24,8 @@ public final class Player extends Person {
    * used to determine direction */
   private FloatPoint lookingRef;
 
-  private Player(Sex sex, GameDate birthday, Settlement birthplace) {
-    super(sex, birthday, birthplace);
+  private Player(Sex sex, GameDate birthday, Settlement birthplace, World world) {
+    super(sex, birthday, birthplace, world);
 
     dirKeys = new boolean[4];
     movementVector = new double[2];
@@ -34,7 +34,8 @@ public final class Player extends Person {
 
   public static Player temp(World world) {
     Settlement settlement = world.randomSettlement();
-    return new Player(Sex.MALE, new GameDate(1, 1), settlement);
+    return new Player(Sex.MALE, new GameDate(1, 1),
+            settlement, world);
   }
 
   public void setLookingRef(FloatPoint lookingRef) {
