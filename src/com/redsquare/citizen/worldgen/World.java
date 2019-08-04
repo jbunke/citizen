@@ -1,6 +1,10 @@
 package com.redsquare.citizen.worldgen;
 
+import com.redsquare.citizen.GameManager;
+import com.redsquare.citizen.config.Settings;
 import com.redsquare.citizen.debug.GameDebug;
+import com.redsquare.citizen.game_states.MenuGameState;
+import com.redsquare.citizen.game_states.menu_elements.MenuStateCode;
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
@@ -96,6 +100,8 @@ public class World {
       plates[i * 2].makeOceanic();
     }
 
+    updateMenuScreen(MenuStateCode.PHYSICAL_GEOGRAPHY);
+
     // BASIC LAND/SEA
     cells = new WorldCell[width][height];
     for (TectonicPlate plate : plates) {
@@ -155,6 +161,8 @@ public class World {
      * START OF POLITICAL GEOGRAPHY
      * */
 
+    updateMenuScreen(MenuStateCode.STATES_SETTLEMENTS);
+
     // STATES
     states = new HashSet<>();
 
@@ -167,6 +175,17 @@ public class World {
 
     // BORDERS
     establishBorders();
+
+    updateMenuScreen(MenuStateCode.WORLD_GENERATED);
+  }
+
+  private void updateMenuScreen(MenuStateCode code) {
+    if (Settings.executionMode == Settings.ExecutionMode.GAME) {
+      MenuGameState menuState =
+              (MenuGameState)(GameManager.get().getGameState());
+
+      menuState.setStateCode(code, null);
+    }
   }
 
   private void removeTrivialStates() {

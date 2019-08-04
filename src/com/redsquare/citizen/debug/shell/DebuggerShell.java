@@ -13,7 +13,28 @@ public class DebuggerShell {
   private static final Scanner in = new Scanner(System.in);
 
   public static void launch() {
-    prompt();
+    startUp();
+    loop();
+  }
+
+  private static void loop() {
+    String command = "";
+
+    while (!command.equals("quit")) {
+      prompt();
+      command = in.nextLine();
+      process(command);
+    }
+
+    System.exit(0);
+  }
+
+  private static void startUp() {
+    System.out.println("Citizen COMMAND DEBUGGER\n");
+  }
+
+  private static void process(String command) {
+
   }
 
   private static void prompt() {
