@@ -2,6 +2,7 @@ package com.redsquare.citizen.game_states.menu_elements;
 
 import com.redsquare.citizen.GameManager;
 import com.redsquare.citizen.InputHandler;
+import com.redsquare.citizen.config.Settings;
 import com.redsquare.citizen.game_states.MenuGameState;
 
 import java.awt.*;
@@ -42,8 +43,8 @@ public class BehavioralMenuElement extends MenuElement {
         MenuGameState state = (MenuGameState)(gm.getGameState());
         state.setStateCode(MenuStateCode.GENERATING_WORLD, MenuStateCode.START_GAME);
 
-        Thread initializer = new Thread(gm::initPlaying);
-        initializer.start();
+        Settings.secondary = new Thread(gm::initPlaying);
+        Settings.secondary.start();
         break;
     }
   }

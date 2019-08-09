@@ -6,8 +6,6 @@ import com.redsquare.citizen.debug.shell.DebuggerShell;
 
 public class GameLauncher {
 
-  private static Thread debugger = new Thread(DebuggerShell::launch);
-
   public static void main(String[] args) {
     for (String arg : args) processArg(arg);
 
@@ -19,7 +17,8 @@ public class GameLauncher {
     switch (arg) {
       case "-d":
         GameDebug.activate();
-        debugger.start();
+        Settings.debugger = new Thread(DebuggerShell::launch);
+        Settings.debugger.start();
         break;
       default:
         break;

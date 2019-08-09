@@ -1,51 +1,38 @@
-package com.redsquare.citizen;
+package com.redsquare.citizen.devkit.sprite_maker;
 
-import com.redsquare.citizen.config.Settings;
-import com.redsquare.citizen.debug.GameDebug;
+import com.redsquare.citizen.InputHandler;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class GamePanel extends JPanel implements Runnable {
+class SpriteMakerPanel extends JPanel implements Runnable {
+  private static SpriteMakerPanel instance = null;
+  private static final int WIDTH = 1280;
+  private static final int HEIGHT = 720;
 
-  private static GamePanel instance = null;
-
-  private int width, height;
-
-  private GameManager gameManager;
   private InputHandler inputHandler;
+  private SpriteMakerManager manager;
 
   private boolean running = false;
   private Thread thread;
   private BufferedImage image;
   private Graphics2D g;
 
-  private GamePanel() {
-    this.width = Settings.SCREEN_DIM[0];
-    this.height = Settings.SCREEN_DIM[1];
-
-    gameManager = GameManager.init();
-    inputHandler = InputHandler.create(this);
-
-    setPreferredSize(new Dimension(width, height));
-    setFocusable(true);
-    requestFocus();
-  }
-
-  static GamePanel instance() {
+  static SpriteMakerPanel instance() {
     if (instance != null) return instance;
 
-    instance = new GamePanel();
+    instance = new SpriteMakerPanel();
     return instance;
   }
 
-  public int getWidth() {
-    return width;
-  }
+  private SpriteMakerPanel() {
+    inputHandler = InputHandler.create(this);
+    manager = SpriteMakerManager.init();
 
-  public int getHeight() {
-    return height;
+    setPreferredSize(new Dimension(WIDTH, HEIGHT));
+    setFocusable(true);
+    requestFocus();
   }
 
   @Override
@@ -60,7 +47,7 @@ public class GamePanel extends JPanel implements Runnable {
 
   private void init() {
     running = true;
-    image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
     g = (Graphics2D) image.getGraphics();
   }
 
@@ -78,10 +65,6 @@ public class GamePanel extends JPanel implements Runnable {
 
     final double TARGET_FPS = 60.0;
     final double NANOSECONDS_PER_RENDER = 1e9 / TARGET_FPS;
-
-    int frameCount = 0;
-    int lastSecondSlice = (int) (lastUpdateTime / 1e9);
-    int oldFrameCount = 0;
 
     while (running) {
 
@@ -108,24 +91,6 @@ public class GamePanel extends JPanel implements Runnable {
       draw();
 
       lastRenderTime = now;
-      frameCount++;
-
-      // FRAME RATE CHECK BLOCK
-
-      int thisSecondSlice = (int) (lastUpdateTime / 1e9);
-
-      if (thisSecondSlice != lastSecondSlice) {
-
-        if (frameCount != oldFrameCount) {
-          GameDebug.printMessage(
-                  thisSecondSlice + ": " + frameCount + " FPS",
-                  GameDebug::printDebug);
-          oldFrameCount = frameCount;
-        }
-
-        frameCount = 0;
-        lastSecondSlice = thisSecondSlice;
-      }
 
       // BREATHE BLOCK
 
@@ -145,11 +110,11 @@ public class GamePanel extends JPanel implements Runnable {
   }
 
   private void update() {
-    gameManager.update();
+    manager.update();
   }
 
   private void input() {
-    gameManager.input(inputHandler);
+    manager.input(inputHandler);
   }
 
   /**
@@ -159,10 +124,10 @@ public class GamePanel extends JPanel implements Runnable {
     if (g != null) {
       // CLEAR canvas?
       g.setColor(new Color(255, 255, 255));
-      g.fillRect(0, 0, width, height);
+      g.fillRect(0, 0, WIDTH, HEIGHT);
 
       // SpriteTester.render(g);
-      gameManager.render(g);
+      manager.render(g);
     }
   }
 
@@ -172,7 +137,7 @@ public class GamePanel extends JPanel implements Runnable {
   private void draw() {
     Graphics panel = this.getGraphics();
 
-    panel.drawImage(image, 0, 0, width, height, null);
+    panel.drawImage(image, 0, 0, WIDTH, HEIGHT, null);
     panel.dispose();
   }
 }
