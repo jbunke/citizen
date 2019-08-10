@@ -8,6 +8,7 @@ import com.redsquare.citizen.entity.Entity;
 import com.redsquare.citizen.entity.Person;
 import com.redsquare.citizen.entity.Player;
 import com.redsquare.citizen.entity.Sex;
+import com.redsquare.citizen.entity.collision.CollisionManager;
 import com.redsquare.citizen.game_states.playing_systems.Camera;
 import com.redsquare.citizen.game_states.playing_systems.ControlScheme;
 import com.redsquare.citizen.input_events.Event;
@@ -37,8 +38,10 @@ public final class PlayingGameState extends GameState {
     citizens = new HashSet<>();
     citizens.add(player);
 
-    Person temp = Person.create(Sex.MALE, new GameDate(1, 1), player.getBirthplace(), world);
-    citizens.add(temp);
+    for (int i = 0; i < 26; i++) {
+      Person temp = Person.create(Sex.MALE, new GameDate(1, 1), player.getBirthplace(), world);
+      citizens.add(temp);
+    }
   }
 
   public static PlayingGameState init() {
@@ -52,6 +55,14 @@ public final class PlayingGameState extends GameState {
     // TODO - Macro/micro scope sorting
     for (Entity citizen : citizens) citizen.update();
     camera.update();
+
+    for (Entity a : citizens) {
+      for (Entity b : citizens) {
+        if (!a.equals(b)) {
+          CollisionManager.check(a, b);
+        }
+      }
+    }
   }
 
   @Override

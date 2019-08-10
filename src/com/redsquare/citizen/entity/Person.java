@@ -1,7 +1,9 @@
 package com.redsquare.citizen.entity;
 
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.devkit.sprite_gen.SpriteUniqueColorMapping;
 import com.redsquare.citizen.devkit.sprite_gen.Tilemapping;
+import com.redsquare.citizen.entity.collision.Collider;
 import com.redsquare.citizen.graphics.*;
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.politics.Culture;
@@ -96,6 +98,7 @@ public class Person extends Animal {
     this.birthplace = birthplace;
 
     this.position = tempSpawnPosition(world);
+    this.collider = Collider.getColliderFromType(Collider.EntityType.PERSON);
 
     this.speed = 6.;
 
@@ -138,6 +141,7 @@ public class Person extends Animal {
     this.mother = null;
 
     this.position = tempSpawnPosition(world);
+    this.collider = Collider.getColliderFromType(Collider.EntityType.PERSON);
 
     this.speed = 6.;
 
@@ -494,14 +498,32 @@ public class Person extends Animal {
         case WEAPON_LAYER:
           // TODO: temp null checker
           if (i != BODY_LAYER) break;
+
           g.drawImage(layers[i].getSprite(spriteCode), 0, 0, null);
           break;
         default:
+          // TODO: temp null checker
           if (i != HEAD_LAYER) break;
+
           Point offset = SemanticMaps.faceOffset(faceSpriteCode);
           g.drawImage(layers[i].getSprite(faceSpriteCode),
                   offset.x, offset.y, null);
           break;
+      }
+    }
+
+    if (GameDebug.isActive()) {
+      g.setColor(new Color(100, 255, 0));
+      g.setStroke(new BasicStroke(1));
+
+      Collider.CollisionBox[] boxes = collider.getBoxes();
+      Point offset = getSpriteOffset();
+
+      for (Collider.CollisionBox box : boxes) {
+        int x = (box.getStart()[0] - offset.x),
+                y = (box.getStart()[1] - offset.y);
+
+        g.drawRect(x, y, box.getSize()[0], box.getSize()[1]);
       }
     }
 
@@ -510,7 +532,7 @@ public class Person extends Animal {
 
   @Override
   public Point getSpriteOffset() {
-    return new Point(-112, -164);
+    return new Point((-1 * SPRITE_WIDTH) / 2, (-1 * SPRITE_HEIGHT) + 12);
   }
 
   @Override
