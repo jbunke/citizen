@@ -38,7 +38,7 @@ public final class PlayingGameState extends GameState {
     citizens = new HashSet<>();
     citizens.add(player);
 
-    for (int i = 0; i < 26; i++) {
+    for (int i = 0; i < 10; i++) {
       Person temp = Person.create(Sex.MALE, new GameDate(1, 1), player.getBirthplace(), world);
       citizens.add(temp);
     }

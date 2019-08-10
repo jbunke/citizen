@@ -4,10 +4,12 @@ public class Collider {
   private static final int X = 0, Y = 1;
 
   final boolean immovable;
+  private final EntityType type;
   private final CollisionBox[] boxes;
 
-  private Collider(CollisionBox[] boxes, boolean immovable) {
+  private Collider(CollisionBox[] boxes, boolean immovable, EntityType type) {
     this.immovable = immovable;
+    this.type = type;
     this.boxes = boxes;
   }
 
@@ -18,7 +20,7 @@ public class Collider {
     // TODO
     boxes = new CollisionBox[] { new CollisionBox(-25, -40, 50, 40) };
 
-    return new Collider(boxes, immovable);
+    return new Collider(boxes, immovable, type);
   }
 
   public enum EntityType {
