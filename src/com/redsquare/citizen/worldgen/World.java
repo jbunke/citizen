@@ -241,15 +241,15 @@ public class World {
     return closest;
   }
 
-  int getWidth() {
+  public int getWidth() {
     return width;
   }
 
-  int getHeight() {
+  public int getHeight() {
     return height;
   }
 
-  WorldCell getCell(int x, int y) {
+  public WorldCell getCell(int x, int y) {
     return (x >= 0 && x < width && y >= 0 && y < height) ? cells[x][y] : null;
   }
 

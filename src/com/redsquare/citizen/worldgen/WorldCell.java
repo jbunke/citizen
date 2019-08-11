@@ -47,6 +47,28 @@ public class WorldCell {
     chunks = new Type[16][16];
   }
 
+  public Point getLocation() {
+    return location;
+  }
+
+  public void populateSubCells() {
+    // TODO temp fix
+    subCells =
+            new WorldSubCell[WorldPosition.CELLS_IN_WORLD_CELL_DIM]
+                    [WorldPosition.CELLS_IN_WORLD_CELL_DIM];
+
+    for (int x = 0; x < WorldPosition.CELLS_IN_WORLD_CELL_DIM; x++) {
+      for (int y = 0; y < WorldPosition.CELLS_IN_WORLD_CELL_DIM; y++) {
+        subCells[x][y] = new WorldSubCell(new Point(x, y), this, WorldSubCell.Type.GRASS);
+      }
+    }
+  }
+
+  public WorldSubCell getSubCell(int x, int y) {
+    return (x >= 0 && x < WorldPosition.CELLS_IN_WORLD_CELL_DIM &&
+            y >= 0 && y < WorldPosition.CELLS_IN_WORLD_CELL_DIM) ? subCells[x][y] : null;
+  }
+
   void addEntity(Entity e) {
     entities.add(e);
   }

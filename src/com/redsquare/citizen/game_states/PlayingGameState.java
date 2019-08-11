@@ -1,5 +1,6 @@
 package com.redsquare.citizen.game_states;
 
+import com.redsquare.citizen.config.Settings;
 import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.GameManager;
 import com.redsquare.citizen.InputHandler;
@@ -11,12 +12,14 @@ import com.redsquare.citizen.entity.Sex;
 import com.redsquare.citizen.entity.collision.CollisionManager;
 import com.redsquare.citizen.game_states.playing_systems.Camera;
 import com.redsquare.citizen.game_states.playing_systems.ControlScheme;
+import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.input_events.Event;
 import com.redsquare.citizen.input_events.KeyPressEvent;
 import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.worldgen.World;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +38,8 @@ public final class PlayingGameState extends GameState {
     player = Player.temp(world);
     camera = Camera.generate(player);
 
+    populateCellsAroundPlayer();
+
     citizens = new HashSet<>();
     citizens.add(player);
 
@@ -44,11 +49,28 @@ public final class PlayingGameState extends GameState {
     }
   }
 
+  /* START OF INIT BLOCK */
+
+  private void populateCellsAroundPlayer() {
+    int xMin = Math.max(player.position().world().x - 1, 0);
+    int yMin = Math.max(player.position().world().y - 1, 0);
+    int xMax = Math.min(player.position().world().x + 1, world.getWidth() - 1);
+    int yMax = Math.min(player.position().world().y + 1, world.getHeight() - 1);
+
+    for (int x = xMin; x <= xMax; x++) {
+      for (int y = yMin; y <= yMax; y++) {
+        world.getCell(x, y).populateSubCells();
+      }
+    }
+  }
+
   public static PlayingGameState init() {
     GameDebug.printMessage("Initialising \"playing\" game state...",
             GameDebug::printDebug);
     return new PlayingGameState();
   }
+
+  /* END OF INIT BLOCK */
 
   @Override
   public void update() {
@@ -70,6 +92,17 @@ public final class PlayingGameState extends GameState {
     // TODO: filter micro-scope entity set
 
     camera.render(g, citizens, world);
+
+    if (GameDebug.isActive()) {
+      BufferedImage animState = Font.CLEAN.getText(player.getSpriteCode());
+      BufferedImage position = Font.CLEAN.getText(player.position().toString());
+      g.drawImage(animState, Settings.SCREEN_DIM[0] - animState.getWidth(),
+              Settings.SCREEN_DIM[1] - animState.getHeight(), null);
+      g.drawImage(position, Settings.SCREEN_DIM[0] - position.getWidth(),
+              Settings.SCREEN_DIM[1] -
+                      (animState.getHeight() + position.getHeight() + 10),
+              null);
+    }
   }
 
   @Override

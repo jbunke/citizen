@@ -128,4 +128,11 @@ public class WorldPosition {
   private boolean isEntity() {
     return (world != null & associated != null);
   }
+
+  @Override
+  public String toString() {
+    return "WORLD: (" + worldPos.x + ", " + worldPos.y + "); CELL: (" +
+            cellPos.x + ", " + cellPos.y + "); SUB-CELL: (" +
+            (int)subCellPos.x + ", " + (int)subCellPos.y + ")";
+  }
 }

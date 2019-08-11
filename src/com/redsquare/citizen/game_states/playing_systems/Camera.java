@@ -11,13 +11,12 @@ import com.redsquare.citizen.util.FloatPoint;
 import com.redsquare.citizen.util.MathExt;
 import com.redsquare.citizen.worldgen.World;
 import com.redsquare.citizen.worldgen.WorldPosition;
+import com.redsquare.citizen.worldgen.WorldSubCell;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class Camera {
   private static final int IN = 1, OUT = 2, X = 0, Y = 1;
@@ -118,13 +117,17 @@ public class Camera {
 
   public void render(Graphics2D g, Set<Entity> candidates, World world) {
     // TODO - draw world behind and sort candidates by y pos
+    WorldSubCell[][] subCells = getSubCells(world);
+    renderSubCells(g, subCells);
 
     List<Entity> entities = new ArrayList<>();
 
+    // Candidates are filtered out based on distance from the center of the camera
     candidates.forEach(x -> {
       if (!tooFar(x)) entities.add(x);
     });
 
+    // Entities are sorted by y-position, which determines render order
     Collections.sort(entities);
 
     entities.forEach(x -> {
@@ -135,11 +138,88 @@ public class Camera {
     if (GameDebug.isActive()) {
       g.setColor(new Color(0, 0, 0));
       g.setStroke(new BasicStroke(1));
-      g.drawLine(Settings.SCREEN_DIM[0] / 2, 0,
-              Settings.SCREEN_DIM[0] / 2, Settings.SCREEN_DIM[1]);
-      g.drawLine(0, Settings.SCREEN_DIM[1] / 2,
-              Settings.SCREEN_DIM[0], Settings.SCREEN_DIM[1] / 2);
+      g.drawLine(Settings.SCREEN_DIM[X] / 2, 0,
+              Settings.SCREEN_DIM[X] / 2, Settings.SCREEN_DIM[Y]);
+      g.drawLine(0, Settings.SCREEN_DIM[Y] / 2,
+              Settings.SCREEN_DIM[X], Settings.SCREEN_DIM[1] / 2);
     }
+  }
+
+  private void renderSubCells(Graphics2D g, WorldSubCell[][] subCells) {
+
+    int[] initial = new int[] {
+            // (int)(-1 * position.subCell().x) / zoomLevel,
+            // (int)(-1 * position.subCell().y) / zoomLevel
+            // X:
+            (Settings.SCREEN_DIM[X] / 2) -
+                    (int)((position.subCell().x + (((subCells.length - 1) / 2) *
+                            WorldPosition.CELL_DIMENSION_LENGTH)) / zoomLevel),
+            // Y:
+            (Settings.SCREEN_DIM[Y] / 2) -
+                    (int)((position.subCell().y + ((subCells[0].length / 2) *
+                            WorldPosition.CELL_DIMENSION_LENGTH)) / zoomLevel)
+    };
+    int[] increments = new int[] { (int)WorldPosition.CELL_DIMENSION_LENGTH / zoomLevel,
+            (int)WorldPosition.CELL_DIMENSION_LENGTH / zoomLevel };
+    int[] loc = new int[] { initial[X], initial[Y] };
+
+    for (WorldSubCell[] row : subCells) {
+      for (WorldSubCell subCell : row) {
+        g.drawImage(subCell.draw(zoomLevel), loc[X], loc[Y], null);
+
+        loc[Y] += increments[Y];
+      }
+      loc[X] += increments[X];
+      loc[Y] = initial[Y];
+    }
+  }
+
+  private WorldSubCell[][] getSubCells(World world) {
+    final int WORLD = 0, CELL = 1;
+
+    int width = (int)Math.ceil((Settings.SCREEN_DIM[X] * zoomLevel) /
+            WorldPosition.CELL_DIMENSION_LENGTH) + 2;
+    int height = (int)Math.ceil((Settings.SCREEN_DIM[Y] * zoomLevel) /
+            WorldPosition.CELL_DIMENSION_LENGTH) + 1;
+
+    WorldSubCell[][] subCells = new WorldSubCell[width][height];
+
+    int[] xCoords = new int[] { position.world().x,
+            position.cell().x - (int)Math.ceil(width / 2) };
+    int[] yCoords = new int[] { position.world().y,
+            position.cell().y - (int)Math.ceil(height / 2) };
+
+    if (xCoords[CELL] < 0) {
+      xCoords[WORLD]--;
+      xCoords[CELL] += WorldPosition.CELLS_IN_WORLD_CELL_DIM;
+    } else if (xCoords[CELL] >= WorldPosition.CELLS_IN_WORLD_CELL_DIM) {
+      xCoords[WORLD]++;
+      xCoords[CELL] -= WorldPosition.CELLS_IN_WORLD_CELL_DIM;
+    }
+
+    int[] origYCoords = Arrays.copyOf(yCoords, 2);
+
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) {
+        subCells[x][y] = world.getCell(xCoords[WORLD], yCoords[WORLD]).
+                getSubCell(xCoords[CELL], yCoords[CELL]);
+
+        yCoords[CELL]++;
+        if (yCoords[CELL] >= WorldPosition.CELLS_IN_WORLD_CELL_DIM) {
+          yCoords[CELL] = 0;
+          yCoords[WORLD]++;
+        }
+      }
+      yCoords = Arrays.copyOf(origYCoords, 2);
+
+      xCoords[CELL]++;
+      if (xCoords[CELL] >= WorldPosition.CELLS_IN_WORLD_CELL_DIM) {
+        xCoords[CELL] = 0;
+        xCoords[WORLD]++;
+      }
+    }
+
+    return subCells;
   }
 
   private void renderEntity(Graphics2D g, Entity entity) {
