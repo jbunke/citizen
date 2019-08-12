@@ -11,6 +11,7 @@ public class ControlScheme {
   private static final char D_KEY = 'd';
   private static final char S_KEY = 's';
   private static final char Z_KEY = 'z';
+  private static final char X_KEY = 'x';
 
   private Map<Character, Action> controlScheme = Map.ofEntries(
           Map.entry(W_KEY, Action.UP),
@@ -18,12 +19,14 @@ public class ControlScheme {
           Map.entry(D_KEY, Action.RIGHT),
           Map.entry(S_KEY, Action.DOWN),
           Map.entry(Z_KEY, Action.ZOOM),
-          Map.entry(ESC_KEY, Action.PAUSE)
+          Map.entry(ESC_KEY, Action.PAUSE),
+          Map.entry(X_KEY, Action.TOGGLE_SPRINT)
   );
 
   public enum Action {
     DO_NOTHING,
     UP, LEFT, RIGHT, DOWN,
+    TOGGLE_SPRINT,
     ZOOM,
     PAUSE
   }

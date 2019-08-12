@@ -1,5 +1,7 @@
 package com.redsquare.citizen.graphics;
 
+import com.redsquare.citizen.entity.movement.RenderLogic;
+
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,12 +79,15 @@ public class SemanticMaps {
     return map;
   }
 
-  public static Point faceOffset(String code) {
+  public static Point faceOffset(RenderLogic rl) {
     // TODO: Expand as needed
-    switch (code) {
-      default:
-        return new Point(72, 0);
+    switch (rl.getActivity()) {
+      case IDLE:
+        if (rl.getPoseNum() == 1)
+          return new Point(72, 4);
     }
+
+    return new Point(72, 0);
   }
 
   static Map<String, Point> FONT() {

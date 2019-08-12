@@ -93,6 +93,10 @@ public final class Player extends Person {
               dirKeys[RIGHT] = false;
               processed = true;
               break;
+            case TOGGLE_SPRINT:
+              movementLogic.toggleRunning();
+              processed = true;
+              break;
           }
           break;
       }
@@ -115,7 +119,7 @@ public final class Player extends Person {
   private void setDirection() {
     double angle = Math.atan((-1. * lookingRef.y) / lookingRef.x);
     if (lookingRef.x < 0) angle += Math.PI;
-    direction = RenderDirection.fromAngle(angle);
+    movementLogic.renderLogic().setDirection(RenderDirection.fromAngle(angle));
   }
 
   private void setMovementVector() {

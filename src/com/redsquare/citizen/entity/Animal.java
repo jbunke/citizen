@@ -1,9 +1,24 @@
 package com.redsquare.citizen.entity;
 
-import com.redsquare.citizen.entity.movement.MovementLogic;
+import com.redsquare.citizen.systems.time.GameDate;
 
-public abstract class Animal extends Lifeform {
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
-  Sex sex;
-  MovementLogic movementLogic;
+public class Animal extends LivingMoving {
+
+  @Override
+  int age(GameDate now) {
+    return 0;
+  }
+
+  @Override
+  public BufferedImage getSprite() {
+    return null;
+  }
+
+  @Override
+  public Point getSpriteOffset() {
+    return null;
+  }
 }

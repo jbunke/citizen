@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Person extends Animal {
+public class Person extends LivingMoving {
   /* Person constants */
 
   // Animation
@@ -448,7 +448,8 @@ public class Person extends Animal {
   }
 
   private String getFaceSpriteCode() {
-    return direction.name() + "-" + mood.name() + "-" +
+    return movementLogic.renderLogic().getDirection().name() +
+            "-" + mood.name() + "-" +
             (talking ? "TALK" : "NOT_TALK") + "-" +
             (blinking ? "BLINK" : "NOT_BLINK");
   }
@@ -508,7 +509,7 @@ public class Person extends Animal {
           // TODO: temp null checker
           if (i != HEAD_LAYER) break;
 
-          Point offset = SemanticMaps.faceOffset(faceSpriteCode);
+          Point offset = SemanticMaps.faceOffset(movementLogic.renderLogic());
           g.drawImage(layers[i].getSprite(faceSpriteCode),
                   offset.x, offset.y, null);
           break;
