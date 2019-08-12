@@ -4,6 +4,7 @@ import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.devkit.sprite_gen.SpriteUniqueColorMapping;
 import com.redsquare.citizen.devkit.sprite_gen.Tilemapping;
 import com.redsquare.citizen.entity.collision.Collider;
+import com.redsquare.citizen.entity.movement.MovementLogic;
 import com.redsquare.citizen.graphics.*;
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.politics.Culture;
@@ -88,9 +89,10 @@ public class Person extends Animal {
   private int blinkDuration = 5;
   private int betweenBlinks = 50;
 
-  protected Person(Person father, Person mother, GameDate birthday,
+  Person(Person father, Person mother, GameDate birthday,
                    Settlement birthplace, World world) {
-    sex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
+    this.movementLogic = MovementLogic.assign(this);
+    this.sex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
 
     this.father = father;
     this.mother = mother;
@@ -132,7 +134,8 @@ public class Person extends Animal {
     spriteSetup();
   }
 
-  protected Person(Sex sex, GameDate birthday, Settlement birthplace, World world) {
+  Person(Sex sex, GameDate birthday, Settlement birthplace, World world) {
+    this.movementLogic = MovementLogic.assign(this);
     this.sex = sex;
     this.birthday = birthday;
     this.birthplace = birthplace;
@@ -533,6 +536,11 @@ public class Person extends Animal {
   @Override
   public Point getSpriteOffset() {
     return new Point((-1 * SPRITE_WIDTH) / 2, (-1 * SPRITE_HEIGHT) + 12);
+  }
+
+  @Override
+  public void update() {
+    movementLogic.update();
   }
 
   @Override
