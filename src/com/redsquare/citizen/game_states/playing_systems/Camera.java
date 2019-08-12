@@ -115,11 +115,12 @@ public class Camera {
     player.setLookingRef(lookingRef);
   }
 
-  public void render(Graphics2D g, Set<Entity> candidates, World world) {
+  public void render(Graphics2D g, World world) {
     // TODO - draw world behind and sort candidates by y pos
     WorldSubCell[][] subCells = getSubCells(world);
     renderSubCells(g, subCells);
 
+    Set<Entity> candidates = getCandidateEntities(world);
     List<Entity> entities = new ArrayList<>();
 
     // Candidates are filtered out based on distance from the center of the camera
@@ -143,6 +144,29 @@ public class Camera {
       g.drawLine(0, Settings.SCREEN_DIM[Y] / 2,
               Settings.SCREEN_DIM[X], Settings.SCREEN_DIM[1] / 2);
     }
+  }
+
+  private Set<Entity> getCandidateEntities(World world) {
+    final int MARGIN = 40;
+
+    int startX = position.cell().x < MARGIN ? -1 : 0;
+    int endX = position.cell().x >
+            WorldPosition.CELLS_IN_WORLD_CELL_DIM - MARGIN ? 1 : 0;
+    int startY = position.cell().y < MARGIN ? -1 : 0;
+    int endY = position.cell().y >
+            WorldPosition.CELLS_IN_WORLD_CELL_DIM - MARGIN ? 1 : 0;
+
+    Set<Entity> candidates = new HashSet<>();
+
+    for (int x = startX; x <= endX; x++) {
+      for (int y = startY; y <= endY; y++) {
+        candidates.addAll(
+                world.getCell(position.world().x + x,
+                        position.world().y + y).getEntities());
+      }
+    }
+
+    return candidates;
   }
 
   private void renderSubCells(Graphics2D g, WorldSubCell[][] subCells) {

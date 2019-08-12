@@ -18,7 +18,7 @@ public class SemanticMaps {
   public static final Map<String, Point> HOMINID_BODY = generateHominidBody();
   public static final Map<String, Point> HOMINID_FACE = generateHominidFace();
 
-  private static final Map<String, Point> generateHominidBody() {
+  private static Map<String, Point> generateHominidBody() {
     // TODO: temp with calm assumption
 
     Map<String, Point> map = new HashMap<>();
@@ -27,7 +27,7 @@ public class SemanticMaps {
     int y = 0;
 
     for (RenderActivity activity : activities) {
-      for (int f = 0; f < RenderActivity.frameCount(activity); f++) {
+      for (int f = 0; f < activity.frameCount; f++) {
         String rest = "CALM-" + activity.name() + "-" + f;
 
         map.put("DL-" + rest, new Point(0, y));
@@ -85,7 +85,7 @@ public class SemanticMaps {
     }
   }
 
-  public static Map<String, Point> FONT() {
+  static Map<String, Point> FONT() {
     Map<String, Point> fontMap = new HashMap<>();
 
     for (int i = 32; i <= 126; i++) {

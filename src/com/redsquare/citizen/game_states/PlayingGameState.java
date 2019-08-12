@@ -91,7 +91,7 @@ public final class PlayingGameState extends GameState {
   public void render(Graphics2D g) {
     // TODO: filter micro-scope entity set
 
-    camera.render(g, citizens, world);
+    camera.render(g, world);
 
     if (GameDebug.isActive()) {
       BufferedImage animState = Font.CLEAN.getText(player.getSpriteCode());

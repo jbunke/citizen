@@ -77,6 +77,10 @@ public class WorldCell {
     entities.remove(e);
   }
 
+  public Set<Entity> getEntities() {
+    return entities;
+  }
+
   void populateProvince(Settlement province) {
     this.province = province;
   }
