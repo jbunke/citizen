@@ -17,11 +17,11 @@ public class Collider {
     CollisionBox[] boxes;
     boolean immovable = false;
 
-    // TODO
+    // TODO: type determines different kinds of collision boxes
     boxes = new CollisionBox[] {
-            // new CollisionBox(-25, -40, 50, 40)
-            new CollisionBox(-28, -24, 56, 34),
-            new CollisionBox(-22, -30, 44, 46)
+            new CollisionBox(-22, -24, 44, 34)
+            // new CollisionBox(-28, -24, 56, 34),
+            // new CollisionBox(-22, -30, 44, 46)
     };
 
     return new Collider(boxes, immovable, type);

@@ -78,8 +78,6 @@ public class Person extends LivingMoving {
   private final Set<Language> languages;
   private Culture culture;
 
-  double speed;
-
   /* Animation */
   private RenderMood mood;
   private boolean talking;
@@ -89,7 +87,7 @@ public class Person extends LivingMoving {
   private int blinkDuration = 5;
   private int betweenBlinks = 50;
 
-  Person(Person father, Person mother, GameDate birthday,
+  private Person(Person father, Person mother, GameDate birthday,
                    Settlement birthplace, World world) {
     this.movementLogic = MovementLogic.assign(this);
     this.sex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
@@ -101,13 +99,6 @@ public class Person extends LivingMoving {
 
     this.position = tempSpawnPosition(world);
     this.collider = Collider.getColliderFromType(Collider.EntityType.PERSON);
-
-    this.speed = 6.;
-
-    this.direction = RenderDirection.D;
-    this.posture = RenderPosture.CALM;
-    this.activity = RenderActivity.IDLE;
-    this.poseNum = 0;
 
     this.mood = RenderMood.NEUTRAL;
     this.talking = false;
@@ -145,13 +136,6 @@ public class Person extends LivingMoving {
 
     this.position = tempSpawnPosition(world);
     this.collider = Collider.getColliderFromType(Collider.EntityType.PERSON);
-
-    this.speed = 6.;
-
-    this.direction = RenderDirection.D;
-    this.posture = RenderPosture.CALM;
-    this.activity = RenderActivity.IDLE;
-    this.poseNum = 0;
 
     this.mood = RenderMood.NEUTRAL;
     this.talking = false;
@@ -391,13 +375,7 @@ public class Person extends LivingMoving {
       lighter = mother.skinColor;
     }
 
-    Color diff = new Color(lighter.getRed() - darker.getRed(),
-            lighter.getGreen() - darker.getGreen(),
-            lighter.getBlue() - darker.getBlue());
-    return new Color(
-            (int)(darker.getRed() + (diff.getRed() * skinSkew)),
-            (int)(darker.getGreen() + (diff.getGreen() * skinSkew)),
-            (int)(darker.getBlue() + (diff.getBlue() * skinSkew)));
+    return ColorMath.colorBetween(darker, lighter, skinSkew);
   }
 
   private Color hairColorGeneration() {
@@ -412,13 +390,7 @@ public class Person extends LivingMoving {
 
     double hairSkew = Math.random() * Math.random(); // average value is .25; so skew favours darker hair
 
-    Color diff = new Color(lighter.getRed() - darker.getRed(),
-            lighter.getGreen() - darker.getGreen(),
-            lighter.getBlue() - darker.getBlue());
-    return new Color(
-            (int)(darker.getRed() + (diff.getRed() * hairSkew)),
-            (int)(darker.getGreen() + (diff.getGreen() * hairSkew)),
-            (int)(darker.getBlue() + (diff.getBlue() * hairSkew)));
+    return ColorMath.colorBetween(darker, lighter, hairSkew);
   }
 
   protected enum Height {
