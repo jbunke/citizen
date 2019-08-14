@@ -1,7 +1,10 @@
 package com.redsquare.citizen.entity;
 
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.devkit.sprite_gen.SpriteUniqueColorMapping;
 import com.redsquare.citizen.devkit.sprite_gen.Tilemapping;
+import com.redsquare.citizen.entity.collision.Collider;
+import com.redsquare.citizen.entity.movement.MovementLogic;
 import com.redsquare.citizen.graphics.*;
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.politics.Culture;
@@ -12,6 +15,7 @@ import com.redsquare.citizen.util.ColorMath;
 import com.redsquare.citizen.util.FloatPoint;
 import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
+import com.redsquare.citizen.worldgen.World;
 import com.redsquare.citizen.worldgen.WorldPosition;
 
 import javax.imageio.ImageIO;
@@ -23,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Person extends Animal {
+public class Person extends LivingMoving {
   /* Person constants */
 
   // Animation
@@ -74,8 +78,6 @@ public class Person extends Animal {
   private final Set<Language> languages;
   private Culture culture;
 
-  double speed;
-
   /* Animation */
   private RenderMood mood;
   private boolean talking;
@@ -85,28 +87,18 @@ public class Person extends Animal {
   private int blinkDuration = 5;
   private int betweenBlinks = 50;
 
-  protected Person(Person father, Person mother, GameDate birthday,
-                   Settlement birthplace) {
-    sex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
+  private Person(Person father, Person mother, GameDate birthday,
+                   Settlement birthplace, World world) {
+    this.movementLogic = MovementLogic.assign(this);
+    this.sex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
 
     this.father = father;
     this.mother = mother;
     this.birthday = birthday;
     this.birthplace = birthplace;
 
-    Point world = birthplace.getLocation();
-    Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
-            WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
-    FloatPoint subCell = new FloatPoint(WorldPosition.CELL_DIMENSION_LENGTH / 2,
-            WorldPosition.CELL_DIMENSION_LENGTH / 2);
-    this.position = new WorldPosition(world, cell, subCell);
-
-    this.speed = 6.;
-
-    this.direction = RenderDirection.D;
-    this.posture = RenderPosture.CALM;
-    this.activity = RenderActivity.IDLE;
-    this.poseNum = 0;
+    this.position = tempSpawnPosition(world);
+    this.collider = Collider.getColliderFromType(Collider.EntityType.PERSON);
 
     this.mood = RenderMood.NEUTRAL;
     this.talking = false;
@@ -133,7 +125,8 @@ public class Person extends Animal {
     spriteSetup();
   }
 
-  protected Person(Sex sex, GameDate birthday, Settlement birthplace) {
+  Person(Sex sex, GameDate birthday, Settlement birthplace, World world) {
+    this.movementLogic = MovementLogic.assign(this);
     this.sex = sex;
     this.birthday = birthday;
     this.birthplace = birthplace;
@@ -141,19 +134,8 @@ public class Person extends Animal {
     this.father = null;
     this.mother = null;
 
-    Point world = birthplace.getLocation();
-    Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
-            WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
-    FloatPoint subCell = new FloatPoint(WorldPosition.CELL_DIMENSION_LENGTH / 2,
-            WorldPosition.CELL_DIMENSION_LENGTH / 2);
-    this.position = new WorldPosition(world, cell, subCell);
-
-    this.speed = 6.;
-
-    this.direction = RenderDirection.D;
-    this.posture = RenderPosture.CALM;
-    this.activity = RenderActivity.IDLE;
-    this.poseNum = 0;
+    this.position = tempSpawnPosition(world);
+    this.collider = Collider.getColliderFromType(Collider.EntityType.PERSON);
 
     this.mood = RenderMood.NEUTRAL;
     this.talking = false;
@@ -178,13 +160,24 @@ public class Person extends Animal {
   }
 
   public static Person create(Sex sex, GameDate birthday,
-                              Settlement birthplace) {
-    return new Person(sex, birthday, birthplace);
+                              Settlement birthplace, World world) {
+    return new Person(sex, birthday, birthplace, world);
   }
 
   public static Person birth(Person mother, Person father, GameDate birthday,
-                             Settlement birthplace) {
-    return new Person(father, mother, birthday, birthplace);
+                             Settlement birthplace, World world) {
+    return new Person(father, mother, birthday, birthplace, world);
+  }
+
+  private WorldPosition tempSpawnPosition(World world) {
+    Point worldPos = birthplace.getLocation();
+    Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
+            WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
+    FloatPoint subCell = new FloatPoint(
+            Randoms.bounded(0, WorldPosition.CELL_DIMENSION_LENGTH - 1.),
+            Randoms.bounded(0, WorldPosition.CELL_DIMENSION_LENGTH - 1.));
+
+    return new WorldPosition(worldPos, cell, subCell, world, this);
   }
 
   private void spriteSetup() {
@@ -382,13 +375,7 @@ public class Person extends Animal {
       lighter = mother.skinColor;
     }
 
-    Color diff = new Color(lighter.getRed() - darker.getRed(),
-            lighter.getGreen() - darker.getGreen(),
-            lighter.getBlue() - darker.getBlue());
-    return new Color(
-            (int)(darker.getRed() + (diff.getRed() * skinSkew)),
-            (int)(darker.getGreen() + (diff.getGreen() * skinSkew)),
-            (int)(darker.getBlue() + (diff.getBlue() * skinSkew)));
+    return ColorMath.colorBetween(darker, lighter, skinSkew);
   }
 
   private Color hairColorGeneration() {
@@ -403,13 +390,7 @@ public class Person extends Animal {
 
     double hairSkew = Math.random() * Math.random(); // average value is .25; so skew favours darker hair
 
-    Color diff = new Color(lighter.getRed() - darker.getRed(),
-            lighter.getGreen() - darker.getGreen(),
-            lighter.getBlue() - darker.getBlue());
-    return new Color(
-            (int)(darker.getRed() + (diff.getRed() * hairSkew)),
-            (int)(darker.getGreen() + (diff.getGreen() * hairSkew)),
-            (int)(darker.getBlue() + (diff.getBlue() * hairSkew)));
+    return ColorMath.colorBetween(darker, lighter, hairSkew);
   }
 
   protected enum Height {
@@ -439,7 +420,8 @@ public class Person extends Animal {
   }
 
   private String getFaceSpriteCode() {
-    return direction.name() + "-" + mood.name() + "-" +
+    return movementLogic.renderLogic().getDirection().name() +
+            "-" + mood.name() + "-" +
             (talking ? "TALK" : "NOT_TALK") + "-" +
             (blinking ? "BLINK" : "NOT_BLINK");
   }
@@ -492,14 +474,32 @@ public class Person extends Animal {
         case WEAPON_LAYER:
           // TODO: temp null checker
           if (i != BODY_LAYER) break;
+
           g.drawImage(layers[i].getSprite(spriteCode), 0, 0, null);
           break;
         default:
+          // TODO: temp null checker
           if (i != HEAD_LAYER) break;
-          Point offset = SemanticMaps.faceOffset(faceSpriteCode);
+
+          Point offset = SemanticMaps.faceOffset(movementLogic.renderLogic());
           g.drawImage(layers[i].getSprite(faceSpriteCode),
                   offset.x, offset.y, null);
           break;
+      }
+    }
+
+    if (GameDebug.isActive()) {
+      g.setColor(new Color(100, 255, 0));
+      g.setStroke(new BasicStroke(1));
+
+      Collider.CollisionBox[] boxes = collider.getBoxes();
+      Point offset = getSpriteOffset();
+
+      for (Collider.CollisionBox box : boxes) {
+        int x = (box.getStart()[0] - offset.x),
+                y = (box.getStart()[1] - offset.y);
+
+        g.drawRect(x, y, box.getSize()[0], box.getSize()[1]);
       }
     }
 
@@ -508,7 +508,12 @@ public class Person extends Animal {
 
   @Override
   public Point getSpriteOffset() {
-    return new Point(-112, -164);
+    return new Point((-1 * SPRITE_WIDTH) / 2, (-1 * SPRITE_HEIGHT) + 12);
+  }
+
+  @Override
+  public void update() {
+    movementLogic.update();
   }
 
   @Override

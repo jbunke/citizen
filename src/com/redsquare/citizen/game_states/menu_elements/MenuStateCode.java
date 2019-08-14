@@ -8,7 +8,8 @@ import java.util.Set;
 public enum MenuStateCode {
   MAIN, WORLD_CONFIG, QUIT_ARE_YOU_SURE, QUIT,
   PLAYER_CONFIG,
-  START_GAME;
+  START_GAME,
+  GENERATING_WORLD, PHYSICAL_GEOGRAPHY, STATES_SETTLEMENTS, WORLD_GENERATED;
 
   public Set<MenuElement> generateElements(MenuStateCode sender) {
     // TODO
@@ -94,6 +95,38 @@ public enum MenuStateCode {
                 BehavioralMenuElement.generate(
                         BehavioralMenuElement.Behaviour.START_GAME,
                         new Object[0])
+        );
+      case GENERATING_WORLD:
+        String base = "Generating world";
+        return Set.of(
+                AnimatedTextMenuElement.temp(new String[] {
+                        base + ".", base + "..", base + "..."
+                        }, 15,
+                        new Point(640, 360))
+        );
+      case PHYSICAL_GEOGRAPHY:
+        base = "Adding physical geography";
+        return Set.of(
+                AnimatedTextMenuElement.temp(new String[] {
+                                base + ".", base + "..", base + "..."
+                        }, 15,
+                        new Point(640, 360))
+        );
+      case STATES_SETTLEMENTS:
+        base = "Adding states and settlements";
+        return Set.of(
+                AnimatedTextMenuElement.temp(new String[] {
+                                base + ".", base + "..", base + "..."
+                        }, 15,
+                        new Point(640, 360))
+        );
+      case WORLD_GENERATED:
+        base = "World generated";
+        return Set.of(
+                AnimatedTextMenuElement.temp(new String[] {
+                                base + ".", base + "..", base + "..."
+                        }, 15,
+                        new Point(640, 360))
         );
       default:
         return Set.of();

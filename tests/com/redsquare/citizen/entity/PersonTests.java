@@ -30,14 +30,14 @@ public class PersonTests {
 
       GameDate date = new GameDate(1, 1);
 
-      Person mother = Person.create(Sex.FEMALE, date, settlement1);
-      Person father = Person.create(Sex.MALE, date, settlement2);
+      Person mother = Person.create(Sex.FEMALE, date, settlement1, null);
+      Person father = Person.create(Sex.MALE, date, settlement2, null);
 
       List<Person> children = new ArrayList<>();
 
       for (int i = 0; i < 20; i++) {
         date = GameDate.increment(date, DAYS_IN_YEAR);
-        children.add(Person.birth(mother, father, date, settlement1));
+        children.add(Person.birth(mother, father, date, settlement1, null));
       }
 
       BufferedImage test = new BufferedImage(460, 30,

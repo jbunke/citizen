@@ -1,5 +1,6 @@
 package com.redsquare.citizen;
 
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.game_states.GameState;
 import com.redsquare.citizen.game_states.MenuGameState;
 import com.redsquare.citizen.game_states.PauseGameState;
@@ -44,14 +45,22 @@ public class GameManager {
 
   public void initPlaying() {
     states[PLAYING] = PlayingGameState.init();
+
+    setGameState(PLAYING);
   }
 
   void update() {
     states[current].update();
+
+    if (GameDebug.isActive())
+      GameDebug.update();
   }
 
   void render(Graphics2D g) {
     states[current].render(g);
+
+    if (GameDebug.isActive())
+      GameDebug.render(g);
   }
 
   void input(InputHandler inputHandler) {

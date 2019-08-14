@@ -12,4 +12,9 @@ public class KeyPressEvent extends Event {
   public enum EventType {
     PRESSED, RELEASED, TYPED
   }
+
+  @Override
+  public String toString() {
+    return eventType.name() + " (" + key + ")";
+  }
 }

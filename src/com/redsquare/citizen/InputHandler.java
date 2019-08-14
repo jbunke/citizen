@@ -4,6 +4,7 @@ import com.redsquare.citizen.input_events.ClickEvent;
 import com.redsquare.citizen.input_events.Event;
 import com.redsquare.citizen.input_events.KeyPressEvent;
 
+import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ public class InputHandler implements KeyListener,
 
   private List<Event> unprocessed;
 
-  private InputHandler(GamePanel gamePanel) {
+  private InputHandler(JPanel gamePanel) {
     gamePanel.addKeyListener(this);
     gamePanel.addMouseListener(this);
     gamePanel.addMouseMotionListener(this);
@@ -51,7 +52,7 @@ public class InputHandler implements KeyListener,
     return mouseDown;
   }
 
-  static InputHandler create(GamePanel gamePanel) {
+  public static InputHandler create(JPanel gamePanel) {
     return new InputHandler(gamePanel);
   }
 

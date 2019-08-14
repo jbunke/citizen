@@ -1,6 +1,6 @@
 package com.redsquare.citizen.systems.language;
 
-import com.redsquare.citizen.GameDebug;
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;

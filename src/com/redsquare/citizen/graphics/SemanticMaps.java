@@ -1,5 +1,7 @@
 package com.redsquare.citizen.graphics;
 
+import com.redsquare.citizen.entity.movement.RenderLogic;
+
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +20,7 @@ public class SemanticMaps {
   public static final Map<String, Point> HOMINID_BODY = generateHominidBody();
   public static final Map<String, Point> HOMINID_FACE = generateHominidFace();
 
-  private static final Map<String, Point> generateHominidBody() {
+  private static Map<String, Point> generateHominidBody() {
     // TODO: temp with calm assumption
 
     Map<String, Point> map = new HashMap<>();
@@ -27,7 +29,7 @@ public class SemanticMaps {
     int y = 0;
 
     for (RenderActivity activity : activities) {
-      for (int f = 0; f < RenderActivity.frameCount(activity); f++) {
+      for (int f = 0; f < activity.frameCount; f++) {
         String rest = "CALM-" + activity.name() + "-" + f;
 
         map.put("DL-" + rest, new Point(0, y));
@@ -77,15 +79,18 @@ public class SemanticMaps {
     return map;
   }
 
-  public static Point faceOffset(String code) {
+  public static Point faceOffset(RenderLogic rl) {
     // TODO: Expand as needed
-    switch (code) {
-      default:
-        return new Point(72, 0);
+    switch (rl.getActivity()) {
+      case IDLE:
+        if (rl.getPoseNum() == 1)
+          return new Point(72, 4);
     }
+
+    return new Point(72, 0);
   }
 
-  public static Map<String, Point> FONT() {
+  static Map<String, Point> FONT() {
     Map<String, Point> fontMap = new HashMap<>();
 
     for (int i = 32; i <= 126; i++) {

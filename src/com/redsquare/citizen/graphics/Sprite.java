@@ -1,6 +1,6 @@
 package com.redsquare.citizen.graphics;
 
-import com.redsquare.citizen.GameDebug;
+import com.redsquare.citizen.debug.GameDebug;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -14,33 +14,14 @@ public class Sprite {
   private final String ID;
 
   private final BufferedImage[][] SPRITE_ARRAY;
-  final BufferedImage SPRITE_SHEET;
+  private final BufferedImage SPRITE_SHEET;
   private final Map<String, Point> SEMANTIC_MAP;
-
-  private static final int DEFAULT_TILE_SIZE = 32;
 
   final int tileWidth;
   final int tileHeight;
 
   private final int tilesAlongX;
   private final int tilesAlongY;
-
-  public Sprite(String file, String ID, Map<String, Point> map) {
-    this.ID = ID;
-
-    SPRITE_SHEET = loadSpriteSheet(file);
-
-    tileWidth = DEFAULT_TILE_SIZE;
-    tileHeight = DEFAULT_TILE_SIZE;
-
-    tilesAlongX = SPRITE_SHEET.getWidth() / tileWidth;
-    tilesAlongY = SPRITE_SHEET.getHeight() / tileHeight;
-
-    SPRITE_ARRAY = new BufferedImage[tilesAlongX][tilesAlongY];
-    loadSpriteArray();
-
-    SEMANTIC_MAP = map;
-  }
 
   public Sprite(final BufferedImage SPRITE_SHEET, String ID, int tileWidth, int tileHeight,
                 Map<String, Point> map) {

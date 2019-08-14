@@ -18,23 +18,23 @@ public final class Player extends Person {
           X = 0, Y = 1;
 
   private final boolean[] dirKeys;
-  private final double[] movementVector;
+  // private final double[] movementVector;
 
   /* Displacement from player to world location where the mouse is pointing;
    * used to determine direction */
   private FloatPoint lookingRef;
 
-  private Player(Sex sex, GameDate birthday, Settlement birthplace) {
-    super(sex, birthday, birthplace);
+  private Player(Sex sex, GameDate birthday, Settlement birthplace, World world) {
+    super(sex, birthday, birthplace, world);
 
     dirKeys = new boolean[4];
-    movementVector = new double[2];
     lookingRef = new FloatPoint(0., 0.);
   }
 
   public static Player temp(World world) {
     Settlement settlement = world.randomSettlement();
-    return new Player(Sex.MALE, new GameDate(1, 1), settlement);
+    return new Player(Sex.MALE, new GameDate(1, 1),
+            settlement, world);
   }
 
   public void setLookingRef(FloatPoint lookingRef) {
@@ -93,6 +93,10 @@ public final class Player extends Person {
               dirKeys[RIGHT] = false;
               processed = true;
               break;
+            case TOGGLE_SPRINT:
+              movementLogic.toggleRunning();
+              processed = true;
+              break;
           }
           break;
       }
@@ -109,34 +113,30 @@ public final class Player extends Person {
     // TODO
     setDirection();
     setMovementVector();
-    move();
+    super.update();
   }
 
   private void setDirection() {
     double angle = Math.atan((-1. * lookingRef.y) / lookingRef.x);
     if (lookingRef.x < 0) angle += Math.PI;
-    direction = RenderDirection.fromAngle(angle);
+    movementLogic.renderLogic().setDirection(RenderDirection.fromAngle(angle));
   }
 
   private void setMovementVector() {
-    movementVector[X] = dirKeys[LEFT] == dirKeys[RIGHT] ? 0. :
-            (dirKeys[LEFT] ? -1. : 1.);
-    movementVector[Y] = dirKeys[UP] == dirKeys[DOWN] ? 0. :
-            (dirKeys[UP] ? -1. : 1.);
+    movementLogic.setMovementVector(X, dirKeys[LEFT] == dirKeys[RIGHT] ? 0. :
+            (dirKeys[LEFT] ? -1. : 1.));
+    movementLogic.setMovementVector(Y, dirKeys[UP] == dirKeys[DOWN] ? 0. :
+            (dirKeys[UP] ? -1. : 1.));
 
-    if (movementVector[X] != 0. && movementVector[Y] != 0) {
-      movementVector[X] *= Math.sqrt(1.);
-      movementVector[Y] *= Math.sqrt(1.);
+    if (movementLogic.movementVector()[X] != 0. &&
+            movementLogic.movementVector()[Y] != 0.) {
+      movementLogic.movementVector()[X] *= Math.sqrt(1.);
+      movementLogic.movementVector()[Y] *= Math.sqrt(1.);
     }
   }
 
   public void resetDirectionKeys() {
     for (int i = 0; i < dirKeys.length; i++)
       dirKeys[i] = false;
-  }
-
-  private void move() {
-    position.move(movementVector[X] * speed,
-            movementVector[Y] * speed);
   }
 }

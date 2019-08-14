@@ -36,7 +36,9 @@ public class Font extends Sprite {
   public BufferedImage getText(String[] lines, Orientation orientation) {
     List<BufferedImage> images = new ArrayList<>();
 
-    for (String line : lines) images.add(getText(line));
+    for (String line : lines)
+      if (line.length() > 0)
+        images.add(getText(line));
 
     int widest = 0;
     int height = 0;

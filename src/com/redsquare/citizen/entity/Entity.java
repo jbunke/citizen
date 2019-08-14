@@ -1,5 +1,6 @@
 package com.redsquare.citizen.entity;
 
+import com.redsquare.citizen.entity.collision.Collider;
 import com.redsquare.citizen.graphics.Sprite;
 import com.redsquare.citizen.worldgen.WorldPosition;
 
@@ -11,9 +12,14 @@ public abstract class Entity implements Comparable<Entity> {
   String ID;
   Sprite[] layers;
   WorldPosition position;
+  Collider collider;
 
   public WorldPosition position() {
     return position;
+  }
+
+  public Collider collider() {
+    return collider;
   }
 
   @Override
