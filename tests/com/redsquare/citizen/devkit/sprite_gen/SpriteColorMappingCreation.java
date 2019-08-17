@@ -13,8 +13,8 @@ public class SpriteColorMappingCreation {
 
   @Test
   public void headFrontCreation() {
-    final String SOURCE = "res/img_assets/sprite_gen/heads/all_heads_grey.png";
-    final String PATH = "res/devkit_output/sprite_gen/all_heads_unique.png";
+    final String SOURCE = "res/img_assets/sprite_gen/body/partial_mapping.png";
+    final String PATH = "res/devkit_output/sprite_gen/unique_body_partial.png";
     final String PNG = "png";
 
     try {
