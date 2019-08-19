@@ -181,47 +181,20 @@ public class Person extends LivingMoving {
   }
 
   private void spriteSetup() {
-    /* BODY */
-    layers[BODY_LAYER] = new Sprite(
-            "res/img_assets/sprite_sheets/test/test_sprite_sheet.png",
-            "BASIC GREY PERSON", SPRITE_WIDTH, SPRITE_HEIGHT, SemanticMaps.HOMINID_BODY);
-
+    spriteBodySetup();
     spriteHeadSetup();
   }
 
+  private void spriteBodySetup() {
+    BufferedImage texture = Tilemapping.getBody(skinColor);
+    layers[BODY_LAYER] = new Sprite(texture, "BODY LAYER",
+            SPRITE_WIDTH, SPRITE_HEIGHT, SemanticMaps.HOMINID_BODY);
+  }
+
   private void spriteHeadSetup() {
-    /* HEAD */
-    final String SKIN_COLOUR_MAPPING =
-            "res/img_assets/sprite_gen/heads/head_skin_colour_mapping.png";
-    final String HEAD_MAPPING =
-            "res/img_assets/sprite_gen/heads/head_mapping.png";
-
-    final String EYEBROW_HAIR_COLOUR_MAPPING =
-            "res/img_assets/sprite_gen/heads/eyebrow_thick_hair_colour_mapping.png";
-    final String EYEBROW_MAPPING =
-            "res/img_assets/sprite_gen/heads/eyebrow_mapping.png";
-
-    try {
-      BufferedImage skinColor = ImageIO.read(new File(SKIN_COLOUR_MAPPING));
-      BufferedImage headMapping = ImageIO.read(new File(HEAD_MAPPING));
-      BufferedImage intermediate =
-              SpriteUniqueColorMapping.skinColorApplication(skinColor, this.skinColor, 4);
-      BufferedImage img = SpriteUniqueColorMapping.expandTexture(intermediate, headMapping, 4);
-      img = Tilemapping.duplicateVertically(img, RenderMood.values().length);
-
-      BufferedImage eyebrows = ImageIO.read(new File(EYEBROW_HAIR_COLOUR_MAPPING));
-      BufferedImage eyebrowMapping = ImageIO.read(new File(EYEBROW_MAPPING));
-      eyebrows = SpriteUniqueColorMapping.skinColorApplication(eyebrows, this.hairColor, 4);
-      eyebrows = SpriteUniqueColorMapping.expandTexture(eyebrows, eyebrowMapping, 4);
-
-      img.getGraphics().drawImage(eyebrows, 0, 0, null);
-
-      layers[HEAD_LAYER] = new Sprite(img, "HEAD LAYER", 80, 100, SemanticMaps.HOMINID_FACE);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    /* EYEBROWS */
+    BufferedImage texture = Tilemapping.getHead(skinColor, hairColor);
+    layers[HEAD_LAYER] = new Sprite(texture, "HEAD LAYER",
+            80, 100, SemanticMaps.HOMINID_FACE);
   }
 
   public Settlement getBirthplace() {

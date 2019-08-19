@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class SpriteUniqueColorMapping {
 
-  public static BufferedImage skinColorApplication(BufferedImage base, Color skin, final int PX_SIZE) {
+  static BufferedImage skinColorApplication(BufferedImage base, Color skin, final int PX_SIZE) {
     BufferedImage withSkin = new BufferedImage(base.getWidth(),
             base.getHeight(), BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) withSkin.getGraphics();
@@ -22,7 +22,8 @@ public class SpriteUniqueColorMapping {
           // Eye cases
           if (c.equals(new Color(255, 0, 0))) {
             g.setColor(new Color(0, 0, 0));
-          } else if (c.equals(new Color(0, 0, 255))) {
+          } else if (c.equals(new Color(0, 0, 255)) ||
+                  c.equals(new Color(0, 38, 255))) {
             g.setColor(new Color(255, 255, 255));
           } else if (c.getRed() == c.getGreen() && c.getRed() == c.getBlue()) {
             double scale = c.getRed() / (double)214;
@@ -47,15 +48,20 @@ public class SpriteUniqueColorMapping {
     return withSkin;
   }
 
-  public static BufferedImage expandTexture(BufferedImage partial, BufferedImage map, final int PX_SIZE) {
-    BufferedImage texture = new BufferedImage(map.getWidth(),
-            map.getHeight(), BufferedImage.TYPE_INT_ARGB);
+  static BufferedImage expandTexture(BufferedImage partial, BufferedImage map, final int PX_SIZE) {
+    return expandTexture(partial, map, map, PX_SIZE, PX_SIZE);
+  }
+
+  static BufferedImage expandTexture(BufferedImage partial, BufferedImage map,
+                                            BufferedImage projection, final int FROM_SIZE, final int PX_SIZE) {
+    BufferedImage texture = new BufferedImage(projection.getWidth(),
+            projection.getHeight(), BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) texture.getGraphics();
     Map<Color, Color> corres = new HashMap<>();
 
     // Part 1: populate
-    for (int x = 0; x < map.getWidth(); x += PX_SIZE) {
-      for (int y = 0; y < map.getHeight(); y += PX_SIZE) {
+    for (int x = 0; x < map.getWidth(); x += FROM_SIZE) {
+      for (int y = 0; y < map.getHeight(); y += FROM_SIZE) {
         Color c = new Color(map.getRGB(x, y), true);
 
         if (c.getAlpha() == 255) {
@@ -67,9 +73,9 @@ public class SpriteUniqueColorMapping {
     }
 
     // Part 2: expand
-    for (int x = 0; x < map.getWidth(); x += PX_SIZE) {
-      for (int y = 0; y < map.getHeight(); y += PX_SIZE) {
-        Color c = new Color(map.getRGB(x, y), true);
+    for (int x = 0; x < projection.getWidth(); x += PX_SIZE) {
+      for (int y = 0; y < projection.getHeight(); y += PX_SIZE) {
+        Color c = new Color(projection.getRGB(x, y), true);
 
         if (corres.containsKey(c)) {
           g.setColor(corres.get(c));
