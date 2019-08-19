@@ -2,8 +2,8 @@ package com.redsquare.citizen.graphics;
 
 public enum RenderActivity {
   IDLE(2, 25, 35, 0),
-  WALKING(4, 6, 6, 0),
-  RUNNING(4, 6, 6, 0);
+  WALKING(4, 10, 12, 0),
+  RUNNING(4, 10, 12, 0);
 
   public final int frameCount;
   public final int[] frameDurationRange;
