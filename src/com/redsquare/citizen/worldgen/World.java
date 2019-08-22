@@ -751,6 +751,9 @@ public class World {
       for (int y = 0; y < height; y++) {
         g.setColor(WorldCell.getMapColor(
                 cells[x][y].getType(), cells[x][y].getRegion()));
+        if (cells[x][y].getRiverPoint() != null)
+          g.setColor(WorldCell.getMapColor(
+                  WorldCell.Type.SHALLOW, cells[x][y].getRegion()));
         g.fillRect(x * SCALE_UP, y * SCALE_UP, SCALE_UP, SCALE_UP);
       }
     }
@@ -966,7 +969,7 @@ public class World {
         for (River.RiverPoint riverPoint : river.getRiverPoints()) {
           Point loc = riverPoint.point;
 
-          cells[loc.x][loc.y].setElevationAndType(0, WorldCell.Type.SHALLOW);
+          cells[loc.x][loc.y].setRiverPoint(riverPoint);
         }
       }
 

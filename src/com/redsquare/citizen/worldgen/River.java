@@ -35,8 +35,8 @@ public class River {
 
     generalDirection = direction;
 
-    points.add(new RiverPoint(origin, direction));
-    points.add(new RiverPoint(firstPoint, direction));
+    points.add(new RiverPoint(origin, direction, this));
+    points.add(new RiverPoint(firstPoint, direction, this));
   }
 
   void addRiverPoint(RiverPoint rp) {
@@ -64,7 +64,7 @@ public class River {
     Point off = offset(direction);
 
     return new RiverPoint(
-            new Point(ref.x + off.x, ref.y + off.y), direction);
+            new Point(ref.x + off.x, ref.y + off.y), direction, this);
   }
 
   private Point offset(Direction direction) {
@@ -137,10 +137,12 @@ public class River {
   class RiverPoint {
     final Point point;
     final Direction flow;
+    final River river;
 
-    RiverPoint(Point point, Direction flow) {
+    RiverPoint(Point point, Direction flow, River river) {
       this.point = point;
       this.flow = flow;
+      this.river = river;
     }
   }
 }
