@@ -33,7 +33,7 @@ public class WritingSystemTests {
 
     testLoop(testInstance::customiseEverything, 10);
     testLoop(testInstance::fontCompare, 100);
-    testLoop(testInstance::allSettlementsInNativeTongue, 0);
+    testLoop(testInstance::allSettlementsInNativeTongue, 10);
     testLoop(testInstance::glyphGeneration, 10);
   }
 

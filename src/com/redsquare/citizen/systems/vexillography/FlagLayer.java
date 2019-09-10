@@ -78,7 +78,7 @@ class FlagLayer {
     int capacity = type.capacity();
 
     while (symbols.size() < capacity)
-      symbols.add(FlagPattern.generateSymbol(culture, 1/(double)capacity));
+      symbols.add(FlagPattern.generateSymbol(culture, 1/(1.5 * capacity)));
 
     return symbols;
   }

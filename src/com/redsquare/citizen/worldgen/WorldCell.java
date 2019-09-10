@@ -32,6 +32,7 @@ public class WorldCell {
   private Region region;
   private Settlement settlement = null;
   private Settlement province = null;
+  private River.RiverPoint riverPoint = null;
 
   WorldCell(Type type, World world, Point location) {
     this.location = location;
@@ -112,6 +113,14 @@ public class WorldCell {
 
   void setRegion(Region region) {
     this.region = region;
+  }
+
+  River.RiverPoint getRiverPoint() {
+    return riverPoint;
+  }
+
+  void setRiverPoint(River.RiverPoint riverPoint) {
+    this.riverPoint = riverPoint;
   }
 
   void setElevationAndType(int elevation, Type type) {

@@ -3,6 +3,10 @@
 mkdir test_output
 cd test_output
 mkdir vexillography
+mkdir language
+cd language
+mkdir archive
+cd ..
 mkdir worldgen
 mkdir settlements
 cd settlements

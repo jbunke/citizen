@@ -26,9 +26,9 @@ public enum MenuStateCode {
         );
       case WORLD_CONFIG:
         TextMenuElement dimensions = TextMenuElement.temp(
-                SliderMenuElement.worldSizeFunction(480),
+                SliderMenuElement.worldSizeFunction(400),
                 new Point(340, 150));
-        TextMenuElement plateCount = TextMenuElement.temp("40",
+        TextMenuElement plateCount = TextMenuElement.temp("35",
                 new Point(340, 250));
 
         return Set.of(
@@ -39,13 +39,13 @@ public enum MenuStateCode {
                 TextMenuElement.temp("World size (cell dimensions)",
                         new Point(240, 130)),
                 SliderMenuElement.generate(dimensions, 200,
-                        new Point(160, 150), 320, 640, 16,
+                        new Point(160, 150), 160, 640, 16,
                         SliderMenuElement::worldSizeFunction),
                 dimensions,
                 TextMenuElement.temp("Tectonic plate count",
                         new Point(240, 230)),
                 SliderMenuElement.generate(plateCount, 200,
-                        new Point(160, 250), 30, 50, 1,
+                        new Point(160, 250), 20, 50, 1,
                         SliderMenuElement::plateCountFunction),
                 plateCount,
 

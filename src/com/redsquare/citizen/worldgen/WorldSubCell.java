@@ -1,5 +1,7 @@
 package com.redsquare.citizen.worldgen;
 
+import com.redsquare.citizen.debug.GameDebug;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -41,6 +43,12 @@ public class WorldSubCell {
 
     g.setColor(testColor);
     g.fillRect(0, 0, subCell.getWidth(), subCell.getHeight());
+
+    if (GameDebug.isActive()) {
+      g.setStroke(new BasicStroke(1));
+      g.setColor(new Color(255, 100, 0));
+      g.drawRect(0, 0, subCell.getWidth(), subCell.getHeight());
+    }
 
     return subCell;
   }
