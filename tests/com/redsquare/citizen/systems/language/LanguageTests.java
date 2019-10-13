@@ -37,32 +37,32 @@ public class LanguageTests {
     Language grandchild = Math.random() < 1/3. ? child1.daughterLanguage() :
             (Math.random() < 0.5 ? child2.daughterLanguage() : child3.daughterLanguage());
 
-    BufferedImage image = new BufferedImage(1200, 2000, BufferedImage.TYPE_INT_ARGB);
+    BufferedImage image = new BufferedImage(1800, 2000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) image.getGraphics();
 
     for (int i = 0; i < meanings.length; i++) {
       g.drawImage(Font.CLEAN.getText(meanings[i].toString()), 5, 5 + (i * 100), null);
 
       g.drawImage(Font.CLEAN.getText(origin.lookUpWord(meanings[i]).toString()),
-              205, 5 + (i * 100), null);
+              305, 5 + (i * 100), null);
       g.drawImage(origin.getWritingSystem().draw(origin.lookUpWord(meanings[i]), 30, false),
-              205, 40 + (i * 100), null);
+              305, 40 + (i * 100), null);
       g.drawImage(Font.CLEAN.getText(child1.lookUpWord(meanings[i]).toString()),
-              405, 5 + (i * 100), null);
-      g.drawImage(child1.getWritingSystem().draw(child1.lookUpWord(meanings[i]), 30, false),
-              405, 40 + (i * 100), null);
-      g.drawImage(Font.CLEAN.getText(child2.lookUpWord(meanings[i]).toString()),
               605, 5 + (i * 100), null);
-      g.drawImage(child2.getWritingSystem().draw(child2.lookUpWord(meanings[i]), 30, false),
+      g.drawImage(child1.getWritingSystem().draw(child1.lookUpWord(meanings[i]), 30, false),
               605, 40 + (i * 100), null);
+      g.drawImage(Font.CLEAN.getText(child2.lookUpWord(meanings[i]).toString()),
+              905, 5 + (i * 100), null);
+      g.drawImage(child2.getWritingSystem().draw(child2.lookUpWord(meanings[i]), 30, false),
+              905, 40 + (i * 100), null);
       g.drawImage(Font.CLEAN.getText(child3.lookUpWord(meanings[i]).toString()),
-              805, 5 + (i * 100), null);
+              1205, 5 + (i * 100), null);
       g.drawImage(child3.getWritingSystem().draw(child3.lookUpWord(meanings[i]), 30, false),
-              805, 40 + (i * 100), null);
+              1205, 40 + (i * 100), null);
       g.drawImage(Font.CLEAN.getText(grandchild.lookUpWord(meanings[i]).toString()),
-              1005, 5 + (i * 100), null);
+              1505, 5 + (i * 100), null);
       g.drawImage(grandchild.getWritingSystem().draw(grandchild.lookUpWord(meanings[i]), 30, false),
-              1005, 40 + (i * 100), null);
+              1505, 40 + (i * 100), null);
     }
 
     try {
