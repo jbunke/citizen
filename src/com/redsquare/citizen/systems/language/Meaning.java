@@ -15,8 +15,8 @@ public enum Meaning {
   SON(1, LexClass.NOUN), DAUGHTER(1, LexClass.NOUN),
   BROTHER(1, LexClass.NOUN), SISTER(1, LexClass.NOUN),
   BOYFRIEND(2, LexClass.NOUN), GIRLFRIEND(2, LexClass.NOUN),
-  MARRIAGE(1, LexClass.NOUN), SPOUSE(1, LexClass.NOUN),
-  HUSBAND(2, LexClass.NOUN), WIFE(2, LexClass.NOUN),
+  MARRIAGE(1, LexClass.NOUN), SPOUSE(2, LexClass.NOUN),
+  HUSBAND(3, LexClass.NOUN), WIFE(3, LexClass.NOUN),
   COUSIN(2, LexClass.NOUN), UNCLE(2, LexClass.NOUN), AUNT(2, LexClass.NOUN),
   GRANDFATHER(2, LexClass.NOUN), GRANDMOTHER(2, LexClass.NOUN),
   ENEMY(1, LexClass.NOUN),
@@ -50,6 +50,8 @@ public enum Meaning {
   DARK(1, LexClass.ADJECTIVE), LIGHT_QLTY(1, LexClass.ADJECTIVE),
 
   // Concept
+  LOVE(0, LexClass.NOUN),
+  LEGAL_OR_CUSTOMARY(0, LexClass.ADJECTIVE),
   MAIN(0, LexClass.ADJECTIVE), VERY_COMP(0, LexClass.ADVERB),
   GREAT_COMP(0, LexClass.ADJECTIVE),
   PROXIMAL(0, LexClass.ADJECTIVE), OPPOSITE(0, LexClass.ADJECTIVE),

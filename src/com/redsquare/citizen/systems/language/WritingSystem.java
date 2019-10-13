@@ -365,9 +365,13 @@ public class WritingSystem {
   public BufferedImage draw(String text, final int SIZE, boolean debug) {
     List<Glyph> glyphs = translate(text.toLowerCase());
 
+    return draw(glyphs, SIZE, debug);
+  }
+
+  private BufferedImage draw(List<Glyph> glyphs, final int SIZE, boolean debug) {
     BufferedImage writing =
             new BufferedImage(glyphs.size() * SIZE,
-            SIZE, BufferedImage.TYPE_INT_ARGB);
+                    SIZE, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) writing.getGraphics();
 
     int x = 0;
@@ -380,6 +384,12 @@ public class WritingSystem {
     }
 
     return writing;
+  }
+
+  public BufferedImage draw(Word word, final int SIZE, boolean debug) {
+    List<Glyph> glyphs = translate(word);
+
+    return draw(glyphs, SIZE, debug);
   }
 
   public BufferedImage drawWithFont(String[] lines, final int SIZE, int startWidth,

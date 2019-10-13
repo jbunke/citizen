@@ -1,6 +1,7 @@
 package com.redsquare.citizen.systems.language;
 
 import java.util.List;
+import java.util.Set;
 
 public class Word {
   private final Syllable[] syllables;
@@ -123,6 +124,32 @@ public class Word {
       endsWithVowel |= syllable.endsWith(vowel);
 
     return endsWithVowel;
+  }
+
+  Word offspring(Set<SoundShift> soundShifts) {
+    Syllable[] syllables = new Syllable[this.syllables.length];
+
+    for (int i = 0; i < this.syllables.length; i++) {
+      Syllable syllable = this.syllables[i];
+      Syllable replacement = new Syllable(syllable.getPrefix(),
+              syllable.getVowel(), syllable.getSuffix());
+      for (SoundShift soundShift : soundShifts) {
+        if (syllable.getPrefix().equals(soundShift.from) &&
+                Math.random() < soundShift.consistency) {
+          replacement = new Syllable(soundShift.to, replacement.getVowel(), replacement.getSuffix());
+        } else if (syllable.getVowel().equals(soundShift.from) &&
+                Math.random() < soundShift.consistency) {
+          replacement = new Syllable(replacement.getPrefix(), soundShift.to, replacement.getSuffix());
+        } else if (syllable.getSuffix().equals(soundShift.from) &&
+                Math.random() < soundShift.consistency) {
+          replacement = new Syllable(replacement.getPrefix(), replacement.getVowel(), soundShift.to);
+        }
+      }
+
+      syllables[i] = replacement;
+    }
+
+    return new Word(syllables);
   }
 
   @Override

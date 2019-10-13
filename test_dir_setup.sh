@@ -6,6 +6,7 @@ mkdir vexillography
 mkdir language
 cd language
 mkdir archive
+mkdir genealogy
 cd ..
 mkdir worldgen
 mkdir settlements

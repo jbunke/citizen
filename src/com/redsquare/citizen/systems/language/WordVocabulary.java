@@ -13,6 +13,46 @@ public class WordVocabulary {
     generateVocabulary(v);
   }
 
+  private WordVocabulary(Set<SoundShift> soundShifts, WordVocabulary ancestor,
+                         Phonology v) {
+    this.wordDictionary = new HashMap<>();
+    this.semanticDictionary = new HashMap<>();
+
+    Set<Word> usedWords = new HashSet<>();
+
+    // TODO: potentially implement in degrees based on word "complexity"
+    /* If a word can be formed as a compound based on its complexity degree,
+    * then for consistency's sake, the status of the sound shift should track. */
+    for (Meaning meaning : Meaning.values()) {
+      if (meaning.getDegree() > 0) continue;
+
+      if (meaning == Meaning.THESE_PEOPLE) {
+        Word candidate = Word.generateRandomWord(1, 3, v);
+
+        while (usedWords.contains(candidate)) {
+          candidate = Word.generateRandomWord(1, 3, v);
+        }
+
+        usedWords.add(candidate);
+        wordDictionary.put(meaning, candidate);
+        semanticDictionary.put(candidate, meaning);
+      } else {
+        Word ancestral = ancestor.wordDictionary.get(meaning);
+        Word newWord = ancestral.offspring(soundShifts);
+        usedWords.add(newWord);
+        wordDictionary.put(meaning, newWord);
+        semanticDictionary.put(newWord, meaning);
+      }
+    }
+
+    generatePossibleCompounds(v, usedWords, Meaning.values());
+  }
+
+  WordVocabulary divergentDaughterVocabulary(Set<SoundShift> soundShifts,
+                                             Phonology v) {
+    return new WordVocabulary(soundShifts, this, v);
+  }
+
   static WordVocabulary generate(Phonology v) {
     return new WordVocabulary(v);
   }
@@ -24,31 +64,12 @@ public class WordVocabulary {
     return null;
   }
 
-  private void generateVocabulary(Phonology v) {
-    Meaning[] allMeanings = Meaning.values();
-    Set<Word> usedWords = new HashSet<>();
-
-    // populate core concepts first
-    for (Meaning meaning : allMeanings) {
-      if (meaning.getDegree() == 0) {
-        Word candidate = null;
-        boolean violates = true;
-
-        while (violates) {
-          candidate = Word.generateRandomWord(1, 3, v);
-          violates = usedWords.contains(candidate);
-        }
-
-        usedWords.add(candidate);
-        wordDictionary.put(meaning, candidate);
-        semanticDictionary.put(candidate, meaning);
-      }
-    }
-
+  private void generatePossibleCompounds(Phonology v, Set<Word> usedWords,
+                                         Meaning[] allMeanings) {
     Set<Meaning> skips = new HashSet<>();
 
     // generate semantically logical words for secondary non-core concepts
-    for (int degree = 1; degree <= 2; degree++) {
+    for (int degree = 1; degree <= 10; degree++) {
       for (Meaning meaning : allMeanings) {
         if (meaning.getDegree() == degree && !skips.contains(meaning)) {
           switch (meaning) {
@@ -56,19 +77,13 @@ public class WordVocabulary {
             case GIRL:
               generateNonCoreFor(new Meaning[] {
                               Meaning.BOY, Meaning.GIRL
-                      }, 0.5, new double[] { 0.5, 1.0 }, // 0.5
+                      }, 0.5, new double[] { 1.0 }, // 0.5
                       new Word[][] {
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.YOUNG),
                                               wordDictionary.get(Meaning.MALE)),
                                       Word.compound(wordDictionary.get(Meaning.YOUNG),
                                               wordDictionary.get(Meaning.FEMALE))
-                              },
-                              new Word[] {
-                                      Word.compound(wordDictionary.get(Meaning.MALE),
-                                              wordDictionary.get(Meaning.YOUNG)),
-                                      Word.compound(wordDictionary.get(Meaning.FEMALE),
-                                              wordDictionary.get(Meaning.YOUNG))
                               }
                       }, usedWords, skips, v);
               break;
@@ -76,14 +91,8 @@ public class WordVocabulary {
             case MOTHER:
               generateNonCoreFor(new Meaning[] {
                               Meaning.FATHER, Meaning.MOTHER
-                      }, 1.0, new double[] { 0.5, 1.0 }, // 0.5
+                      }, 1.0, new double[] { 1.0 }, // 0.5
                       new Word[][] {
-                              new Word[] {
-                                      Word.compound(wordDictionary.get(Meaning.PARENT),
-                                              wordDictionary.get(Meaning.MALE)),
-                                      Word.compound(wordDictionary.get(Meaning.PARENT),
-                                              wordDictionary.get(Meaning.FEMALE))
-                              },
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.MALE),
                                               wordDictionary.get(Meaning.PARENT)),
@@ -96,14 +105,8 @@ public class WordVocabulary {
             case DAUGHTER:
               generateNonCoreFor(new Meaning[] {
                               Meaning.SON, Meaning.DAUGHTER
-                      }, 0.7, new double[] { 0.5, 1.0 }, // 0.5
+                      }, 0.7, new double[] { 1.0 }, // 0.5
                       new Word[][] {
-                              new Word[] {
-                                      Word.compound(wordDictionary.get(Meaning.CHILD_OF),
-                                              wordDictionary.get(Meaning.MALE)),
-                                      Word.compound(wordDictionary.get(Meaning.CHILD_OF),
-                                              wordDictionary.get(Meaning.FEMALE))
-                              },
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.MALE),
                                               wordDictionary.get(Meaning.CHILD_OF)),
@@ -116,14 +119,8 @@ public class WordVocabulary {
             case SISTER:
               generateNonCoreFor(new Meaning[] {
                               Meaning.BROTHER, Meaning.SISTER
-                      }, 0.7, new double[] { 0.5, 1.0 }, // 0.5
+                      }, 0.7, new double[] { 1.0 }, // 0.5
                       new Word[][] {
-                              new Word[] {
-                                      Word.compound(wordDictionary.get(Meaning.SIBLING),
-                                              wordDictionary.get(Meaning.MALE)),
-                                      Word.compound(wordDictionary.get(Meaning.SIBLING),
-                                              wordDictionary.get(Meaning.FEMALE))
-                              },
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.MALE),
                                               wordDictionary.get(Meaning.SIBLING)),
@@ -136,14 +133,8 @@ public class WordVocabulary {
             case WOMAN:
               generateNonCoreFor(new Meaning[] {
                               Meaning.MAN, Meaning.WOMAN
-                      }, 0.5, new double[] { 0.5, 1.0 }, // 0.5
+                      }, 0.5, new double[] { 1.0 }, // 0.5
                       new Word[][] {
-                              new Word[] {
-                                      Word.compound(wordDictionary.get(Meaning.PERSON),
-                                              wordDictionary.get(Meaning.MALE)),
-                                      Word.compound(wordDictionary.get(Meaning.PERSON),
-                                              wordDictionary.get(Meaning.FEMALE))
-                              },
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.MALE),
                                               wordDictionary.get(Meaning.PERSON)),
@@ -179,6 +170,20 @@ public class WordVocabulary {
                               }
                       }, usedWords, skips, v);
               break;
+            case HUSBAND:
+            case WIFE:
+              generateNonCoreFor(new Meaning[] {
+                              Meaning.HUSBAND, Meaning.WIFE
+                      }, 0.7, new double[] { 1.0 }, // 0.5
+                      new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.MALE),
+                                              wordDictionary.get(Meaning.SPOUSE)),
+                                      Word.compound(wordDictionary.get(Meaning.FEMALE),
+                                              wordDictionary.get(Meaning.SPOUSE))
+                              }
+                      }, usedWords, skips, v);
+              break;
             case DISTANT:
               generateNonCoreFor(new Meaning[] { Meaning.DISTANT }, 0.6,
                       new double[] { 1.0 }, new Word[][] {
@@ -194,6 +199,29 @@ public class WordVocabulary {
                               new Word[] {
                                       Word.compound(wordDictionary.get(Meaning.OPPOSITE),
                                               wordDictionary.get(Meaning.FRIEND))
+                              }
+                      }, usedWords, skips, v);
+              break;
+            case MARRIAGE:
+              generateNonCoreFor(new Meaning[] { Meaning.MARRIAGE }, 0.4,
+                      new double[] { 1.0 }, new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.LEGAL_OR_CUSTOMARY),
+                                              wordDictionary.get(Meaning.LOVE))
+                              }
+                      }, usedWords, skips, v);
+              break;
+            case SPOUSE:
+              generateNonCoreFor(new Meaning[] { Meaning.SPOUSE }, 0.75,
+                      new double[] { 0.65, 1.0 }, // 0.7
+                      new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.MARRIAGE),
+                                              wordDictionary.get(Meaning.PERSON))
+                              },
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.LEGAL_OR_CUSTOMARY),
+                                              wordDictionary.get(Meaning.LOVER))
                               }
                       }, usedWords, skips, v);
               break;
@@ -240,6 +268,30 @@ public class WordVocabulary {
         }
       }
     }
+  }
+
+  private void generateVocabulary(Phonology v) {
+    Meaning[] allMeanings = Meaning.values();
+    Set<Word> usedWords = new HashSet<>();
+
+    // populate core concepts first
+    for (Meaning meaning : allMeanings) {
+      if (meaning.getDegree() == 0) {
+        Word candidate = null;
+        boolean violates = true;
+
+        while (violates) {
+          candidate = Word.generateRandomWord(1, 3, v);
+          violates = usedWords.contains(candidate);
+        }
+
+        usedWords.add(candidate);
+        wordDictionary.put(meaning, candidate);
+        semanticDictionary.put(candidate, meaning);
+      }
+    }
+
+    generatePossibleCompounds(v, usedWords, allMeanings);
   }
 
   private void generateNonCoreFor(Meaning[] meanings, double derivedProb,
