@@ -14,14 +14,23 @@ public class SoundShift {
           Map.entry("p", Set.of("b", "f")),
           Map.entry("b", Set.of("v", "p")),
           Map.entry("f", Set.of("v", "p")),
-          Map.entry("v", Set.of("b", "f")),
+          Map.entry("v", Set.of("b", "f", "w")),
           Map.entry("d", Set.of("t")),
           Map.entry("t", Set.of("d")),
           Map.entry("q", Set.of("k", "kh")),
           Map.entry("k", Set.of("c", "q", "kh")),
+          Map.entry("c", Set.of("k")),
           Map.entry("j", Set.of("y")),
           Map.entry("y", Set.of("i")),
-          Map.entry("i", Set.of("y"))
+          Map.entry("i", Set.of("y", "ee", "e")),
+          Map.entry("z", Set.of("s")),
+          Map.entry("s", Set.of("z", "x")),
+          Map.entry("w", Set.of("v")),
+          Map.entry("ae", Set.of("a", "e")),
+          Map.entry("e", Set.of("ae", "a")),
+          Map.entry("ee", Set.of("i")),
+          Map.entry("sh", Set.of("ch")),
+          Map.entry("ch", Set.of("c", "sh"))
           // TODO
   );
 

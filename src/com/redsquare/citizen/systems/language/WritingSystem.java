@@ -323,27 +323,15 @@ public class WritingSystem {
           vowelsOnly.add(new Syllable("", vowel, ""));
 
           for (String prefix : phonology.PREFIX_CONS_PHONEMES) {
-            if (!Phonemes.ILLEGAL_PREFIX_TO_VOWEL.containsKey(prefix) ||
-                    !Phonemes.ILLEGAL_PREFIX_TO_VOWEL.
-                    get(prefix).contains(vowel)) {
-              prefixVowel.add(new Syllable(prefix, vowel, ""));
+            prefixVowel.add(new Syllable(prefix, vowel, ""));
 
-              for (String suffix : phonology.SUFFIX_CONS_PHONEMES) {
-                if (!Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.containsKey(vowel) ||
-                        !Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.
-                        get(vowel).contains(suffix)) {
-                  prefixVowelSuffix.add(new Syllable(prefix, vowel, suffix));
-                }
-              }
+            for (String suffix : phonology.SUFFIX_CONS_PHONEMES) {
+              prefixVowelSuffix.add(new Syllable(prefix, vowel, suffix));
             }
           }
 
           for (String suffix : phonology.SUFFIX_CONS_PHONEMES) {
-            if (!Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.containsKey(vowel) ||
-                    !Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.
-                    get(vowel).contains(suffix)) {
-              vowelSuffix.add(new Syllable("", vowel, suffix));
-            }
+            vowelSuffix.add(new Syllable("", vowel, suffix));
           }
         }
 
@@ -371,7 +359,7 @@ public class WritingSystem {
     List<Glyph> glyphs = new ArrayList<>();
 
     for (Syllable syllable : word.getSyllables()) {
-      if (type == Type.COMPONENT_SYLLABARY) {
+      if (type == Type.COMPONENT_SYLLABARY || type == Type.DISTINCT_SYLLABARY) {
         glyphs.add(this.glyphs.get(syllable));
       } else {
         Phoneme prefix = new Phoneme(syllable.getPrefix());
@@ -497,6 +485,20 @@ public class WritingSystem {
     }
 
     return writing;
+  }
+
+  public BufferedImage drawSentenceWithFont(
+          List<Word> sentence, final int SIZE, int startWidth, int endWidth,
+          BiFunction<Double, Double, Double> xFunc,
+          BiFunction<Double, Double, Double> yFunc) {
+    List<Glyph> glyphs = new ArrayList<>();
+
+    for (int i = 0; i < sentence.size(); i++) {
+      glyphs.addAll(translate(sentence.get(i)));
+      if (i < sentence.size() + 1) glyphs.add(Glyph.empty());
+    }
+
+    return drawWithFont(glyphs, SIZE, startWidth, endWidth, xFunc, yFunc);
   }
 
   public BufferedImage drawWithFont(Word word, final int SIZE, int startWidth,

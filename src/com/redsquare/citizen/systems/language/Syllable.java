@@ -35,7 +35,15 @@ public class Syllable extends WordSubUnit {
 
   @Override
   public int hashCode() {
-    return prefix.length() + vowel.length() + suffix.length();
+    int sum = 0;
+    String concat = prefix + vowel + suffix;
+
+    for (int i = 0; i < concat.length(); i++) {
+      sum *= 4;
+      sum += concat.charAt(i);
+    }
+
+    return sum;
   }
 
   @Override

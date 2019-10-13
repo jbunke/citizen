@@ -101,6 +101,20 @@ public class WordVocabulary {
                               }
                       }, usedWords, skips, v);
               break;
+            case UNCLE:
+            case AUNT:
+              generateNonCoreFor(new Meaning[] {
+                              Meaning.UNCLE, Meaning.AUNT
+                      }, 0.5, new double[] { 1.0 }, // 0.5
+                      new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.BROTHER),
+                                              wordDictionary.get(Meaning.PARENT)),
+                                      Word.compound(wordDictionary.get(Meaning.SISTER),
+                                              wordDictionary.get(Meaning.PARENT))
+                              }
+                      }, usedWords, skips, v);
+              break;
             case GRANDFATHER:
             case GRANDMOTHER:
               generateNonCoreFor(new Meaning[] {

@@ -2,6 +2,11 @@ package com.redsquare.citizen.systems.language;
 
 import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
+import com.redsquare.citizen.systems.language.sentences.BasicNounNP;
+import com.redsquare.citizen.systems.language.sentences.BasicVerbVP;
+import com.redsquare.citizen.systems.language.sentences.Sentence;
+import com.redsquare.citizen.systems.language.sentences.VerbPhrase;
+import com.redsquare.citizen.util.Randoms;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -24,6 +29,8 @@ public class LanguageTests {
 
   @Test
   public void linguisticGenealogy() {
+    GameDebug.activate();
+
     Meaning[] meanings = new Meaning[] { Meaning.THIS_LANGUAGE, Meaning.BOY,
             Meaning.DISTANT, Meaning.GREAT_COMP, Meaning.PARENT,
             Meaning.FATHER, Meaning.MOTHER, Meaning.LOVER, Meaning.SPOUSE,
@@ -37,6 +44,8 @@ public class LanguageTests {
 
     Language grandchild = Math.random() < 1/3. ? child1.daughterLanguage() :
             (Math.random() < 0.5 ? child2.daughterLanguage() : child3.daughterLanguage());
+
+    GameDebug.printMessage(String.valueOf(Language.mutualIntelligibility(grandchild, child1)), GameDebug::printDebug);
 
     BufferedImage image = new BufferedImage(1800, 2000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) image.getGraphics();
@@ -85,7 +94,7 @@ public class LanguageTests {
       languages[i] = languages[i - 1].daughterLanguage();
     }
 
-    Meaning meaning = Meaning.GRANDMOTHER;
+    Meaning meaning = Meaning.MOTHER;
 
     BufferedImage scroll = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) scroll.getGraphics();
@@ -118,6 +127,75 @@ public class LanguageTests {
     try {
       ImageIO.write(verbTable, IMAGE_FORMAT,
               new File(FOLDER_PATH + verb.toString() + "_conjugation_table." + IMAGE_FORMAT));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void writeSentence() {
+    GameDebug.activate();
+
+    Language language = Language.generate();
+    Sentence sentence = new Sentence(
+            new BasicNounNP(true, 1, new Meaning[] { Meaning.RED }, Meaning.MAN),
+            new BasicVerbVP((short)1, new Meaning[] {}, Meaning.BE));
+
+    BufferedImage sentenceText =
+            language.getWritingSystem().drawSentenceWithFont(
+                    language.getSentence(sentence), 70, 3, 2,
+                    Fonts::fontIdentityX, Fonts::fontIdentityY);
+
+    try {
+      ImageIO.write(sentenceText, IMAGE_FORMAT,
+              new File(FOLDER_PATH + "the_red_man_is." + IMAGE_FORMAT));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void writeSentences() {
+    GameDebug.activate();
+
+    Language language = Language.generate();
+    WritingSystem w = language.getWritingSystem();
+
+    Meaning[] adjectives = new Meaning[] { Meaning.RED, Meaning.BLUE, Meaning.GREEN,
+            Meaning.BLACK, Meaning.OPPOSITE };
+
+    Sentence[] sentences = new Sentence[adjectives.length];
+
+    for (int i = 0; i < adjectives.length; i++) {
+      sentences[i] = new Sentence(
+              new BasicNounNP(true, Randoms.bounded(1, 3), new Meaning[] { adjectives[i] }, Meaning.SPOUSE),
+              new BasicVerbVP(VerbPhrase.PRESENT_TENSE, new Meaning[] {}, Meaning.KNOW));
+    }
+
+    BufferedImage image = new BufferedImage(2000, 2000, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) image.getGraphics();
+
+    g.drawImage(Font.CLEAN.getText("Spouse"), 5, 5, null);
+    g.drawImage(w.drawWithFont(language.lookUpWord(Meaning.SPOUSE), 50, 3,
+            2, Fonts::fontIdentityX, Fonts::fontIdentityY), 5, 35, null);
+
+    g.drawImage(Font.CLEAN.getText("To know"), 505, 5, null);
+    g.drawImage(w.drawWithFont(language.lookUpWord(Meaning.KNOW), 50, 3,
+            2, Fonts::fontIdentityX, Fonts::fontIdentityY), 505, 35, null);
+
+    for (int i = 0; i < sentences.length; i++) {
+      g.drawImage(Font.CLEAN.getText(
+              "The " + adjectives[i].toString().toLowerCase() + " spouse" + (sentences[i].nounPhrase.number() > 1 ? "s" : "") +
+                      " know" + (sentences[i].nounPhrase.number() > 1 ? "" : "s") + "."),
+              5, 180 + (130 * i), null);
+      g.drawImage(w.drawSentenceWithFont(language.getSentence(sentences[i]),
+              80, 3, 2, Fonts::fontIdentityX, Fonts::fontIdentityY),
+              10, 200 + (130 * i), null);
+    }
+
+    try {
+      ImageIO.write(image, IMAGE_FORMAT,
+              new File(FOLDER_PATH + "sentences." + IMAGE_FORMAT));
     } catch (IOException e) {
       e.printStackTrace();
     }
