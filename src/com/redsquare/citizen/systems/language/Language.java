@@ -72,7 +72,7 @@ public class Language {
     if (newWS < 0.6) {
       this.writingSystem = ancestor.writingSystem;
     } else if (newWS < 0.85) {
-      this.writingSystem = ancestor.writingSystem; // TODO: .modify();
+      this.writingSystem = ancestor.writingSystem.modify();
     } else {
       this.writingSystem = WritingSystem.generate(phonology,
               ancestor.writingSystem.type);
@@ -95,6 +95,10 @@ public class Language {
 
   public static Language generate(WritingSystem ws) {
     return new Language(ws);
+  }
+
+  public Grammar getGrammar() {
+    return grammar;
   }
 
   public Phonology getPhonology() {

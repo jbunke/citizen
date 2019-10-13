@@ -44,6 +44,10 @@ class Glyph {
     return new Glyph(ws);
   }
 
+  static Glyph generate(List<GlyphComponent> components, boolean hasP, boolean hasS) {
+    return new Glyph(components, hasP, hasS);
+  }
+
   static Glyph componentBased(WritingSystem ws, Glyph v, Glyph p, Glyph s) {
     List<GlyphComponent> components = new ArrayList<>();
     List<GlyphComponent> vowels = new ArrayList<>();
@@ -144,6 +148,18 @@ class Glyph {
     components.addAll(suffixes);
 
     return new Glyph(components, p != null, s != null);
+  }
+
+  boolean hasP() {
+    return hasP;
+  }
+
+  boolean hasS() {
+    return hasS;
+  }
+
+  List<GlyphComponent> getComponents() {
+    return components;
   }
 
   static Glyph empty() {

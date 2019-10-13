@@ -1,5 +1,6 @@
 package com.redsquare.citizen.systems.language;
 
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
 
@@ -51,6 +52,43 @@ public class WritingSystem {
   final CompSyllabaryConfig compSyllabaryConfig;
 
   final Set<GlyphComponent> commonElements;
+
+  private WritingSystem(WritingSystem parent) {
+    this.phonology = parent.phonology;
+    this.type = parent.type;
+
+    avgLineCurve = parent.avgLineCurve;
+    avgLineLength = parent.avgLineLength;
+    curveDeviationMax = parent.curveDeviationMax;
+    deviationProb = parent.deviationProb;
+    avgContinuationProb = parent.avgContinuationProb;
+    continuationDeviationMax = parent.continuationDeviationMax;
+    commonElemProbability = parent.commonElemProbability;
+
+    directionalProclivity = parent.directionalProclivity;
+    directionSet = parent.directionSet;
+    maxDirectionSkew = parent.maxDirectionSkew;
+
+    startPointProclivity = parent.startPointProclivity;
+    startPoints = parent.startPoints;
+
+    compSyllabaryConnected =
+            Math.random() > 0.7 == parent.compSyllabaryConnected;
+
+    compSyllabaryConfig = parent.compSyllabaryConfig;
+
+    Set<GlyphComponent> parentalCE = parent.commonElements;
+    commonElements = new HashSet<>();
+
+    while (commonElements.size() < parentalCE.size()) {
+      commonElements.add(GlyphComponent.orig(this));
+    }
+
+    keys = enumerateKeys();
+    sortKeys();
+
+    glyphs = generateGlyphsFromParent(parent, parentalCE);
+  }
 
   private WritingSystem(Phonology phonology, Type type) {
     // Random likelihood of syllabic vs alphabetical
@@ -142,6 +180,10 @@ public class WritingSystem {
     glyphs = generateGlyphs();
   }
 
+  public WritingSystem modify() {
+    return new WritingSystem(this);
+  }
+
   public static WritingSystem generate(Phonology phonology, Type type,
         double avgLineCurve, double curveDeviationMax, double deviationProb,
         double avgLineLength, double avgContinuationProb,
@@ -192,6 +234,30 @@ public class WritingSystem {
         }
       }
     }
+  }
+
+  private Map<WordSubUnit, Glyph> generateGlyphsFromParent(WritingSystem parent,
+                                                           Set<GlyphComponent> parentalCE) {
+    Map<WordSubUnit, Glyph> glyphs = new HashMap<>();
+
+    for (WordSubUnit key : keys) {
+      Glyph parentGlyph = parent.glyphs.get(key);
+      List<GlyphComponent> components = parentGlyph.getComponents();
+      List<GlyphComponent> newComps = new ArrayList<>();
+
+      for (GlyphComponent component : components) {
+        if (parentalCE.contains(component)) {
+          newComps.add(Sets.randomEntry(commonElements));
+        } else {
+          newComps.add(component);
+        }
+      }
+
+      Glyph newG = Glyph.generate(newComps, parentGlyph.hasP(), parentGlyph.hasS());
+      glyphs.put(key, newG);
+    }
+
+    return glyphs;
   }
 
   private Map<WordSubUnit, Glyph> generateGlyphs() {
@@ -436,6 +502,8 @@ public class WritingSystem {
   public BufferedImage drawWithFont(Word word, final int SIZE, int startWidth,
                                     int endWidth, BiFunction<Double, Double, Double> xFunc,
                                     BiFunction<Double, Double, Double> yFunc) {
+    GameDebug.printMessage(this.type + " " + word.toString(), GameDebug::printDebug);
+
     List<Glyph> glyphs = translate(word);
 
     return drawWithFont(glyphs, SIZE, startWidth, endWidth, xFunc, yFunc);

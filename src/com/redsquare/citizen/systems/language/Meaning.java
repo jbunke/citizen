@@ -49,6 +49,21 @@ public enum Meaning {
   // LESSER
   DARK(1, LexClass.ADJECTIVE), LIGHT_QLTY(1, LexClass.ADJECTIVE),
 
+  // PRONOUNS
+  I(0, LexClass.PRONOUN), YOU(0, LexClass.PRONOUN), HE(0, LexClass.PRONOUN),
+  SHE(0, LexClass.PRONOUN), IT(0, LexClass.PRONOUN),
+  THEY(0, LexClass.PRONOUN), YOU_PLURAL(0, LexClass.PRONOUN),
+  WE(0, LexClass.PRONOUN),
+
+  // VERBS
+  BE(0, LexClass.VERB), WANT(0, LexClass.VERB), LIKE(0, LexClass.VERB),
+  HAVE(0, LexClass.VERB), GO(0, LexClass.VERB), LIVE(0, LexClass.VERB),
+  DO(0, LexClass.VERB), SAY(0, LexClass.VERB), GET(0, LexClass.VERB),
+  MAKE(0, LexClass.VERB), KNOW(0, LexClass.VERB), THINK(0, LexClass.VERB),
+  TAKE(0, LexClass.VERB), SEE(0, LexClass.VERB), COME(0, LexClass.VERB),
+  LOOK(0, LexClass.VERB),
+  RUN(0, LexClass.VERB), WALK(0, LexClass.VERB),
+
   // Concept
   LOVE(0, LexClass.NOUN),
   LEGAL_OR_CUSTOMARY(0, LexClass.ADJECTIVE),

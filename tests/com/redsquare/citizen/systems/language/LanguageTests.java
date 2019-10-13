@@ -1,5 +1,6 @@
 package com.redsquare.citizen.systems.language;
 
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
 import org.junit.Test;
 
@@ -75,6 +76,8 @@ public class LanguageTests {
 
   @Test
   public void wordInTenDescendedLanguages() {
+    GameDebug.activate();
+
     Language[] languages = new Language[10];
     languages[0] = Language.generate();
 
@@ -82,7 +85,7 @@ public class LanguageTests {
       languages[i] = languages[i - 1].daughterLanguage();
     }
 
-    Meaning meaning = Meaning.HUSBAND;
+    Meaning meaning = Meaning.GRANDMOTHER;
 
     BufferedImage scroll = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) scroll.getGraphics();
@@ -90,13 +93,31 @@ public class LanguageTests {
     for (int i = 0; i < languages.length; i++) {
       Language l = languages[i];
       BufferedImage text =
-              l.getWritingSystem().drawWithFont(l.lookUpWord(meaning), 50, 2, 1, Fonts::fontItalicX, Fonts::fontIdentityY);
+              l.getWritingSystem().drawWithFont(l.lookUpWord(meaning), 50, 2, 2, Fonts::fontItalicX, Fonts::fontIdentityY);
       g.drawImage(text, (1000 - text.getWidth()) / 2, i * 100, null);
     }
 
     try {
       ImageIO.write(scroll, IMAGE_FORMAT,
               new File(FOLDER_PATH + meaning.toString() + "_in_ten_descended_languages." + IMAGE_FORMAT));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void verbTable() {
+    GameDebug.activate();
+
+    Meaning verb = Meaning.RUN;
+
+    Language language = Language.generate();
+    Grammar grammar = language.getGrammar();
+    BufferedImage verbTable = grammar.verbTable(verb, language);
+
+    try {
+      ImageIO.write(verbTable, IMAGE_FORMAT,
+              new File(FOLDER_PATH + verb.toString() + "_conjugation_table." + IMAGE_FORMAT));
     } catch (IOException e) {
       e.printStackTrace();
     }

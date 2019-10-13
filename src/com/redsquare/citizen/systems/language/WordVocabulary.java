@@ -101,6 +101,26 @@ public class WordVocabulary {
                               }
                       }, usedWords, skips, v);
               break;
+            case GRANDFATHER:
+            case GRANDMOTHER:
+              generateNonCoreFor(new Meaning[] {
+                              Meaning.GRANDFATHER, Meaning.GRANDMOTHER
+                      }, 0.8, new double[] { 0.7, 1.0 }, // 0.5
+                      new Word[][] {
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.FATHER),
+                                              wordDictionary.get(Meaning.PARENT)),
+                                      Word.compound(wordDictionary.get(Meaning.MOTHER),
+                                              wordDictionary.get(Meaning.PARENT))
+                              },
+                              new Word[] {
+                                      Word.compound(wordDictionary.get(Meaning.GREAT_COMP),
+                                              wordDictionary.get(Meaning.FATHER)),
+                                      Word.compound(wordDictionary.get(Meaning.GREAT_COMP),
+                                              wordDictionary.get(Meaning.MOTHER))
+                              }
+                      }, usedWords, skips, v);
+              break;
             case SON:
             case DAUGHTER:
               generateNonCoreFor(new Meaning[] {
