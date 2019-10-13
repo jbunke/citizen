@@ -410,11 +410,9 @@ public class WritingSystem {
     return combineLines(images, widest, height, SIZE);
   }
 
-  public BufferedImage drawWithFont(String text, final int SIZE, int startWidth,
-      int endWidth, BiFunction<Double, Double, Double> xFunc,
-                    BiFunction<Double, Double, Double> yFunc) {
-    List<Glyph> glyphs = translate(text.toLowerCase());
-
+  private BufferedImage drawWithFont(List<Glyph> glyphs, final int SIZE, int startWidth,
+                                     int endWidth, BiFunction<Double, Double, Double> xFunc,
+                                     BiFunction<Double, Double, Double> yFunc) {
     BufferedImage writing =
             new BufferedImage(glyphs.size() * SIZE,
                     SIZE, BufferedImage.TYPE_INT_ARGB);
@@ -426,13 +424,29 @@ public class WritingSystem {
       BufferedImage img = glyphs.get(i).
               drawWithFont(SIZE, startWidth, endWidth, xFunc, yFunc);
 
-      double tightness = type != Type.ALPHABET ? 1.0 :
-              text.charAt(i) == ' ' ? 2.0 : 0.7;
+      double tightness = 0.9; // type != Type.ALPHABET ? 1.0 :
+              // text.charAt(i) == ' ' ? 2.0 : 0.7;
       g.drawImage(img, x, 0, null);
       x += (int)(SIZE * tightness);
     }
 
     return writing;
+  }
+
+  public BufferedImage drawWithFont(Word word, final int SIZE, int startWidth,
+                                    int endWidth, BiFunction<Double, Double, Double> xFunc,
+                                    BiFunction<Double, Double, Double> yFunc) {
+    List<Glyph> glyphs = translate(word);
+
+    return drawWithFont(glyphs, SIZE, startWidth, endWidth, xFunc, yFunc);
+  }
+
+  public BufferedImage drawWithFont(String text, final int SIZE, int startWidth,
+      int endWidth, BiFunction<Double, Double, Double> xFunc,
+                    BiFunction<Double, Double, Double> yFunc) {
+    List<Glyph> glyphs = translate(text.toLowerCase());
+
+    return drawWithFont(glyphs, SIZE, startWidth, endWidth, xFunc, yFunc);
   }
 
   private BufferedImage combineLines(List<BufferedImage> lines, int widest, int height, final int SIZE) {
