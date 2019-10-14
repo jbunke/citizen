@@ -48,6 +48,24 @@ class Glyph {
     return new Glyph(components, hasP, hasS);
   }
 
+  static Glyph empty() {
+    return new Glyph();
+  }
+
+  static Glyph period() {
+    List<GlyphPoint> points = new ArrayList<>();
+
+    points.add(new GlyphPoint(0.3, 0.7));
+    points.add(new GlyphPoint(0.35, 0.75));
+    points.add(new GlyphPoint(0.3, 0.8));
+    points.add(new GlyphPoint(0.25, 0.75));
+    points.add(new GlyphPoint(0.3, 0.7));
+
+    List<GlyphComponent> components = List.of(GlyphComponent.specified(points));
+
+    return new Glyph(components, false, false);
+  }
+
   static Glyph componentBased(WritingSystem ws, Glyph v, Glyph p, Glyph s) {
     List<GlyphComponent> components = new ArrayList<>();
     List<GlyphComponent> vowels = new ArrayList<>();
@@ -160,10 +178,6 @@ class Glyph {
 
   List<GlyphComponent> getComponents() {
     return components;
-  }
-
-  static Glyph empty() {
-    return new Glyph();
   }
 
   private static double halveAndPushForth(double d) {

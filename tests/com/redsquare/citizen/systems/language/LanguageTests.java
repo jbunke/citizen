@@ -2,10 +2,7 @@ package com.redsquare.citizen.systems.language;
 
 import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
-import com.redsquare.citizen.systems.language.sentences.BasicNounNP;
-import com.redsquare.citizen.systems.language.sentences.BasicVerbVP;
-import com.redsquare.citizen.systems.language.sentences.Sentence;
-import com.redsquare.citizen.systems.language.sentences.VerbPhrase;
+import com.redsquare.citizen.systems.language.sentences.*;
 import com.redsquare.citizen.util.Randoms;
 import org.junit.Test;
 
@@ -94,7 +91,7 @@ public class LanguageTests {
       languages[i] = languages[i - 1].daughterLanguage();
     }
 
-    Meaning meaning = Meaning.MOTHER;
+    Meaning meaning = Meaning.GRANDMOTHER;
 
     BufferedImage scroll = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) scroll.getGraphics();
@@ -138,17 +135,21 @@ public class LanguageTests {
 
     Language language = Language.generate();
     Sentence sentence = new Sentence(
-            new BasicNounNP(true, 1, new Meaning[] { Meaning.RED }, Meaning.MAN),
-            new BasicVerbVP((short)1, new Meaning[] {}, Meaning.BE));
+            new PronounNP(Meaning.I),
+            new VerbAndNounVP(
+                    new BasicVerbVP(VerbPhrase.PRESENT_TENSE, new Meaning[] {}, Meaning.BE),
+                    new BasicNounNP(false, 1, new Meaning[] {}, Meaning.MAN)
+            )
+    );
 
     BufferedImage sentenceText =
             language.getWritingSystem().drawSentenceWithFont(
                     language.getSentence(sentence), 70, 3, 2,
-                    Fonts::fontIdentityX, Fonts::fontIdentityY);
+                    Fonts::fontItalicX, Fonts::fontIdentityY);
 
     try {
       ImageIO.write(sentenceText, IMAGE_FORMAT,
-              new File(FOLDER_PATH + "the_red_man_is." + IMAGE_FORMAT));
+              new File(FOLDER_PATH + "I_am_a_man." + IMAGE_FORMAT));
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -196,6 +197,44 @@ public class LanguageTests {
     try {
       ImageIO.write(image, IMAGE_FORMAT,
               new File(FOLDER_PATH + "sentences." + IMAGE_FORMAT));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void sentencesInDescendingLanguages() {
+    GameDebug.activate();
+
+    Language[] languages = new Language[10];
+    languages[0] = Language.generate();
+
+    for (int i = 1; i < 10; i++) {
+      languages[i] = languages[i - 1].daughterLanguage();
+    }
+
+    Sentence s = new Sentence(
+            new BasicNounNP(true, 2, new Meaning[] {}, Meaning.PERSON),
+            new VerbAndNounVP(
+                    new BasicVerbVP(VerbPhrase.PAST_TENSE, new Meaning[] {}, Meaning.SEE),
+                    new BasicNounNP(true, 1, new Meaning[] {}, Meaning.STATE)
+            )
+    );
+
+    BufferedImage image = new BufferedImage(2000, 2000, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) image.getGraphics();
+
+    g.drawImage(Font.CLEAN.getText("The people see the country."), 5, 5, null);
+
+    for (int i = 0; i < languages.length; i++) {
+      g.drawImage(languages[i].getWritingSystem().drawSentenceWithFont(languages[i].getSentence(s),
+              80, 3, 2, Fonts::fontIdentityX, Fonts::fontIdentityY),
+              10, 100 + (90 * i), null);
+    }
+
+    try {
+      ImageIO.write(image, IMAGE_FORMAT,
+              new File(FOLDER_PATH + "sentences_descending_languages." + IMAGE_FORMAT));
     } catch (IOException e) {
       e.printStackTrace();
     }

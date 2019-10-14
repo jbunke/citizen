@@ -478,8 +478,7 @@ public class WritingSystem {
       BufferedImage img = glyphs.get(i).
               drawWithFont(SIZE, startWidth, endWidth, xFunc, yFunc);
 
-      double tightness = 0.9; // type != Type.ALPHABET ? 1.0 :
-              // text.charAt(i) == ' ' ? 2.0 : 0.7;
+      double tightness = glyphs.get(i).getComponents().size() == 0 ? 1.4 : 0.7;
       g.drawImage(img, x, 0, null);
       x += (int)(SIZE * tightness);
     }
@@ -495,8 +494,10 @@ public class WritingSystem {
 
     for (int i = 0; i < sentence.size(); i++) {
       glyphs.addAll(translate(sentence.get(i)));
-      if (i < sentence.size() + 1) glyphs.add(Glyph.empty());
+      if (i < sentence.size() - 1) glyphs.add(Glyph.empty());
     }
+
+    glyphs.add(Glyph.period());
 
     return drawWithFont(glyphs, SIZE, startWidth, endWidth, xFunc, yFunc);
   }

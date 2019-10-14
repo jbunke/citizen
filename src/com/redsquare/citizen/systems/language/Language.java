@@ -1,6 +1,7 @@
 package com.redsquare.citizen.systems.language;
 
 import com.redsquare.citizen.systems.language.sentences.Sentence;
+import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.util.Randoms;
 
 import java.util.ArrayList;
@@ -159,5 +160,10 @@ public class Language {
     words.addAll(sentence.nounPhrase.getWords(this));
     words.addAll(sentence.verbPhrase.getWords(this, sentence.nounPhrase));
     return words;
+  }
+
+  @Override
+  public String toString() {
+    return Formatter.properNoun(lookUpWord(Meaning.THIS_LANGUAGE).toString());
   }
 }
