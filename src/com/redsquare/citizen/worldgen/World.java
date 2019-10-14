@@ -45,6 +45,8 @@ public class World {
   private static final int DESERT_PEER_THRESHOLD = 5;
   private static final int DESERT_FILL_REPS = 3;
 
+  private final WorldManager worldManager;
+
   private boolean generated[][];
 
   private Set<Settlement> settlements = null;
@@ -176,7 +178,13 @@ public class World {
     // BORDERS
     establishBorders();
 
-    updateMenuScreen(MenuStateCode.WORLD_GENERATED);
+    updateMenuScreen(MenuStateCode.SIMULATING_HISTORY);
+
+    this.worldManager = WorldManager.init(this);
+  }
+
+  public WorldManager getWorldManager() {
+    return worldManager;
   }
 
   private void updateMenuScreen(MenuStateCode code) {

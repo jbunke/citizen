@@ -1,6 +1,8 @@
 package com.redsquare.citizen.systems.time;
 
 public class GameDate {
+  public static final int STANDARD_DAYS_IN_YEAR = 10;
+
   public final int day;
   public final int year;
 
@@ -11,6 +13,10 @@ public class GameDate {
 
   public String written(Calendar c) {
     return c.yearDay(day) + " " + year;
+  }
+
+  public static GameDate incrementYear(GameDate from) {
+    return new GameDate(from.day, from.year + 1);
   }
 
   public static GameDate increment(GameDate from, final int DAYS_IN_YEAR) {

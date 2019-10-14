@@ -1,5 +1,6 @@
 package com.redsquare.citizen.game_states.menu_elements;
 
+import com.redsquare.citizen.config.WorldConfig;
 import com.redsquare.citizen.systems.politics.Race;
 
 import java.awt.*;
@@ -9,7 +10,7 @@ public enum MenuStateCode {
   MAIN, WORLD_CONFIG, QUIT_ARE_YOU_SURE, QUIT,
   PLAYER_CONFIG,
   START_GAME,
-  GENERATING_WORLD, PHYSICAL_GEOGRAPHY, STATES_SETTLEMENTS, WORLD_GENERATED;
+  GENERATING_WORLD, PHYSICAL_GEOGRAPHY, STATES_SETTLEMENTS, SIMULATING_HISTORY;
 
   public Set<MenuElement> generateElements(MenuStateCode sender) {
     // TODO
@@ -120,8 +121,8 @@ public enum MenuStateCode {
                         }, 15,
                         new Point(640, 360))
         );
-      case WORLD_GENERATED:
-        base = "World generated";
+      case SIMULATING_HISTORY:
+        base = "Simulating " + WorldConfig.getSimulationYears() + " years of history";
         return Set.of(
                 AnimatedTextMenuElement.temp(new String[] {
                                 base + ".", base + "..", base + "..."

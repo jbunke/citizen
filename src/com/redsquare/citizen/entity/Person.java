@@ -121,9 +121,6 @@ public class Person extends LivingMoving {
 
     this.mother.children.add(this);
     this.father.children.add(this);
-
-    this.layers = new Sprite[LAYER_AMOUNT];
-    spriteSetup();
   }
 
   Person(Sex sex, GameDate birthday, Settlement birthplace, World world) {
@@ -156,9 +153,6 @@ public class Person extends LivingMoving {
             getNativeRace().generateHairColor();
     height = randomHeight();
     bodyType = randomBodyType();
-
-    this.layers = new Sprite[LAYER_AMOUNT];
-    spriteSetup();
   }
 
   public static Person create(Sex sex, GameDate birthday,
@@ -183,6 +177,7 @@ public class Person extends LivingMoving {
   }
 
   private void spriteSetup() {
+    this.layers = new Sprite[LAYER_AMOUNT];
     spriteBodySetup();
     spriteHeadSetup();
   }
@@ -424,7 +419,7 @@ public class Person extends LivingMoving {
 
   @Override
   public int age(GameDate now) {
-    return GameDate.yearsBetween(birthday, now);
+    return GameDate.yearsBetween(now, birthday);
   }
 
   @Override
@@ -434,6 +429,9 @@ public class Person extends LivingMoving {
 
   @Override
   public BufferedImage getSprite() {
+    if (!spritesSetUp())
+      spriteSetup();
+
     BufferedImage sprite = new BufferedImage(SPRITE_WIDTH, SPRITE_HEIGHT,
             BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) sprite.getGraphics();

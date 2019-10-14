@@ -6,7 +6,7 @@ import com.redsquare.citizen.util.MathExt;
 import com.redsquare.citizen.util.Randoms;
 
 public class Psychology {
-  private static final int TENDENCY_COUNT = 12;
+  private static final int TENDENCY_COUNT = 13;
   public static final int PARENTAL_INSTINCTS = 0, AMBITION = 1, IDEALISM = 2,
           CHARISMA = 3, SELF_ESTEEM = 4, INTELLECT = 5, EMPATHY = 6,
           AGREEABLENESS = 7, RUTHLESSNESS = 8, RISK_TAKING = 9, LOYALTY = 10,

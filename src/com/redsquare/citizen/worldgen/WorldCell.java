@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class WorldCell {
+  private boolean populated = false;
+
   private final Point location;
   private final World world;
 
@@ -54,6 +56,9 @@ public class WorldCell {
 
   public void populateSubCells() {
     // TODO temp fix
+    if (populated) return;
+    populated = true;
+
     subCells =
             new WorldSubCell[WorldPosition.CELLS_IN_WORLD_CELL_DIM]
                     [WorldPosition.CELLS_IN_WORLD_CELL_DIM];

@@ -41,4 +41,8 @@ public abstract class Entity implements Comparable<Entity> {
   public void update() {  }
 
   public void renderUpdate() {  }
+
+  public boolean spritesSetUp() {
+    return layers != null;
+  }
 }

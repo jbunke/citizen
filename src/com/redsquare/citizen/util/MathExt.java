@@ -18,6 +18,10 @@ public class MathExt {
     return Math.min(Math.max(VALUE, MIN), MAX);
   }
 
+  public static int bounded(final int VALUE, final int MIN, final int MAX) {
+    return Math.min(Math.max(VALUE, MIN), MAX);
+  }
+
   public static double min(final double[] VALUES) {
     double min = Double.MAX_VALUE;
 

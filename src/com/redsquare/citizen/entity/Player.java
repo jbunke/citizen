@@ -31,10 +31,9 @@ public final class Player extends Person {
     lookingRef = new FloatPoint(0., 0.);
   }
 
-  public static Player temp(World world) {
+  public static Player temp(World world, GameDate birthday) {
     Settlement settlement = world.randomSettlement();
-    return new Player(Sex.MALE, new GameDate(1, 1),
-            settlement, world);
+    return new Player(Sex.MALE, birthday, settlement, world);
   }
 
   public void setLookingRef(FloatPoint lookingRef) {
