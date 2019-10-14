@@ -125,6 +125,13 @@ public class WorldPosition {
     }
   }
 
+  /** WORLD SCOPE: Used to see if people are within
+   * walking distance of each other */
+  public boolean isCloseTo(WorldPosition other) {
+    return Math.abs(worldPos.x - other.worldPos.x) +
+            Math.abs(worldPos.y - other.worldPos.y) <= 2;
+  }
+
   private boolean isEntity() {
     return (world != null & associated != null);
   }

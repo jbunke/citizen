@@ -6,5 +6,7 @@ abstract class Lifeform extends Entity {
   /**
    * @return The age of the life form in game-years
    * */
-  abstract int age(GameDate now);
+  public abstract int age(GameDate now);
+
+  public abstract boolean isAlive();
 }

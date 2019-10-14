@@ -1,7 +1,6 @@
 package com.redsquare.citizen.entity;
 
 import com.redsquare.citizen.debug.GameDebug;
-import com.redsquare.citizen.devkit.sprite_gen.SpriteUniqueColorMapping;
 import com.redsquare.citizen.devkit.sprite_gen.Tilemapping;
 import com.redsquare.citizen.entity.collision.Collider;
 import com.redsquare.citizen.entity.movement.MovementLogic;
@@ -10,6 +9,7 @@ import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.politics.Culture;
 import com.redsquare.citizen.systems.politics.Family;
 import com.redsquare.citizen.systems.politics.Settlement;
+import com.redsquare.citizen.systems.psychology.Psychology;
 import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.util.ColorMath;
 import com.redsquare.citizen.util.FloatPoint;
@@ -18,11 +18,8 @@ import com.redsquare.citizen.util.Sets;
 import com.redsquare.citizen.worldgen.World;
 import com.redsquare.citizen.worldgen.WorldPosition;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,6 +54,8 @@ public class Person extends LivingMoving {
   protected String[] name;
   protected String called;
 
+  private boolean alive;
+
   /* Not final as cultures may have Family transitions during institutions
    * like marriage */
   private Family family;
@@ -77,6 +76,7 @@ public class Person extends LivingMoving {
   private final Language motherTongue;
   private final Set<Language> languages;
   private Culture culture;
+  private Psychology psychology;
 
   /* Animation */
   private RenderMood mood;
@@ -112,6 +112,7 @@ public class Person extends LivingMoving {
     languages = Set.of(motherTongue);
     culture = cultureGeneration();
     family = familyGeneration();
+    psychology = Psychology.init(this, father, mother);
 
     skinColor = skinColorGeneration();
     hairColor = hairColorGeneration();
@@ -147,6 +148,7 @@ public class Person extends LivingMoving {
     languages = Set.of(motherTongue);
     culture = birthplace.getState().getCulture();
     family = Family.generate();
+    psychology = Psychology.init(this);
 
     skinColor = birthplace.getState().getCulture().
             getNativeRace().generateSkinColor();
@@ -201,23 +203,23 @@ public class Person extends LivingMoving {
     return birthplace;
   }
 
-  Sex getSex() {
+  public Sex getSex() {
     return sex;
   }
 
-  Height getHeight() {
+  public Height getHeight() {
     return height;
   }
 
-  BodyType getBodyType() {
+  public BodyType getBodyType() {
     return bodyType;
   }
 
-  Color getSkinColor() {
+  public Color getSkinColor() {
     return skinColor;
   }
 
-  Color getHairColor() {
+  public Color getHairColor() {
     return hairColor;
   }
 
@@ -366,11 +368,11 @@ public class Person extends LivingMoving {
     return ColorMath.colorBetween(darker, lighter, hairSkew);
   }
 
-  protected enum Height {
+  public enum Height {
     TALL, MEDIUM, SHORT
   }
 
-  protected enum BodyType {
+  public enum BodyType {
     AVERAGE, SLIM, MUSCULAR, FAT
   }
 
@@ -421,8 +423,13 @@ public class Person extends LivingMoving {
   }
 
   @Override
-  int age(GameDate now) {
+  public int age(GameDate now) {
     return GameDate.yearsBetween(birthday, now);
+  }
+
+  @Override
+  public boolean isAlive() {
+    return alive;
   }
 
   @Override
@@ -477,6 +484,11 @@ public class Person extends LivingMoving {
     }
 
     return sprite;
+  }
+
+  /* UTILITY FUNCTIONS */
+  public Psychology getPsychology() {
+    return psychology;
   }
 
   @Override

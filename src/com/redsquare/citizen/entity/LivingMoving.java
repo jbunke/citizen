@@ -13,4 +13,8 @@ public abstract class LivingMoving extends Lifeform {
     return rl.getDirection().name() + "-" + rl.getPosture().name() + "-" +
             rl.getActivity().name() + "-" + rl.getPoseNum();
   }
+
+  public Sex getSex() {
+    return sex;
+  }
 }

@@ -163,7 +163,7 @@ public class LanguageTests {
     WritingSystem w = language.getWritingSystem();
 
     Meaning[] adjectives = new Meaning[] { Meaning.RED, Meaning.BLUE, Meaning.GREEN,
-            Meaning.BLACK, Meaning.OPPOSITE };
+            Meaning.BLACK, Meaning.OPPOSITE, Meaning.DISTANT };
 
     Sentence[] sentences = new Sentence[adjectives.length];
 
