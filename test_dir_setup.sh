@@ -9,6 +9,9 @@ mkdir archive
 mkdir genealogy
 cd ..
 mkdir worldgen
+cd worldgen
+mkdir stress_test
+cd ..
 mkdir settlements
 cd settlements
 mkdir layout
