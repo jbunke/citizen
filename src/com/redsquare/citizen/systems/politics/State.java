@@ -3,11 +3,14 @@ package com.redsquare.citizen.systems.politics;
 import com.redsquare.citizen.systems.language.*;
 import com.redsquare.citizen.systems.vexillography.Flag;
 import com.redsquare.citizen.util.Formatter;
+import com.redsquare.citizen.worldgen.World;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class State {
+  private final World world;
+
   private Word name;
 
   // admin
@@ -18,11 +21,36 @@ public class State {
   private Culture culture;
   private Flag flag;
 
-  public State() {
+  static State fromSecession(Settlement capital,
+                                    Language language, Culture culture,
+                                    State secededFrom) {
+    return new State(capital, language, culture, secededFrom);
+  }
+
+  private State(Settlement capital, Language language, Culture culture,
+                State secededFrom) {
+    this.world = secededFrom.world;
+
+    this.capital = capital;
+    this.language = language;
+    this.culture = culture;
+    this.flag = Flag.generate(culture);
+
+    // TODO: Example secessionist country name construction
+    this.name = Word.compound(language.lookUpWord(Meaning.OPPOSITE), secededFrom.name);
+  }
+
+  public State(World world) {
+    this.world = world;
+
     culture = Culture.generate();
     language = Language.generate();
     flag = Flag.generate(culture);
     this.name = language.lookUpWord(Meaning.THIS_STATE);
+  }
+
+  World getWorld() {
+    return world;
   }
 
   public String getName() {

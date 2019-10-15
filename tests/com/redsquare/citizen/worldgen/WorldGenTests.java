@@ -1,5 +1,6 @@
 package com.redsquare.citizen.worldgen;
 
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
 import org.junit.Test;
 
@@ -161,6 +162,27 @@ public class WorldGenTests {
       } catch (IOException e) {
         e.printStackTrace();
       }
+    }
+  }
+
+  @Test
+  public void bordersAfterNumberOfYears() {
+    GameDebug.activate();
+
+    String templatePath = "test_output/worldgen/changing_borders/after";
+
+    World world = World.safeCreate(480, 480, 40, 10);
+
+    for (int i = 0; i < 30; i += 1) {
+      BufferedImage map = world.politicalMap(5, true, false, true);
+
+      try {
+        ImageIO.write(map, IMAGE_FORMAT, new File(templatePath + i + "years.png"));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      world.getWorldManager().simulateYears(1);
     }
   }
 }

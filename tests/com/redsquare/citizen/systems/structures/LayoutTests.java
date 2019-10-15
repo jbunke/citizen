@@ -24,7 +24,7 @@ public class LayoutTests {
     final String filepath = "test_output/settlements/layout";
     final String IMAGE_FORMAT = "png";
 
-    State state = new State();
+    State state = new State(null);
     Settlement settlement = new Settlement(new Point(20, 20), state);
 
     for (int i = 0; i < 10; i++) {

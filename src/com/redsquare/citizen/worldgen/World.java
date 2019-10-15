@@ -169,7 +169,7 @@ public class World {
     states = new HashSet<>();
 
     for (TectonicPlate plate : plates) {
-      states.add(plate.generateState(cells));
+      states.add(plate.generateState(this, cells));
     }
 
     // REMOVE STATES WITH NO SETTLEMENTS
@@ -185,6 +185,11 @@ public class World {
 
   public WorldManager getWorldManager() {
     return worldManager;
+  }
+
+  public void addState(State state) {
+    states.add(state);
+    updateBorders(state);
   }
 
   private void updateMenuScreen(MenuStateCode code) {
@@ -207,8 +212,12 @@ public class World {
   private void establishBorders() {
     borders = new State[width][height];
 
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
+    borderUpdateLoop(0, 0, width - 1, height - 1);
+  }
+
+  private void borderUpdateLoop(int xMin, int yMin, int xMax, int yMax) {
+    for (int x = xMin; x <= xMax; x++) {
+      for (int y = yMin; y <= yMax; y++) {
         if (cells[x][y].isLand()) {
           // check for settlement on tile
           if (cells[x][y].hasSettlement()) {
@@ -227,6 +236,27 @@ public class World {
         }
       }
     }
+  }
+
+  private void updateBorders(State newState) {
+    int xMin = Integer.MAX_VALUE;
+    int yMin = Integer.MAX_VALUE;
+    int xMax = Integer.MIN_VALUE;
+    int yMax = Integer.MIN_VALUE;
+
+    for (Settlement settlement : newState.settlements()) {
+      xMin = settlement.getLocation().x < xMin ? settlement.getLocation().x : xMin;
+      yMin = settlement.getLocation().y < yMin ? settlement.getLocation().y : yMin;
+      xMax = settlement.getLocation().x > xMax ? settlement.getLocation().x : xMax;
+      yMax = settlement.getLocation().y > yMax ? settlement.getLocation().y : yMax;
+    }
+
+    xMin = xMin - 40 >= 0 ? xMin - 40 : 0;
+    yMin = yMin - 40 >= 0 ? yMin - 40 : 0;
+    xMax = xMax + 40 < width ? xMax + 40 : width - 1;
+    yMax = yMax + 40 < height ? yMax + 40 : height - 1;
+
+    borderUpdateLoop(xMin, yMin, xMax, yMax);
   }
 
   private Settlement closestTo(int x, int y) {
@@ -1216,8 +1246,8 @@ public class World {
       return grid[check.x][check.y];
     }
 
-    State generateState(WorldCell[][] cells) {
-      State state = new State();
+    State generateState(World world, WorldCell[][] cells) {
+      State state = new State(world);
 
       int landArea = getLandArea(cells);
 

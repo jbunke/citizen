@@ -3,7 +3,7 @@ package com.redsquare.citizen.config;
 public class WorldConfig {
   private static int xDim = 480;
   private static int plateCount = 40;
-  private static int simulationYears = 20;
+  private static int simulationYears = 0;
 
   public static void setXDim(int xDim) {
     WorldConfig.xDim = xDim;

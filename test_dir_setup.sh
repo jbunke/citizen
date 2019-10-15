@@ -11,6 +11,7 @@ cd ..
 mkdir worldgen
 cd worldgen
 mkdir stress_test
+mkdir changing_borders
 cd ..
 mkdir settlements
 cd settlements

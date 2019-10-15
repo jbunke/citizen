@@ -3,6 +3,7 @@ package com.redsquare.citizen.systems.politics;
 import com.redsquare.citizen.systems.language.PlaceNameGenerator;
 import com.redsquare.citizen.systems.language.Word;
 import com.redsquare.citizen.systems.structures.SettlementLayout;
+import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.worldgen.WorldCell;
 
@@ -94,6 +95,10 @@ public class Settlement {
     newVassal.liege = this;
   }
 
+  private void removeVassal(Settlement vassal) {
+    vassals.remove(vassal);
+  }
+
   void resetVassals() {
     vassals = new HashSet<>();
   }
@@ -108,6 +113,26 @@ public class Settlement {
 
   void removeLiege() {
     liege = null;
+  }
+
+  public void macroUpdate(GameDate date) {
+    // TODO
+    if (Math.random() < 0.1) secede();
+  }
+
+  private void secede() {
+    if (isCapital() || powerLevel() == 3) return;
+
+    if (liege != null) {
+      liege.removeVassal(this);
+      removeLiege();
+    }
+
+    State newState = State.fromSecession(this, state.getLanguage(),
+            state.getCulture(), state);
+
+    setState(newState);
+    state.getWorld().addState(state);
   }
 
   public Settlement regionCapital() {
@@ -129,6 +154,11 @@ public class Settlement {
     }
 
     return 1 + liege.powerLevel();
+  }
+
+  @Override
+  public int hashCode() {
+    return (7 * location.x) + location.y;
   }
 
   @Override

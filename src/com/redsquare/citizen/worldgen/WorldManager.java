@@ -78,7 +78,7 @@ public class WorldManager {
     }
   }
 
-  private void simulateYears(int years) {
+  void simulateYears(int years) {
     for (int i = 0; i < years; i++) {
       yearUpdate();
     }
@@ -88,6 +88,10 @@ public class WorldManager {
     // TODO
     for (Person person : people) {
       person.getPsychology().macroUpdate(date);
+    }
+
+    for (Settlement settlement : world.allSettlements()) {
+      settlement.macroUpdate(date);
     }
 
     date = GameDate.incrementYear(date);
