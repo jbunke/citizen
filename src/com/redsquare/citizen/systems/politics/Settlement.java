@@ -1,18 +1,26 @@
 package com.redsquare.citizen.systems.politics;
 
+import com.redsquare.citizen.debug.GameDebug;
+import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.language.PlaceNameGenerator;
 import com.redsquare.citizen.systems.language.Word;
 import com.redsquare.citizen.systems.structures.SettlementLayout;
 import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.util.Formatter;
+import com.redsquare.citizen.util.MathExt;
 import com.redsquare.citizen.worldgen.WorldCell;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Settlement {
   private Word name;
+  private final Word originalName;
+  private final Culture foundingCulture;
+  private Language nativeDialect;
 
   private State state;
   private Set<Settlement> vassals = new HashSet<>();
@@ -34,6 +42,9 @@ public class Settlement {
 
     this.name = PlaceNameGenerator.generateRandomName(
             2, 4, state.getLanguage().getPhonology());
+    this.originalName = name;
+    this.foundingCulture = state.getCulture();
+    this.nativeDialect = state.getLanguage();
 
     setupPower = 0;
   }
@@ -103,13 +114,13 @@ public class Settlement {
     vassals = new HashSet<>();
   }
 
-  boolean isCapital() {
+  private boolean isCapital() {
     return state.getCapital().equals(this);
   }
 
-  public boolean isLiege() {
-    return !vassals.isEmpty();
-  }
+//  public boolean isLiege() {
+//    return !vassals.isEmpty();
+//  }
 
   void removeLiege() {
     liege = null;
@@ -117,10 +128,89 @@ public class Settlement {
 
   public void macroUpdate(GameDate date) {
     // TODO
-    if (Math.random() < 0.1) secede();
+    double prob = Math.random();
+    if (prob < 0.01) secede(date);
+    else if (prob < 0.04) {
+      double d = Double.MAX_VALUE;
+      Settlement nearestForeign = null;
+
+      Set<Settlement> all = state.getWorld().allSettlements();
+
+      for (Settlement s : all) {
+        if (s.state.equals(state)) continue;
+        double ds = MathExt.distance(location, s.location);
+        if (ds < d) {
+          d = ds;
+          nearestForeign = s;
+        }
+      }
+
+      if (nearestForeign != null) consolidate(nearestForeign, date);
+    }
   }
 
-  private void secede() {
+  private void incorporate(Settlement s, int pl) {
+    if (s.liege != null) s.liege.removeVassal(s);
+
+    if (pl <= 2) {
+      /* If the incorporated settlement was a capital or
+       * regional capital, make it a regional capital */
+      state.getCapital().addVassal(s);
+    } else if (powerLevel() < 3) {
+      /* If the town that conquered isn't lowest-level, make incorporated
+       * town a vassal */
+      addVassal(s);
+    } else {
+      /* Otherwise make it a vassal of the regional capital */
+      getLiege().addVassal(s);
+    }
+
+    s.adjustDepth();
+  }
+
+  private void adjustDepth() {
+    while (powerLevel() > 3) {
+      liege.removeVassal(this);
+      liege.getLiege().addVassal(this);
+    }
+    List<Settlement> vs = new ArrayList<>(vassals);
+
+    for (Settlement v : vs) {
+      v.adjustDepth();
+    }
+  }
+
+  private void consolidate(Settlement newVassal, GameDate date) {
+    int pl = newVassal.powerLevel();
+    if (pl > powerLevel() ||
+            newVassal.setupPower > setupPower) return;
+
+    boolean wasCapital = newVassal.isCapital();
+    State from = newVassal.getState();
+    newVassal.setState(state);
+    incorporate(newVassal, pl);
+
+    newVassal.rename();
+
+    state.getWorld().processConsolidation(from, state, wasCapital);
+
+    GameDebug.printMessage(this + " consolidated " + newVassal +
+            " into " + state + " in " + date.year, GameDebug::printDebug);
+  }
+
+  private void rename() {
+    // TODO: Potentially transliterate instead
+    this.name = PlaceNameGenerator.generateRandomName(
+            2, 4, state.getLanguage().getPhonology());
+    vassals.forEach(Settlement::rename);
+  }
+
+  private void revertToOriginalName() {
+    this.name = originalName;
+    vassals.forEach(Settlement::revertToOriginalName);
+  }
+
+  private void secede(GameDate date) {
     if (isCapital() || powerLevel() == 3) return;
 
     if (liege != null) {
@@ -128,11 +218,16 @@ public class Settlement {
       removeLiege();
     }
 
-    State newState = State.fromSecession(this, state.getLanguage(),
-            state.getCulture(), state);
+    revertToOriginalName();
+
+    State newState = State.fromSecession(this, nativeDialect,
+            foundingCulture, state);
 
     setState(newState);
     state.getWorld().addState(state);
+
+    GameDebug.printMessage(this + " seceded from " + state +
+            " to form " + newState + " in " + date.year, GameDebug::printDebug);
   }
 
   public Settlement regionCapital() {

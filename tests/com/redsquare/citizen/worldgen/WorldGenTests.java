@@ -171,9 +171,9 @@ public class WorldGenTests {
 
     String templatePath = "test_output/worldgen/changing_borders/after";
 
-    World world = World.safeCreate(480, 480, 40, 10);
+    World world = World.safeCreate(200, 200, 20, 25);
 
-    for (int i = 0; i < 30; i += 1) {
+    for (int i = 0; i < 500; i += 1) {
       BufferedImage map = world.politicalMap(5, true, false, true);
 
       try {

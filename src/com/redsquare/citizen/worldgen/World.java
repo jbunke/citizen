@@ -187,6 +187,12 @@ public class World {
     return worldManager;
   }
 
+  public void processConsolidation(State from, State to, boolean wasCapital) {
+    if (wasCapital) states.remove(from);
+    else updateBorders(from);
+    updateBorders(to);
+  }
+
   public void addState(State state) {
     states.add(state);
     updateBorders(state);
@@ -1284,6 +1290,7 @@ public class World {
       }
 
       // Sort settlements based on strength (INSERTION)
+      // TODO: better complexity
       for (int i = 0; i < settlements.size(); i++) {
         for (int j = i + 1; j < settlements.size(); j++) {
           if (settlements.get(j).getSetupPower() >

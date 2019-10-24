@@ -423,8 +423,9 @@ public class WritingSystem {
   }
 
   private BufferedImage draw(List<Glyph> glyphs, final int SIZE, boolean debug) {
+    // TODO: Remove Math.max hotfix
     BufferedImage writing =
-            new BufferedImage(glyphs.size() * SIZE,
+            new BufferedImage(Math.max(1, glyphs.size() * SIZE),
                     SIZE, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) writing.getGraphics();
 
