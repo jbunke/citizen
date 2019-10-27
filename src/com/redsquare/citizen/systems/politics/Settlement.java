@@ -11,12 +11,12 @@ import com.redsquare.citizen.util.MathExt;
 import com.redsquare.citizen.worldgen.WorldCell;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class Settlement {
+  private static final int PROXIMITY_FACTOR = 10;
+
   private Word name;
   private final Word originalName;
   private final Culture foundingCulture;
@@ -134,18 +134,32 @@ public class Settlement {
       double d = Double.MAX_VALUE;
       Settlement nearestForeign = null;
 
-      Set<Settlement> all = state.getWorld().allSettlements();
+      List<Settlement> all = new ArrayList<>(state.getWorld().allSettlements());
+      all.sort(Comparator.comparingDouble(
+              x -> MathExt.distance(x.location, this.location)
+      ));
 
       for (Settlement s : all) {
-        if (s.state.equals(state)) continue;
-        double ds = MathExt.distance(location, s.location);
-        if (ds < d) {
-          d = ds;
+        if (!s.state.equals(state)) {
           nearestForeign = s;
+          d = MathExt.distance(location, s.location);
+          break;
         }
       }
 
-      if (nearestForeign != null) consolidate(nearestForeign, date);
+      // Only consolidate if there aren't many settlements in the state closer to the target
+
+      if (nearestForeign != null) {
+        Set<Settlement> others = state.settlements();
+        final int allowance = others.size() / PROXIMITY_FACTOR;
+        int closer = 0;
+        for (Settlement o : state.settlements()) {
+          if (!o.equals(this) && d >
+                  MathExt.distance(o.location, nearestForeign.location))
+            closer++;
+        }
+        if (closer <= allowance) consolidate(nearestForeign, date);
+      }
     }
   }
 
@@ -156,6 +170,19 @@ public class Settlement {
       /* If the incorporated settlement was a capital or
        * regional capital, make it a regional capital */
       state.getCapital().addVassal(s);
+
+      /* If incorporated was capital, make have its provinces
+       * retain provincial status */
+      if (pl == 1) {
+        Set<Settlement> vassals = new HashSet<>(s.vassals);
+
+        for (Settlement v : vassals) {
+          if (v.vassals.size() > 0) {
+            s.removeVassal(v);
+            state.getCapital().addVassal(v);
+          }
+        }
+      }
     } else if (powerLevel() < 3) {
       /* If the town that conquered isn't lowest-level, make incorporated
        * town a vassal */
@@ -182,15 +209,21 @@ public class Settlement {
 
   private void consolidate(Settlement newVassal, GameDate date) {
     int pl = newVassal.powerLevel();
-    if (pl > powerLevel() ||
-            newVassal.setupPower > setupPower) return;
+    if ((pl > powerLevel() && powerLevel() == 3) ||
+            newVassal.setupPower > setupPower * 1.25) return;
 
     boolean wasCapital = newVassal.isCapital();
     State from = newVassal.getState();
     newVassal.setState(state);
+    newVassal.rename();
     incorporate(newVassal, pl);
 
-    newVassal.rename();
+    // If the city was a capital or a regional capital,
+    // then restructure the consuming and the losing states
+    if (pl < 3) {
+      from.administrativeRestructuring();
+      state.administrativeRestructuring();
+    }
 
     state.getWorld().processConsolidation(from, state, wasCapital);
 
@@ -224,6 +257,7 @@ public class Settlement {
             foundingCulture, state);
 
     setState(newState);
+    state.administrativeRestructuring();
     state.getWorld().addState(state);
 
     GameDebug.printMessage(this + " seceded from " + state +

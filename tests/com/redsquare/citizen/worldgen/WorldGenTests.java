@@ -171,7 +171,7 @@ public class WorldGenTests {
 
     String templatePath = "test_output/worldgen/changing_borders/after";
 
-    World world = World.safeCreate(200, 200, 20, 25);
+    World world = World.safeCreate(500, 500, 40, 50);
 
     for (int i = 0; i < 500; i += 1) {
       BufferedImage map = world.politicalMap(5, true, false, true);
@@ -183,6 +183,7 @@ public class WorldGenTests {
       }
 
       world.getWorldManager().simulateYears(1);
+      world.establishBorders();
     }
   }
 }

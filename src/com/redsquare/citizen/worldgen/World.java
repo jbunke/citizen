@@ -11,6 +11,7 @@ import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
 import com.redsquare.citizen.systems.vexillography.Flag;
 import com.redsquare.citizen.util.Formatter;
+import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
@@ -189,8 +190,8 @@ public class World {
 
   public void processConsolidation(State from, State to, boolean wasCapital) {
     if (wasCapital) states.remove(from);
-    else updateBorders(from);
-    updateBorders(to);
+    // else updateBorders(from);
+    // updateBorders(to);
   }
 
   public void addState(State state) {
@@ -215,7 +216,7 @@ public class World {
     states.removeAll(toRemove);
   }
 
-  private void establishBorders() {
+  void establishBorders() {
     borders = new State[width][height];
 
     borderUpdateLoop(0, 0, width - 1, height - 1);
@@ -1289,18 +1290,9 @@ public class World {
         }
       }
 
-      // Sort settlements based on strength (INSERTION)
-      // TODO: better complexity
-      for (int i = 0; i < settlements.size(); i++) {
-        for (int j = i + 1; j < settlements.size(); j++) {
-          if (settlements.get(j).getSetupPower() >
-                  settlements.get(i).getSetupPower()) {
-            Settlement temp = settlements.get(i);
-            settlements.set(i, settlements.get(j));
-            settlements.set(j, temp);
-          }
-        }
-      }
+      settlements.sort(Comparator.comparingInt(
+              x -> x.getSetupPower() * -1
+      ));
 
       // Strongest becomes capital
       state.setCapital(settlements.get(0));
@@ -1387,13 +1379,19 @@ public class World {
             case FOREST:
             case SEA:
             case SHALLOW:
-              rawPower += 2;
+              rawPower += Randoms.bounded(1, 4);
               break;
             case PLAIN:
               rawPower++;
               break;
             case MOUNTAIN:
               rawPower += 3;
+              break;
+            case HILL:
+              rawPower += Randoms.bounded(0, 3);
+              break;
+            case DESERT:
+              rawPower += Randoms.bounded(0, 2);
               break;
           }
         }
