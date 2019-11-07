@@ -8,6 +8,7 @@ import com.redsquare.citizen.systems.structures.SettlementLayout;
 import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.util.MathExt;
+import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.worldgen.WorldCell;
 
 import java.awt.*;
@@ -209,8 +210,9 @@ public class Settlement {
 
   private void consolidate(Settlement newVassal, GameDate date) {
     int pl = newVassal.powerLevel();
+    // FAIL CASE
     if ((pl > powerLevel() && powerLevel() == 3) ||
-            newVassal.setupPower > setupPower * 1.25) return;
+            newVassal.setupPower > setupPower * Randoms.bounded(0.7, 2.0)) return;
 
     boolean wasCapital = newVassal.isCapital();
     State from = newVassal.getState();

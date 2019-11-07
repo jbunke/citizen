@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class LanguageTests {
 
@@ -144,7 +145,7 @@ public class LanguageTests {
 
     BufferedImage sentenceText =
             language.getWritingSystem().drawSentenceWithFont(
-                    language.getSentence(sentence), 70, 3, 2,
+                    language.getSentence(sentence), 200, 6, 3,
                     Fonts::fontItalicX, Fonts::fontIdentityY);
 
     try {
@@ -238,5 +239,51 @@ public class LanguageTests {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  @Test
+  public void writingSystemAlphabet() {
+    Language l = Language.generate(WritingSystem.generate(Phonology.generate(), WritingSystem.Type.ALPHABET));
+
+    for (int i = 0; i < 10; i++) {
+      BufferedImage alphabet = alphabet(l, 80);
+
+      try {
+        ImageIO.write(alphabet, IMAGE_FORMAT,
+                new File(FOLDER_PATH + "alphabet/alphabet" + i + "." + IMAGE_FORMAT));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      l = Language.generate(WritingSystem.generate(Phonology.generate(), WritingSystem.Type.ALPHABET));
+    }
+  }
+
+  private BufferedImage alphabet(Language l, final int SIZE) {
+    WritingSystem ws = l.getWritingSystem();
+    List<WordSubUnit> keys = ws.getKeys();
+    final int COLUMNS = keys.size() > 200 ? 50 : 10;
+    final int WIDTH = (int)(SIZE * COLUMNS * 1.5);
+    final int HEIGHT = SIZE * (int)Math.ceil(keys.size() / COLUMNS) * 2;
+
+    BufferedImage alphabet = new BufferedImage(WIDTH, HEIGHT,
+            BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) alphabet.getGraphics();
+    g.setColor(new Color(255, 255, 255));
+    g.fillRect(0, 0, WIDTH, HEIGHT);
+
+    for (int i = 0; i < keys.size(); i++) {
+      int column = i % COLUMNS;
+      int row = i / COLUMNS;
+      Point roman = new Point((WIDTH / COLUMNS) * column, row * SIZE * 2);
+      Point text = new Point(roman.x, roman.y + 20);
+
+      g.drawImage(Font.CLEAN.getText(keys.get(i).toString()),
+              roman.x, roman.y, null);
+      g.drawImage(ws.draw(List.of(ws.getGlyph(keys.get(i))), SIZE, false),
+              text.x, text.y, null);
+    }
+
+    return alphabet;
   }
 }

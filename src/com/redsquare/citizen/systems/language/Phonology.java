@@ -14,7 +14,7 @@ public class Phonology {
   private Phonology() {
     VOWEL_PHONEMES =
             generateSet(new String[] { "a", "e", "i", "o", "u" },
-                    3, 4, Phonemes.VOMEL_PHONEMES);
+                    3, 4, Phonemes.VOWEL_PHONEMES);
     PREFIX_CONS_PHONEMES =
             generateSet(new String[] { "b", "d", "f", "g", "k", "l",
                     "m", "n", "p", "r", "s", "t" },

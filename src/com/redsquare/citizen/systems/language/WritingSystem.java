@@ -180,7 +180,7 @@ public class WritingSystem {
     glyphs = generateGlyphs();
   }
 
-  public WritingSystem modify() {
+  WritingSystem modify() {
     return new WritingSystem(this);
   }
 
@@ -222,6 +222,14 @@ public class WritingSystem {
 
   public enum CompSyllabaryConfig {
     PS_ABOVE_V, PVS_LTR, PVS_TTB
+  }
+
+  List<WordSubUnit> getKeys() {
+    return keys;
+  }
+
+  Glyph getGlyph(WordSubUnit key) {
+    return glyphs.getOrDefault(key, Glyph.empty());
   }
 
   private void sortKeys() {
@@ -342,11 +350,11 @@ public class WritingSystem {
         break;
       case ALPHABET:
         for (String vowel : phonology.VOWEL_PHONEMES)
-          keys.add(new Phoneme(vowel));
+          if (!keys.contains(new Phoneme(vowel))) keys.add(new Phoneme(vowel));
         for (String prefix : phonology.PREFIX_CONS_PHONEMES)
-          keys.add(new Phoneme(prefix));
+          if (!keys.contains(new Phoneme(prefix))) keys.add(new Phoneme(prefix));
         for (String suffix : phonology.SUFFIX_CONS_PHONEMES)
-          keys.add(new Phoneme(suffix));
+          if (!keys.contains(new Phoneme(suffix))) keys.add(new Phoneme(suffix));
         break;
     }
 
@@ -422,7 +430,7 @@ public class WritingSystem {
     return draw(glyphs, SIZE, debug);
   }
 
-  private BufferedImage draw(List<Glyph> glyphs, final int SIZE, boolean debug) {
+  BufferedImage draw(List<Glyph> glyphs, final int SIZE, boolean debug) {
     // TODO: Remove Math.max hotfix
     BufferedImage writing =
             new BufferedImage(Math.max(1, glyphs.size() * SIZE),

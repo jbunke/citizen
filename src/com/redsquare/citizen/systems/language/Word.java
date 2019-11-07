@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Set;
 
 public class Word {
+  private static final int FIRST_SYLLABLE = 1, MIDDLE_SYLLABLE = 2, LAST_SYLLABLE = 3;
+
   private final Syllable[] syllables;
 
   private static final double PREFIX_PROB = 0.7;
@@ -36,69 +38,38 @@ public class Word {
     return syllables;
   }
 
-  private static Syllable generateSyllable(String lastSyllable,
-                                           Phonology phonology) {
-    String[] vowels = Phonemes.VOMEL_PHONEMES;
-    String[] prefixes = Phonemes.PREFIX_CONS_PHONEMES;
-    String[] suffixes = Phonemes.SUFFIX_CONS_PHONEMES;
+  private static Syllable generateSyllable(Syllable lastSyllable,
+                                           Phonology phonology, final int PLACE) {
+    String[] vowels = (phonology != null) ?
+            phonology.VOWEL_PHONEMES : Phonemes.VOWEL_PHONEMES;
+    String[] prefixes = (phonology != null) ?
+            phonology.PREFIX_CONS_PHONEMES : Phonemes.PREFIX_CONS_PHONEMES;
+    String[] suffixes = (phonology != null) ?
+            phonology.SUFFIX_CONS_PHONEMES : Phonemes.SUFFIX_CONS_PHONEMES;
 
-    if (phonology != null) {
-      vowels = phonology.VOWEL_PHONEMES;
-      prefixes = phonology.PREFIX_CONS_PHONEMES;
-      suffixes = phonology.SUFFIX_CONS_PHONEMES;
-    }
-
-    boolean hasPrefix = Math.random() < PREFIX_PROB ||
-            (!lastSyllable.equals("") && endsWithVowel(lastSyllable, vowels));
-    if (!lastSyllable.equals("")) hasPrefix &= !lastSyllable.endsWith("h");
+    boolean hasPrefix = PLACE != FIRST_SYLLABLE || Math.random() < PREFIX_PROB;
     boolean hasSuffix = Math.random() < SUFFIX_PROB;
+
     String vowel = Phonology.selectUnit(vowels);
-    String prefix = "";
-    String suffix = "";
+    String prefix = hasPrefix ? Phonology.selectUnit(prefixes) : "";
+    String suffix = hasSuffix ? Phonology.selectUnit(suffixes) : "";
 
-    if (hasPrefix) {
-      boolean violates = true;
-      while (violates) {
-        violates = false;
-
-        prefix = Phonology.selectUnit(prefixes);
-        if (Phonemes.ILLEGAL_PREFIX_TO_VOWEL.containsKey(prefix)) {
-          List<String> violatingVowels = Phonemes.ILLEGAL_PREFIX_TO_VOWEL.get(prefix);
-          violates = violatingVowels.contains(vowel);
-        }
-
-        if (!lastSyllable.equals(""))
-          violates |= (lastSyllable.endsWith(prefix) ||
-                  lastSyllable.endsWith(prefix + vowel));
-      }
+    while (hasPrefix && (Phonemes.ILLEGAL_PREFIX_TO_VOWEL.
+            getOrDefault(prefix, List.of()).contains(vowel) ||
+            (lastSyllable != null && lastSyllable.getSuffix().equals(prefix)))) {
+      prefix = Phonology.selectUnit(prefixes);
     }
 
-    if (hasSuffix) {
-      boolean violates = true;
-      while (violates) {
-        suffix = Phonology.selectUnit(suffixes);
-        if (Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.containsKey(vowel)) {
-          List<String> violatingSuffixes = Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.get(vowel);
-          violates = violatingSuffixes.contains(suffix);
-        } else violates = false;
-      }
+    while (hasSuffix && Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.
+            getOrDefault(vowel, List.of()).contains(suffix)) {
+      suffix = Phonology.selectUnit(suffixes);
     }
 
     return new Syllable(prefix, vowel, suffix);
   }
 
   static Word generateRandomWord(int minSyllables, int maxSyllables) {
-    int syllableCount = minSyllables +
-            (int)(Math.random() * (maxSyllables - minSyllables));
-    Syllable[] syllables = new Syllable[syllableCount];
-
-    for (int i = 0; i < syllables.length; i++) {
-      String lastSyllable = "";
-      if (i > 0) lastSyllable = syllables[i - 1].toString();
-      syllables[i] = generateSyllable(lastSyllable, null);
-    }
-
-    return new Word(syllables);
+    return generateRandomWord(minSyllables, maxSyllables, null);
   }
 
   public static Word generateRandomWord(int minSyllables, int maxSyllables,
@@ -108,22 +79,14 @@ public class Word {
     Syllable[] syllables = new Syllable[syllableCount];
 
     for (int i = 0; i < syllables.length; i++) {
-      String lastSyllable = "";
-      if (i > 0) lastSyllable = syllables[i - 1].toString();
-      syllables[i] = generateSyllable(lastSyllable, phonology);
+      Syllable lastSyllable = null;
+      if (i > 0) lastSyllable = syllables[i - 1];
+      syllables[i] = generateSyllable(lastSyllable,
+              phonology, i == 0 ? FIRST_SYLLABLE :
+                      (i + 1 == syllables.length ? LAST_SYLLABLE : MIDDLE_SYLLABLE));
     }
 
     return new Word(syllables);
-  }
-
-  // Refactor to some utility class later
-  private static boolean endsWithVowel(String syllable, String[] vowels) {
-    boolean endsWithVowel = false;
-
-    for (String vowel : vowels)
-      endsWithVowel |= syllable.endsWith(vowel);
-
-    return endsWithVowel;
   }
 
   Word offspring(Set<SoundShift> soundShifts) {

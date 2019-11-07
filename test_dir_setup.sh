@@ -7,7 +7,9 @@ mkdir language
 cd language
 mkdir archive
 mkdir genealogy
-cd ..
+cd genealogy
+mkdir alphabet
+cd ../..
 mkdir worldgen
 cd worldgen
 mkdir stress_test
