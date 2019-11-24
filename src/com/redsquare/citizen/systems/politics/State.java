@@ -105,7 +105,7 @@ public class State {
     int placed = 0;
     int sortedIndex = 1;
 
-    int minimumDistance = (int)(settlements.size() / 4.5);
+    int minimumDistance = (int)(Math.sqrt(settlements.size()) * 2.5);
 
     // Add region capitals by order of strength as long as they
     // satisfy a minimum distance from each other
