@@ -276,6 +276,7 @@ public class Settlement {
     }
   }
 
+  // TODO: BUG
   public int powerLevel() {
     if (isCapital()) return 1;
 

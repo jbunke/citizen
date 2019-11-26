@@ -233,15 +233,7 @@ public class WritingSystem {
   }
 
   private void sortKeys() {
-    for (int i = 0; i < keys.size(); i++) {
-      for (int j = i + 1; j < keys.size(); j++) {
-        if (keys.get(j).toString().length() > keys.get(i).toString().length()) {
-          WordSubUnit temp = keys.get(i);
-          keys.set(i, keys.get(j));
-          keys.set(j, temp);
-        }
-      }
-    }
+    keys.sort(Comparator.comparingInt((WordSubUnit w) -> w.toString().length()));
   }
 
   private Map<WordSubUnit, Glyph> generateGlyphsFromParent(WritingSystem parent,

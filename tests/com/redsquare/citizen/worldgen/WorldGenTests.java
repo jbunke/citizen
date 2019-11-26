@@ -2,6 +2,7 @@ package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
+import com.redsquare.citizen.util.IOForTesting;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -74,7 +75,7 @@ public class WorldGenTests {
     String borderPath = "test_output/worldgen/political_border_map.png";
     String regionPath = "test_output/worldgen/region_map.png";
 
-    World testWorld = World.safeCreate(640, 360, 35, 20);
+    World testWorld = new World(480, 270, 75);
 
     BufferedImage tectonicMap = testWorld.tectonicMap(10);
     BufferedImage landSeaMap = testWorld.physicalGeography(10);
@@ -106,7 +107,7 @@ public class WorldGenTests {
     int height = 720; //540;
 
     while (testWorld == null) {
-      testWorld = World.safeCreate(width, height, 55, 10);
+      testWorld = World.safeCreate(width, height, 75, 10);
       width -= 16;
       height -= 9;
     }
@@ -171,16 +172,13 @@ public class WorldGenTests {
 
     String templatePath = "test_output/worldgen/changing_borders/after";
 
-    World world = World.safeCreate(1120, 630, 55, 50);
+    World world = new World(480, 270, 75);
+    // new World(500, 500, 60);
 
     for (int i = 0; i < 500; i += 1) {
-      BufferedImage map = world.politicalMap(5, true, false, true);
+      BufferedImage map = world.politicalMap(10, true, false, true);
 
-      try {
-        ImageIO.write(map, IMAGE_FORMAT, new File(templatePath + i + "years.png"));
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      IOForTesting.saveImage(map, templatePath + i + "years.png");
 
       world.getWorldManager().simulateYears(1);
       world.establishBorders();
