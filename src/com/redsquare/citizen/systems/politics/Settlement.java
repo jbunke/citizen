@@ -60,8 +60,8 @@ public class Settlement {
     return state;
   }
 
-  public String getName() {
-    return name.toString();
+  public Word getName() {
+    return name;
   }
 
   public int getSetupPower() {
