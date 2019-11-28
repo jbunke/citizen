@@ -11,6 +11,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 class GlyphComponent {
+  private static final int X = 0, Y = 1;
   private static final double MAX_DIST_BETWEEN_POINTS = 0.02;
   private static final int DEGREES_IN_A_CIRCLE = 360;
   private static final double DANGER_ZONE = 0.4;
@@ -85,6 +86,19 @@ class GlyphComponent {
     this.points.add(startPoint);
 
     generateRestFrom(startPoint);
+  }
+
+  GlyphComponent reflected(int axis) {
+    List<GlyphPoint> points = new ArrayList<>();
+
+    for (GlyphPoint p : this.points) {
+      if (axis == X)
+        points.add(new GlyphPoint(p.x, 1.0 - p.y));
+      else if (axis == Y)
+        points.add(new GlyphPoint(1.0 - p.x, p.y));
+    }
+
+    return new GlyphComponent(points);
   }
 
   static GlyphComponent specified(List<GlyphPoint> points) {

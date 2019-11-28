@@ -52,6 +52,9 @@ public class WritingSystem {
   final CompSyllabaryConfig compSyllabaryConfig;
 
   final Set<GlyphComponent> commonElements;
+  final Set<Glyph> partialStructures;
+
+  final Set<Glyph> partialsJustReflected = new HashSet<>();
 
   private WritingSystem(WritingSystem parent) {
     this.phonology = parent.phonology;
@@ -83,6 +86,8 @@ public class WritingSystem {
     while (commonElements.size() < parentalCE.size()) {
       commonElements.add(GlyphComponent.orig(this));
     }
+
+    partialStructures = parent.partialStructures;
 
     keys = enumerateKeys();
     sortKeys();
@@ -123,6 +128,13 @@ public class WritingSystem {
 
     while (commonElements.size() < amountCommonElements) {
       commonElements.add(GlyphComponent.orig(this));
+    }
+
+    int amountPartialStructures = Randoms.bounded(10, 21);
+    partialStructures = new HashSet<>();
+
+    while (partialStructures.size() < amountPartialStructures) {
+      partialStructures.add(Glyph.generatePartial(this));
     }
 
     // populate and sort keys
@@ -173,6 +185,12 @@ public class WritingSystem {
       commonElements.add(GlyphComponent.orig(this));
     }
 
+    int amountPartialStructures = Randoms.bounded(10, 21);
+    partialStructures = new HashSet<>();
+
+    while (partialStructures.size() < amountPartialStructures) {
+      partialStructures.add(Glyph.generatePartial(this));
+    }
     // populate and sort keys
     keys = enumerateKeys();
     sortKeys();
@@ -204,9 +222,8 @@ public class WritingSystem {
 
     double p = Math.random();
 
-    if (p < 1/2f) type = Type.ALPHABET;
-    else if (p < 3/4f) type = Type.COMPONENT_SYLLABARY;
-    else type = Type.DISTINCT_SYLLABARY;
+    if (p < 2/3f) type = Type.ALPHABET;
+    else type = Type.SYLLABARY;
 
     return new WritingSystem(phonology, type);
   }
@@ -217,7 +234,7 @@ public class WritingSystem {
   }
 
   public enum Type {
-    ALPHABET, COMPONENT_SYLLABARY, DISTINCT_SYLLABARY
+    ALPHABET, SYLLABARY
   }
 
   public enum CompSyllabaryConfig {
@@ -263,24 +280,22 @@ public class WritingSystem {
   private Map<WordSubUnit, Glyph> generateGlyphs() {
     Map<WordSubUnit, Glyph> glyphs = new HashMap<>();
 
-    Map<Phoneme, Glyph> vowels = new HashMap<>();
-    Map<Phoneme, Glyph> prefixes = new HashMap<>();
-    Map<Phoneme, Glyph> suffixes = new HashMap<>();
+    Map<Phoneme, Glyph> phonemes = new HashMap<>();
 
-    if (this.type == Type.COMPONENT_SYLLABARY) {
+    if (this.type == Type.SYLLABARY) {
       for (String v : phonology.VOWEL_PHONEMES) {
         Phoneme vowel = new Phoneme(v);
-        vowels.put(vowel, Glyph.generate(this));
+        phonemes.put(vowel, Glyph.generate(this));
       }
 
       for (String p : phonology.PREFIX_CONS_PHONEMES) {
         Phoneme prefix = new Phoneme(p);
-        prefixes.put(prefix, Glyph.generate(this));
+        phonemes.put(prefix, Glyph.generate(this));
       }
 
       for (String s : phonology.SUFFIX_CONS_PHONEMES) {
         Phoneme suffix = new Phoneme(s);
-        suffixes.put(suffix, Glyph.generate(this));
+        phonemes.put(suffix, Glyph.generate(this));
       }
     }
 
@@ -289,10 +304,10 @@ public class WritingSystem {
 
       if (key.equals(new Phoneme(" "))) continue;
 
-      if (type == Type.COMPONENT_SYLLABARY) {
-        Glyph vGlyph = vowels.get(new Phoneme(((Syllable) key).getVowel()));
-        Glyph pGlyph = prefixes.get(new Phoneme(((Syllable) key).getPrefix()));
-        Glyph sGlyph = suffixes.get(new Phoneme(((Syllable) key).getSuffix()));
+      if (type == Type.SYLLABARY) {
+        Glyph vGlyph = phonemes.get(new Phoneme(((Syllable) key).getVowel()));
+        Glyph pGlyph = phonemes.get(new Phoneme(((Syllable) key).getPrefix()));
+        Glyph sGlyph = phonemes.get(new Phoneme(((Syllable) key).getSuffix()));
 
         candidate = Glyph.componentBased(this, vGlyph, pGlyph, sGlyph);
       } else {
@@ -312,8 +327,7 @@ public class WritingSystem {
     List<WordSubUnit> keys = new ArrayList<>();
 
     switch (type) {
-      case COMPONENT_SYLLABARY:
-      case DISTINCT_SYLLABARY:
+      case SYLLABARY:
         Set<Syllable> vowelsOnly = new HashSet<>();
         Set<Syllable> prefixVowel = new HashSet<>();
         Set<Syllable> vowelSuffix = new HashSet<>();
@@ -359,7 +373,7 @@ public class WritingSystem {
     List<Glyph> glyphs = new ArrayList<>();
 
     for (Syllable syllable : word.getSyllables()) {
-      if (type == Type.COMPONENT_SYLLABARY || type == Type.DISTINCT_SYLLABARY) {
+      if (type == Type.SYLLABARY) {
         glyphs.add(this.glyphs.get(syllable));
       } else {
         Phoneme prefix = new Phoneme(syllable.getPrefix());
