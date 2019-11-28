@@ -24,7 +24,7 @@ public class LayoutTests {
     final String filepath = "test_output/settlements/layout";
     final String IMAGE_FORMAT = "png";
 
-    State state = new State();
+    State state = new State(null);
     Settlement settlement = new Settlement(new Point(20, 20), state);
 
     for (int i = 0; i < 10; i++) {
@@ -58,7 +58,7 @@ public class LayoutTests {
       Graphics2D g = (Graphics2D) cIm.getGraphics();
 
       g.drawImage(Font.CLEAN.getText(Formatter.properNoun(
-              state.getCapital().getName())), 10, 710, null);
+              state.getCapital().getName().toString())), 10, 710, null);
       g.drawImage(state.getFlag().draw(1), 10, 732, null);
 
       capitals.add(cIm);
@@ -95,7 +95,7 @@ public class LayoutTests {
 
         g.drawImage(state.getLanguage().getWritingSystem().draw(settlement.getName(), 36, false), 10, 648, null);
         g.drawImage(Font.CLEAN.getText(Formatter.properNoun(
-                settlement.getName()) + ", " +
+                settlement.getName().toString()) + ", " +
                 Formatter.properNoun(state.getName())), 10, 710, null);
         if (settlement.equals(state.getCapital()))
           g.drawImage(Font.CLEAN.getText("[CAPITAL]"), 10, 688, null);
@@ -104,7 +104,7 @@ public class LayoutTests {
         try {
           String filename = filepath + "[" +
                   Formatter.properNoun(state.getName()) + "] " +
-                  Formatter.properNoun(settlement.getName());
+                  Formatter.properNoun(settlement.getName().toString());
 
           ImageIO.write(sIm, IMAGE_FORMAT, new File(filename +
                   "." + IMAGE_FORMAT));

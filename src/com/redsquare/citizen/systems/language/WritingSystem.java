@@ -1,5 +1,6 @@
 package com.redsquare.citizen.systems.language;
 
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
 
@@ -51,6 +52,43 @@ public class WritingSystem {
   final CompSyllabaryConfig compSyllabaryConfig;
 
   final Set<GlyphComponent> commonElements;
+
+  private WritingSystem(WritingSystem parent) {
+    this.phonology = parent.phonology;
+    this.type = parent.type;
+
+    avgLineCurve = parent.avgLineCurve;
+    avgLineLength = parent.avgLineLength;
+    curveDeviationMax = parent.curveDeviationMax;
+    deviationProb = parent.deviationProb;
+    avgContinuationProb = parent.avgContinuationProb;
+    continuationDeviationMax = parent.continuationDeviationMax;
+    commonElemProbability = parent.commonElemProbability;
+
+    directionalProclivity = parent.directionalProclivity;
+    directionSet = parent.directionSet;
+    maxDirectionSkew = parent.maxDirectionSkew;
+
+    startPointProclivity = parent.startPointProclivity;
+    startPoints = parent.startPoints;
+
+    compSyllabaryConnected =
+            Math.random() > 0.7 == parent.compSyllabaryConnected;
+
+    compSyllabaryConfig = parent.compSyllabaryConfig;
+
+    Set<GlyphComponent> parentalCE = parent.commonElements;
+    commonElements = new HashSet<>();
+
+    while (commonElements.size() < parentalCE.size()) {
+      commonElements.add(GlyphComponent.orig(this));
+    }
+
+    keys = enumerateKeys();
+    sortKeys();
+
+    glyphs = generateGlyphsFromParent(parent, parentalCE);
+  }
 
   private WritingSystem(Phonology phonology, Type type) {
     // Random likelihood of syllabic vs alphabetical
@@ -142,6 +180,10 @@ public class WritingSystem {
     glyphs = generateGlyphs();
   }
 
+  WritingSystem modify() {
+    return new WritingSystem(this);
+  }
+
   public static WritingSystem generate(Phonology phonology, Type type,
         double avgLineCurve, double curveDeviationMax, double deviationProb,
         double avgLineLength, double avgContinuationProb,
@@ -182,16 +224,40 @@ public class WritingSystem {
     PS_ABOVE_V, PVS_LTR, PVS_TTB
   }
 
+  List<WordSubUnit> getKeys() {
+    return keys;
+  }
+
+  Glyph getGlyph(WordSubUnit key) {
+    return glyphs.getOrDefault(key, Glyph.empty());
+  }
+
   private void sortKeys() {
-    for (int i = 0; i < keys.size(); i++) {
-      for (int j = i + 1; j < keys.size(); j++) {
-        if (keys.get(j).toString().length() > keys.get(i).toString().length()) {
-          WordSubUnit temp = keys.get(i);
-          keys.set(i, keys.get(j));
-          keys.set(j, temp);
+    keys.sort(Comparator.comparingInt((WordSubUnit w) -> w.toString().length()));
+  }
+
+  private Map<WordSubUnit, Glyph> generateGlyphsFromParent(WritingSystem parent,
+                                                           Set<GlyphComponent> parentalCE) {
+    Map<WordSubUnit, Glyph> glyphs = new HashMap<>();
+
+    for (WordSubUnit key : keys) {
+      Glyph parentGlyph = parent.glyphs.get(key);
+      List<GlyphComponent> components = parentGlyph.getComponents();
+      List<GlyphComponent> newComps = new ArrayList<>();
+
+      for (GlyphComponent component : components) {
+        if (parentalCE.contains(component)) {
+          newComps.add(Sets.randomEntry(commonElements));
+        } else {
+          newComps.add(component);
         }
       }
+
+      Glyph newG = Glyph.generate(newComps, parentGlyph.hasP(), parentGlyph.hasS());
+      glyphs.put(key, newG);
     }
+
+    return glyphs;
   }
 
   private Map<WordSubUnit, Glyph> generateGlyphs() {
@@ -257,27 +323,15 @@ public class WritingSystem {
           vowelsOnly.add(new Syllable("", vowel, ""));
 
           for (String prefix : phonology.PREFIX_CONS_PHONEMES) {
-            if (!Phonemes.ILLEGAL_PREFIX_TO_VOWEL.containsKey(prefix) ||
-                    !Phonemes.ILLEGAL_PREFIX_TO_VOWEL.
-                    get(prefix).contains(vowel)) {
-              prefixVowel.add(new Syllable(prefix, vowel, ""));
+            prefixVowel.add(new Syllable(prefix, vowel, ""));
 
-              for (String suffix : phonology.SUFFIX_CONS_PHONEMES) {
-                if (!Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.containsKey(vowel) ||
-                        !Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.
-                        get(vowel).contains(suffix)) {
-                  prefixVowelSuffix.add(new Syllable(prefix, vowel, suffix));
-                }
-              }
+            for (String suffix : phonology.SUFFIX_CONS_PHONEMES) {
+              prefixVowelSuffix.add(new Syllable(prefix, vowel, suffix));
             }
           }
 
           for (String suffix : phonology.SUFFIX_CONS_PHONEMES) {
-            if (!Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.containsKey(vowel) ||
-                    !Phonemes.ILLEGAL_VOWEL_TO_SUFFIX.
-                    get(vowel).contains(suffix)) {
-              vowelSuffix.add(new Syllable("", vowel, suffix));
-            }
+            vowelSuffix.add(new Syllable("", vowel, suffix));
           }
         }
 
@@ -288,11 +342,11 @@ public class WritingSystem {
         break;
       case ALPHABET:
         for (String vowel : phonology.VOWEL_PHONEMES)
-          keys.add(new Phoneme(vowel));
+          if (!keys.contains(new Phoneme(vowel))) keys.add(new Phoneme(vowel));
         for (String prefix : phonology.PREFIX_CONS_PHONEMES)
-          keys.add(new Phoneme(prefix));
+          if (!keys.contains(new Phoneme(prefix))) keys.add(new Phoneme(prefix));
         for (String suffix : phonology.SUFFIX_CONS_PHONEMES)
-          keys.add(new Phoneme(suffix));
+          if (!keys.contains(new Phoneme(suffix))) keys.add(new Phoneme(suffix));
         break;
     }
 
@@ -305,7 +359,7 @@ public class WritingSystem {
     List<Glyph> glyphs = new ArrayList<>();
 
     for (Syllable syllable : word.getSyllables()) {
-      if (type == Type.COMPONENT_SYLLABARY) {
+      if (type == Type.COMPONENT_SYLLABARY || type == Type.DISTINCT_SYLLABARY) {
         glyphs.add(this.glyphs.get(syllable));
       } else {
         Phoneme prefix = new Phoneme(syllable.getPrefix());
@@ -365,9 +419,14 @@ public class WritingSystem {
   public BufferedImage draw(String text, final int SIZE, boolean debug) {
     List<Glyph> glyphs = translate(text.toLowerCase());
 
+    return draw(glyphs, SIZE, debug);
+  }
+
+  BufferedImage draw(List<Glyph> glyphs, final int SIZE, boolean debug) {
+    // TODO: Remove Math.max hotfix
     BufferedImage writing =
-            new BufferedImage(glyphs.size() * SIZE,
-            SIZE, BufferedImage.TYPE_INT_ARGB);
+            new BufferedImage(Math.max(1, glyphs.size() * SIZE),
+                    SIZE, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) writing.getGraphics();
 
     int x = 0;
@@ -380,6 +439,12 @@ public class WritingSystem {
     }
 
     return writing;
+  }
+
+  public BufferedImage draw(Word word, final int SIZE, boolean debug) {
+    List<Glyph> glyphs = translate(word);
+
+    return draw(glyphs, SIZE, debug);
   }
 
   public BufferedImage drawWithFont(String[] lines, final int SIZE, int startWidth,
@@ -400,11 +465,9 @@ public class WritingSystem {
     return combineLines(images, widest, height, SIZE);
   }
 
-  public BufferedImage drawWithFont(String text, final int SIZE, int startWidth,
-      int endWidth, BiFunction<Double, Double, Double> xFunc,
-                    BiFunction<Double, Double, Double> yFunc) {
-    List<Glyph> glyphs = translate(text.toLowerCase());
-
+  private BufferedImage drawWithFont(List<Glyph> glyphs, final int SIZE, int startWidth,
+                                     int endWidth, BiFunction<Double, Double, Double> xFunc,
+                                     BiFunction<Double, Double, Double> yFunc) {
     BufferedImage writing =
             new BufferedImage(glyphs.size() * SIZE,
                     SIZE, BufferedImage.TYPE_INT_ARGB);
@@ -416,13 +479,46 @@ public class WritingSystem {
       BufferedImage img = glyphs.get(i).
               drawWithFont(SIZE, startWidth, endWidth, xFunc, yFunc);
 
-      double tightness = type != Type.ALPHABET ? 1.0 :
-              text.charAt(i) == ' ' ? 2.0 : 0.7;
+      double tightness = glyphs.get(i).getComponents().size() == 0 ? 1.4 : 0.7;
       g.drawImage(img, x, 0, null);
       x += (int)(SIZE * tightness);
     }
 
     return writing;
+  }
+
+  public BufferedImage drawSentenceWithFont(
+          List<Word> sentence, final int SIZE, int startWidth, int endWidth,
+          BiFunction<Double, Double, Double> xFunc,
+          BiFunction<Double, Double, Double> yFunc) {
+    List<Glyph> glyphs = new ArrayList<>();
+
+    for (int i = 0; i < sentence.size(); i++) {
+      glyphs.addAll(translate(sentence.get(i)));
+      if (i < sentence.size() - 1) glyphs.add(Glyph.empty());
+    }
+
+    glyphs.add(Glyph.period());
+
+    return drawWithFont(glyphs, SIZE, startWidth, endWidth, xFunc, yFunc);
+  }
+
+  public BufferedImage drawWithFont(Word word, final int SIZE, int startWidth,
+                                    int endWidth, BiFunction<Double, Double, Double> xFunc,
+                                    BiFunction<Double, Double, Double> yFunc) {
+    GameDebug.printMessage(this.type + " " + word.toString(), GameDebug::printDebug);
+
+    List<Glyph> glyphs = translate(word);
+
+    return drawWithFont(glyphs, SIZE, startWidth, endWidth, xFunc, yFunc);
+  }
+
+  public BufferedImage drawWithFont(String text, final int SIZE, int startWidth,
+      int endWidth, BiFunction<Double, Double, Double> xFunc,
+                    BiFunction<Double, Double, Double> yFunc) {
+    List<Glyph> glyphs = translate(text.toLowerCase());
+
+    return drawWithFont(glyphs, SIZE, startWidth, endWidth, xFunc, yFunc);
   }
 
   private BufferedImage combineLines(List<BufferedImage> lines, int widest, int height, final int SIZE) {

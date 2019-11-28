@@ -5,63 +5,31 @@ import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.GameManager;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.config.WorldConfig;
-import com.redsquare.citizen.entity.Entity;
-import com.redsquare.citizen.entity.Person;
 import com.redsquare.citizen.entity.Player;
-import com.redsquare.citizen.entity.Sex;
-import com.redsquare.citizen.entity.collision.CollisionManager;
 import com.redsquare.citizen.game_states.playing_systems.Camera;
 import com.redsquare.citizen.game_states.playing_systems.ControlScheme;
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.input_events.Event;
 import com.redsquare.citizen.input_events.KeyPressEvent;
-import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.worldgen.World;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public final class PlayingGameState extends GameState {
 
   private final World world;
   private final Player player;
   private final Camera camera;
-  private final Set<Entity> citizens;
 
   private PlayingGameState() {
     int x = WorldConfig.getXDim();
     int y = (x * 9) / 16;
     world = World.safeCreate(x, y, WorldConfig.getPlateCount(), 20);
-    player = Player.temp(world);
+    world.getWorldManager().startOfGameSimulation(WorldConfig.getSimulationYears());
+    this.player = world.getWorldManager().getPlayer();
     camera = Camera.generate(player);
-
-    populateCellsAroundPlayer();
-
-    citizens = new HashSet<>();
-    citizens.add(player);
-
-    for (int i = 0; i < 10; i++) {
-      Person temp = Person.create(Sex.MALE, new GameDate(1, 1), player.getBirthplace(), world);
-      citizens.add(temp);
-    }
-  }
-
-  /* START OF INIT BLOCK */
-
-  private void populateCellsAroundPlayer() {
-    int xMin = Math.max(player.position().world().x - 1, 0);
-    int yMin = Math.max(player.position().world().y - 1, 0);
-    int xMax = Math.min(player.position().world().x + 1, world.getWidth() - 1);
-    int yMax = Math.min(player.position().world().y + 1, world.getHeight() - 1);
-
-    for (int x = xMin; x <= xMax; x++) {
-      for (int y = yMin; y <= yMax; y++) {
-        world.getCell(x, y).populateSubCells();
-      }
-    }
   }
 
   public static PlayingGameState init() {
@@ -70,21 +38,12 @@ public final class PlayingGameState extends GameState {
     return new PlayingGameState();
   }
 
-  /* END OF INIT BLOCK */
-
   @Override
   public void update() {
     // TODO - Macro/micro scope sorting
-    for (Entity citizen : citizens) citizen.update();
-    camera.update();
+    world.getWorldManager().update();
 
-    for (Entity a : citizens) {
-      for (Entity b : citizens) {
-        if (!a.equals(b)) {
-          CollisionManager.check(a, b);
-        }
-      }
-    }
+    camera.update();
   }
 
   @Override

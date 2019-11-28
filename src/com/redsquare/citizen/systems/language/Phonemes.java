@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Phonemes {
-  static final String[] VOMEL_PHONEMES =
+  static final String[] VOWEL_PHONEMES =
           new String[] { "a", "e", "i", "o", "u", "y",
                   "au", "ae", "ai",
                   "ee", "ea", "ei", "eu", "ey",
@@ -65,7 +65,7 @@ public class Phonemes {
   static boolean endsWithAVowel(String s) {
     boolean match = false;
 
-    for (String vowel : VOMEL_PHONEMES) {
+    for (String vowel : VOWEL_PHONEMES) {
       match |= s.endsWith(vowel);
     }
 

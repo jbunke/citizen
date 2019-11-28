@@ -8,8 +8,14 @@ import java.awt.image.BufferedImage;
 public class Animal extends LivingMoving {
 
   @Override
-  int age(GameDate now) {
+  public int age(GameDate now) {
     return 0;
+  }
+
+  @Override
+  public boolean isAlive() {
+    // TODO
+    return true;
   }
 
   @Override

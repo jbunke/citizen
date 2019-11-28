@@ -87,6 +87,10 @@ class GlyphComponent {
     generateRestFrom(startPoint);
   }
 
+  static GlyphComponent specified(List<GlyphPoint> points) {
+    return new GlyphComponent(points);
+  }
+
   static GlyphComponent orig(WritingSystem ws) {
     return new GlyphComponent(ws);
   }

@@ -1,8 +1,60 @@
 package com.redsquare.citizen.util;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Function;
 
 public class MathExt {
+
+
+  public static boolean pointAllowance(Point p, Point origin, final int leftmost,
+                         final int rightmost, final int topmost,
+                         final int bottommost, final int THRESHOLD,
+                         Function<Point, Boolean> neighborFunction) {
+    boolean allowed;
+
+    if (MathExt.distance(origin, p) == 0.) {
+      return true;
+    } else {
+      Point[] surroundingP = MathExt.getSurrounding(p);
+
+      List<Point> closest = new ArrayList<>();
+
+      for (Point sp : surroundingP) {
+        if (sp.x < leftmost || sp.x > rightmost || sp.y < topmost || sp.y > bottommost)
+          continue;
+
+        closest.add(sp);
+      }
+
+      closest.sort(Comparator.comparingDouble(point ->
+              MathExt.distance(point, origin)));
+      allowed = false;
+
+      for (int i = 0; i < THRESHOLD && i < closest.size(); i++) {
+        Point c = closest.get(i);
+        allowed |= neighborFunction.apply(c);
+      }
+    }
+
+    return allowed;
+  }
+
+
+  public static Point[] getSurrounding(Point p) {
+    return new Point[] {
+            new Point(p.x + 1, p.y - 1),
+            new Point(p.x, p.y - 1),
+            new Point(p.x - 1, p.y - 1),
+            new Point(p.x + 1, p.y),
+            new Point(p.x - 1, p.y),
+            new Point(p.x + 1, p.y + 1),
+            new Point(p.x, p.y + 1),
+            new Point(p.x - 1, p.y + 1)
+    };
+  }
 
   public static double distance(Point a, Point b) {
     return Math.sqrt(Math.pow(Math.abs(a.x - b.x), 2) +
@@ -15,6 +67,10 @@ public class MathExt {
   }
 
   public static double bounded(final double VALUE, final double MIN, final double MAX) {
+    return Math.min(Math.max(VALUE, MIN), MAX);
+  }
+
+  public static int bounded(final int VALUE, final int MIN, final int MAX) {
     return Math.min(Math.max(VALUE, MIN), MAX);
   }
 

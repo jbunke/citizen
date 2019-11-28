@@ -1,6 +1,8 @@
 package com.redsquare.citizen.worldgen;
 
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
+import com.redsquare.citizen.util.IOForTesting;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -73,7 +75,7 @@ public class WorldGenTests {
     String borderPath = "test_output/worldgen/political_border_map.png";
     String regionPath = "test_output/worldgen/region_map.png";
 
-    World testWorld = World.safeCreate(640, 360, 35, 20);
+    World testWorld = new World(640, 360, 75);
 
     BufferedImage tectonicMap = testWorld.tectonicMap(10);
     BufferedImage landSeaMap = testWorld.physicalGeography(10);
@@ -81,15 +83,11 @@ public class WorldGenTests {
     BufferedImage politicalMap = testWorld.politicalMap(10, false, true, false);
     BufferedImage borderMap = testWorld.politicalMap(10, true, false, true);
 
-    try {
-      ImageIO.write(tectonicMap, IMAGE_FORMAT, new File(tectonicPath));
-      ImageIO.write(landSeaMap, IMAGE_FORMAT, new File(landSeaPath));
-      ImageIO.write(regionMap, IMAGE_FORMAT, new File(regionPath));
-      ImageIO.write(politicalMap, IMAGE_FORMAT, new File(politicalPath));
-      ImageIO.write(borderMap, IMAGE_FORMAT, new File(borderPath));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    IOForTesting.saveImage(tectonicMap, tectonicPath);
+    IOForTesting.saveImage(landSeaMap, landSeaPath);
+    IOForTesting.saveImage(regionMap, regionPath);
+    IOForTesting.saveImage(politicalMap, politicalPath);
+    IOForTesting.saveImage(borderMap, borderPath);
   }
 
   @Test
@@ -100,15 +98,7 @@ public class WorldGenTests {
     String borderPath = "test_output/worldgen/stress_test/political_border_map.png";
     String regionPath = "test_output/worldgen/stress_test/region_map.png";
 
-    World testWorld = null;
-    int width = 1280; //960;
-    int height = 720; //540;
-
-    while (testWorld == null) {
-      testWorld = World.safeCreate(width, height, 55, 10);
-      width -= 16;
-      height -= 9;
-    }
+    World testWorld = new World(960, 540, 75);
 
     BufferedImage tectonicMap = testWorld.tectonicMap(5);
     BufferedImage landSeaMap = testWorld.physicalGeography(5);
@@ -116,15 +106,11 @@ public class WorldGenTests {
     BufferedImage politicalMap = testWorld.politicalMap(5, false, true, false);
     BufferedImage borderMap = testWorld.politicalMap(5, true, false, true);
 
-    try {
-      ImageIO.write(tectonicMap, IMAGE_FORMAT, new File(tectonicPath));
-      ImageIO.write(landSeaMap, IMAGE_FORMAT, new File(landSeaPath));
-      ImageIO.write(regionMap, IMAGE_FORMAT, new File(regionPath));
-      ImageIO.write(politicalMap, IMAGE_FORMAT, new File(politicalPath));
-      ImageIO.write(borderMap, IMAGE_FORMAT, new File(borderPath));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    IOForTesting.saveImage(tectonicMap, tectonicPath);
+    IOForTesting.saveImage(landSeaMap, landSeaPath);
+    IOForTesting.saveImage(regionMap, regionPath);
+    IOForTesting.saveImage(politicalMap, politicalPath);
+    IOForTesting.saveImage(borderMap, borderPath);
   }
 
   @Test
@@ -149,18 +135,33 @@ public class WorldGenTests {
 
   @Test
   public void tenWorldsPhysicalGeography() {
-    String templatePath = "test_output/worldgen/worlddump/number";
+    final int N = 20;
+    String templatePath = "test_output/worldgen/n_worlds/number";
 
-    for (int i = 0; i < 10; i++) {
-      World testWorld = World.safeCreate(320, 180, 30, 10);
+    for (int i = 0; i < N; i++) {
+      World testWorld = new World(480, 270, 75);
       BufferedImage map = testWorld.physicalGeography(5);
 
-      try {
-        ImageIO.write(map, IMAGE_FORMAT,
-                new File(templatePath + i + ".png"));
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      IOForTesting.saveImage(map, templatePath + i + ".png");
+    }
+  }
+
+  @Test
+  public void bordersAfterNumberOfYears() {
+    GameDebug.activate();
+
+    String templatePath = "test_output/worldgen/changing_borders/after";
+
+    World world = new World(480, 270, 75);
+    // new World(500, 500, 60);
+
+    for (int i = 0; i < 500; i += 1) {
+      BufferedImage map = world.politicalMap(10, true, false, true);
+
+      IOForTesting.saveImage(map, templatePath + i + "years.png");
+
+      world.getWorldManager().simulateYears(1);
+      world.establishBorders();
     }
   }
 }

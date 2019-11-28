@@ -10,8 +10,8 @@ import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
 import com.redsquare.citizen.systems.vexillography.Flag;
+import com.redsquare.citizen.util.*;
 import com.redsquare.citizen.util.Formatter;
-import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -44,6 +44,8 @@ public class World {
   private static final int DESERT_MAX_DIST = 60;
   private static final int DESERT_PEER_THRESHOLD = 5;
   private static final int DESERT_FILL_REPS = 3;
+
+  private final WorldManager worldManager;
 
   private boolean generated[][];
 
@@ -95,9 +97,12 @@ public class World {
     // OCEANIC PLATES
     sortPlatesByArea();
     int oceanicCount = (int) (plateCount * 0.3);
+    int oceanic = 0;
 
-    for (int i = 0; i < oceanicCount; i++) {
-      plates[i * 2].makeOceanic();
+    for (int i = 0; i < plateCount && oceanic < oceanicCount; i++) {
+      if (i % 3 == 2) continue;
+      plates[i].makeOceanic();
+      oceanic++;
     }
 
     updateMenuScreen(MenuStateCode.PHYSICAL_GEOGRAPHY);
@@ -167,7 +172,7 @@ public class World {
     states = new HashSet<>();
 
     for (TectonicPlate plate : plates) {
-      states.add(plate.generateState(cells));
+      states.add(plate.generateState(this, cells));
     }
 
     // REMOVE STATES WITH NO SETTLEMENTS
@@ -176,7 +181,24 @@ public class World {
     // BORDERS
     establishBorders();
 
-    updateMenuScreen(MenuStateCode.WORLD_GENERATED);
+    updateMenuScreen(MenuStateCode.SIMULATING_HISTORY);
+
+    this.worldManager = WorldManager.init(this);
+  }
+
+  public WorldManager getWorldManager() {
+    return worldManager;
+  }
+
+  public void processConsolidation(State from, State to, boolean wasCapital) {
+    if (wasCapital) states.remove(from);
+    // else updateBorders(from);
+    // updateBorders(to);
+  }
+
+  public void addState(State state) {
+    states.add(state);
+    updateBorders(state);
   }
 
   private void updateMenuScreen(MenuStateCode code) {
@@ -196,11 +218,15 @@ public class World {
     states.removeAll(toRemove);
   }
 
-  private void establishBorders() {
+  void establishBorders() {
     borders = new State[width][height];
 
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
+    borderUpdateLoop(0, 0, width - 1, height - 1);
+  }
+
+  private void borderUpdateLoop(int xMin, int yMin, int xMax, int yMax) {
+    for (int x = xMin; x <= xMax; x++) {
+      for (int y = yMin; y <= yMax; y++) {
         if (cells[x][y].isLand()) {
           // check for settlement on tile
           if (cells[x][y].hasSettlement()) {
@@ -219,6 +245,27 @@ public class World {
         }
       }
     }
+  }
+
+  private void updateBorders(State newState) {
+    int xMin = Integer.MAX_VALUE;
+    int yMin = Integer.MAX_VALUE;
+    int xMax = Integer.MIN_VALUE;
+    int yMax = Integer.MIN_VALUE;
+
+    for (Settlement settlement : newState.settlements()) {
+      xMin = settlement.getLocation().x < xMin ? settlement.getLocation().x : xMin;
+      yMin = settlement.getLocation().y < yMin ? settlement.getLocation().y : yMin;
+      xMax = settlement.getLocation().x > xMax ? settlement.getLocation().x : xMax;
+      yMax = settlement.getLocation().y > yMax ? settlement.getLocation().y : yMax;
+    }
+
+    xMin = xMin - 40 >= 0 ? xMin - 40 : 0;
+    yMin = yMin - 40 >= 0 ? yMin - 40 : 0;
+    xMax = xMax + 40 < width ? xMax + 40 : width - 1;
+    yMax = yMax + 40 < height ? yMax + 40 : height - 1;
+
+    borderUpdateLoop(xMin, yMin, xMax, yMax);
   }
 
   private Settlement closestTo(int x, int y) {
@@ -321,44 +368,43 @@ public class World {
           found = true;
       }
 
-      spawnDesert(point.x, point.y, DESERT_MAX_DIST);
+      spawnDesert(point);
     }
   }
 
-  private void spawnDesert(int x, int y, int maxDist) {
+  private void spawnDesert(Point origin) {
     generated = new boolean[width][height];
 
-    generated[x][y] = true;
-    cells[x][y].setElevationAndType(0, WorldCell.Type.DESERT);
+    generated[origin.x][origin.y] = true;
+    cells[origin.x][origin.y].setElevationAndType(0, WorldCell.Type.DESERT);
 
-    extendDesert(new Point(x, y), x - 1, y, maxDist);
-    extendDesert(new Point(x, y), x + 1, y, maxDist);
-    extendDesert(new Point(x, y), x, y - 1, maxDist);
-    extendDesert(new Point(x, y), x, y + 1, maxDist);
-  }
+    List<Point> potentials = new ArrayList<>();
 
-  private void extendDesert(Point origin, int x, int y, int maxDist) {
-    // Out of bounds check
-    if (x < 0 || x >= width || y < 0 || y >+ height) return;
+    int leftmost = Math.max(0, origin.x - DESERT_MAX_DIST);
+    int rightmost = Math.min(width - 1, origin.x + DESERT_MAX_DIST);
+    int topmost = Math.max(0, origin.y - DESERT_MAX_DIST);
+    int bottommost =  Math.min(height - 1, origin.y + DESERT_MAX_DIST);
 
-    // Generated check
-    if (generated[x][y]) return;
+    for (int x = leftmost; x <= rightmost; x++) {
+      for (int y = topmost; y <= bottommost; y++) {
+        if (cells[x][y].getType() == WorldCell.Type.PLAIN &&
+          MathExt.distance(new Point(x, y), origin) != 0.)
+          potentials.add(new Point(x, y));
+      }
+    }
 
-    double dist = Math.hypot(Math.abs(x - origin.x), Math.abs(y - origin.y));
+    potentials.sort(Comparator.comparingDouble((Point p) -> MathExt.distance(p, origin)));
 
-    generated[x][y] = true;
+    for (Point p : potentials) {
+      if (Math.random() < DESERT_PROB &&
+              Math.random() / DESERT_MULT < 1 -
+                      (MathExt.distance(origin, p) / DESERT_MAX_DIST)) {
+        boolean allowed = MathExt.pointAllowance(p, origin,
+                leftmost, rightmost, topmost, bottommost,
+                3, (Point c) -> cells[c.x][c.y].getType() == WorldCell.Type.DESERT);
 
-    if (dist > maxDist) return;
-
-    if (Math.random() < DESERT_PROB &&
-            Math.random() / DESERT_MULT < 1 - (dist / maxDist)) {
-      if (cells[x][y].getType() == WorldCell.Type.PLAIN) {
-        cells[x][y].setElevationAndType(0, WorldCell.Type.DESERT);
-
-        extendDesert(origin, x - 1, y, maxDist);
-        extendDesert(origin, x + 1, y, maxDist);
-        extendDesert(origin, x, y - 1, maxDist);
-        extendDesert(origin, x, y + 1, maxDist);
+        if (allowed)
+          cells[p.x][p.y].setElevationAndType(0, WorldCell.Type.DESERT);
       }
     }
   }
@@ -698,7 +744,7 @@ public class World {
         // Don't print names of lowest-tier settlements
         if (powerLevel < 3) {
           BufferedImage name = Font.CLEAN.getText(
-                  Formatter.properNoun(settlement.getName()) +
+                  Formatter.properNoun(settlement.getName().toString()) +
                           " (" + settlement.getSetupPower() + ")");
           WritingSystem ws =
                   settlement.getState().getLanguage().getWritingSystem();
@@ -749,6 +795,7 @@ public class World {
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
+        if (cells[x][y] == null) continue;
         g.setColor(WorldCell.getMapColor(
                 cells[x][y].getType(), cells[x][y].getRegion()));
         if (cells[x][y].getRiverPoint() != null)
@@ -822,7 +869,11 @@ public class World {
       Point potentialOrigin = randomPoint();
 
       while (!available) {
-        potentialOrigin = randomPoint();
+        final int DENOMINATOR = 6;
+        potentialOrigin = randomPoint(width / DENOMINATOR,
+                (DENOMINATOR - 1) * (width / DENOMINATOR),
+                height / DENOMINATOR,
+                (DENOMINATOR - 1) * (height / DENOMINATOR));
         available = true;
         for (int j = 0; j < i; j++) {
           if (plates[j].onPlate(potentialOrigin)) available = false;
@@ -955,7 +1006,7 @@ public class World {
 
           done = Math.random() < 0.02;
 
-          if (loc.x < 0 || loc.x > width || loc.y < 0 || loc.y > height) {
+          if (loc.x < 0 || loc.x >= width || loc.y < 0 || loc.y >= height) {
             break;
           }
 
@@ -979,11 +1030,13 @@ public class World {
     void createTerrain(WorldCell[][] cells) {
       generated = new boolean[width][height];
 
+      if (area < 4) return;
+
       int masses = 1;
       if (area > MASSES_THRESHOLD)
         masses += (int)(MAX_ADDITIONAL_MASSES * Math.random());
 
-      double maxDist = Math.sqrt(area) / (double) masses;
+      double maxDist = Math.sqrt(2.5 * area) / (double) masses;
 
       for (int mass = 0; mass < masses; mass++) {
 
@@ -997,7 +1050,7 @@ public class World {
           found = onPlate(potential) && !generated[potential.x][potential.y];
         }
 
-        generateTerrain(potential, cells, maxDist, potential);
+        generateTerrain(cells, maxDist, potential);
       }
 
       for (int x = leftmost; x <= rightmost; x++) {
@@ -1008,27 +1061,33 @@ public class World {
       }
     }
 
-    void generateTerrain(Point at, WorldCell[][] cells,
+    void generateTerrain(WorldCell[][] cells,
                       double maxDist, Point origin) {
-      // Out of bounds check
-      if (at.x < leftmost || at.x >= rightmost ||
-              at.y < topmost || at.y >= bottommost) return;
+      List<Point> potentials = new ArrayList<>();
 
-      // Generation check
-      if (generated[at.x][at.y]) return;
+      for (int x = leftmost; x <= rightmost; x++) {
+        for (int y = topmost; y <= bottommost; y++) {
+          Point p = new Point(x, y);
 
-      generated[at.x][at.y] = true;
+          if (onPlate(p) && !generated[p.x][p.y])
+            potentials.add(p);
+        }
+      }
 
-      double dist = Math.hypot(Math.abs(at.x - origin.x),
-              Math.abs(at.y - origin.y));
+      potentials.sort(Comparator.comparingDouble(p -> MathExt.distance(p, origin)));
 
-      if (landLikelihood(dist, maxDist) && onPlate(at)) {
-        cells[at.x][at.y] = new WorldCell(WorldCell.Type.PLAIN, world, new Point(at));
+      for (Point p : potentials) {
+        boolean allowed = MathExt.pointAllowance(p, origin,
+                leftmost, rightmost, topmost, bottommost,
+                4, (Point c) -> cells[c.x][c.y] != null);
 
-        generateTerrain(new Point(at.x - 1, at.y), cells, maxDist, origin);
-        generateTerrain(new Point(at.x + 1, at.y), cells, maxDist, origin);
-        generateTerrain(new Point(at.x, at.y - 1), cells, maxDist, origin);
-        generateTerrain(new Point(at.x, at.y + 1), cells, maxDist, origin);
+        if (allowed) {
+          generated[p.x][p.y] = true;
+
+          if (landLikelihood(MathExt.distance(origin, p), maxDist)) {
+            cells[p.x][p.y] = new WorldCell(WorldCell.Type.PLAIN, world, new Point(p));
+          }
+        }
       }
     }
 
@@ -1065,7 +1124,7 @@ public class World {
         reduction -= 10;
       }
 
-      generateAt(origin.x, origin.y, plates, index, maxDist);
+      generate(origin.x, origin.y, plates, index, maxDist);
 
       for (int i = 0; i < FILL_REPS; i++) {
         fillInterstitial(plates, index);
@@ -1118,22 +1177,37 @@ public class World {
 
     private void addEnclosed(Point at, List<Point> pointList,
                              TectonicPlate[] plates, int index) {
-      // Out of bounds check
-      if (at.x < leftmost || at.x >= rightmost ||
-              at.y < topmost || at.y >= bottommost) return;
-
       generated[at.x][at.y] = true;
-
-      if (claimed(plates, index, at.x, at.y) || pointList.contains(at) ||
-              grid[at.x][at.y] || pointList.size() > MAX_ENCLOSED) return;
-
       pointList.add(at);
-      generated[at.x][at.y] = true;
 
-      addEnclosed(new Point(at.x - 1, at.y), pointList, plates, index);
-      addEnclosed(new Point(at.x + 1, at.y), pointList, plates, index);
-      addEnclosed(new Point(at.x, at.y - 1), pointList, plates, index);
-      addEnclosed(new Point(at.x, at.y + 1), pointList, plates, index);
+      List<Point> potentials = new ArrayList<>();
+
+      for (int x = leftmost + 1; x < rightmost; x++) {
+        for (int y = topmost + 1; y < bottommost; y++) {
+          if (MathExt.distance(at, new Point(x, y)) != 0.)
+            potentials.add(new Point(x, y));
+        }
+      }
+
+      potentials.sort(Comparator.comparingDouble(p -> MathExt.distance(at, p)));
+
+      for (Point p : potentials) {
+        if (pointList.size() > MAX_ENCLOSED) return;
+
+        if (claimed(plates, index, p.x, p.y) || pointList.contains(p) ||
+                grid[p.x][p.y])
+          continue;
+
+        Point[] surroundingP = MathExt.getSurrounding(p);
+
+        for (Point sp : surroundingP) {
+          if (sp.x > leftmost && sp.x < rightmost &&
+                  sp.y > topmost && sp.y < bottommost && pointList.contains(sp)) {
+            pointList.add(p);
+            break;
+          }
+        }
+      }
     }
 
     private void fillInterstitial(TectonicPlate[] plates, int index) {
@@ -1165,30 +1239,38 @@ public class World {
       return false;
     }
 
-    private void generateAt(int x, int y,
-                            TectonicPlate[] plates, int index,
-                            double maxDist) {
-      // Out of bounds check
-      if (x < 0 || x >= width || y < 0 || y >= height) return;
+    private void generate(int x, int y, TectonicPlate[] plates, int index,
+                          double maxDist) {
+      Point origin = new Point(x, y);
 
-      // Already processed check
-      if (generated[x][y]) return;
+      List<Point> potentials = new ArrayList<>();
 
-      // Already on another tectonic plate check
-      if (claimed(plates, index, x, y)) return;
+      int xMin = x - (int)(maxDist + 1), xMax = x + (int)(maxDist + 1),
+              yMin = y - (int)(maxDist + 1), yMax = y + (int)(maxDist + 1);
 
-      boolean outcome = assignToPlate(maxDist, x, y);
-      generated[x][y] = true;
+      xMin = xMin < 0 ? 0 : xMin;
+      yMin = yMin < 0 ? 0 : yMin;
+      xMax = xMax + 1 >= width ? width - 1 : xMax;
+      yMax = yMax + 1 >= height ? height - 1 : yMax;
 
-      // Recurse over adjacent cells
-      if (outcome) {
+      for (int xCur = xMin; xCur <= xMax; xCur++) {
+        for (int yCur = yMin; yCur <= yMax; yCur++) {
+          potentials.add(new Point(xCur, yCur));
+        }
+      }
 
-        addToGrid(x, y);
+      potentials.sort(Comparator.comparingDouble(point ->
+              MathExt.distance(point, origin)));
 
-        generateAt(x - 1, y, plates, index, maxDist);
-        generateAt(x + 1, y, plates, index, maxDist);
-        generateAt(x, y - 1, plates, index, maxDist);
-        generateAt(x, y + 1, plates, index, maxDist);
+      for (Point p : potentials) {
+        boolean allowed = MathExt.pointAllowance(p, origin,
+                0, width - 1, 0, height - 1,
+                4, (Point c) -> grid[c.x][c.y]);
+
+        if (!claimed(plates, index, p.x, p.y) && allowed &&
+                assignToPlate(maxDist, p.x, p.y)) {
+          addToGrid(p.x, p.y);
+        }
       }
     }
 
@@ -1208,8 +1290,8 @@ public class World {
       return grid[check.x][check.y];
     }
 
-    State generateState(WorldCell[][] cells) {
-      State state = new State();
+    State generateState(World world, WorldCell[][] cells) {
+      State state = new State(world);
 
       int landArea = getLandArea(cells);
 
@@ -1245,17 +1327,9 @@ public class World {
         }
       }
 
-      // Sort settlements based on strength (INSERTION)
-      for (int i = 0; i < settlements.size(); i++) {
-        for (int j = i + 1; j < settlements.size(); j++) {
-          if (settlements.get(j).getSetupPower() >
-                  settlements.get(i).getSetupPower()) {
-            Settlement temp = settlements.get(i);
-            settlements.set(i, settlements.get(j));
-            settlements.set(j, temp);
-          }
-        }
-      }
+      settlements.sort(Comparator.comparingInt(
+              x -> x.getSetupPower() * -1
+      ));
 
       // Strongest becomes capital
       state.setCapital(settlements.get(0));
@@ -1342,13 +1416,19 @@ public class World {
             case FOREST:
             case SEA:
             case SHALLOW:
-              rawPower += 2;
+              rawPower += Randoms.bounded(1, 4);
               break;
             case PLAIN:
               rawPower++;
               break;
             case MOUNTAIN:
               rawPower += 3;
+              break;
+            case HILL:
+              rawPower += Randoms.bounded(0, 3);
+              break;
+            case DESERT:
+              rawPower += Randoms.bounded(0, 2);
               break;
           }
         }

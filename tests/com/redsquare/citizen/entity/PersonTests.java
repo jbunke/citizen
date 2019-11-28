@@ -22,10 +22,10 @@ public class PersonTests {
   @Test
   public void differentBackgroundParentsTest() {
     for (int run = 0; run < 10; run++) {
-      State state1 = new State();
+      State state1 = new State(null);
       Settlement settlement1 = new Settlement(new Point(0, 0), state1);
 
-      State state2 = new State();
+      State state2 = new State(null);
       Settlement settlement2 = new Settlement(new Point(0, 0), state2);
 
       GameDate date = new GameDate(1, 1);

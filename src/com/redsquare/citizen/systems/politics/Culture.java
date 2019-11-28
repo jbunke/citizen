@@ -10,6 +10,7 @@ public class Culture {
 
   private Inheritance inheritance;
   private final Race NATIVE_RACE;
+  private final BeautyStandard beautyStandard;
   private final Set<FlagPattern> patterns;
   private final Set<FlagPattern> symbols;
 
@@ -17,6 +18,7 @@ public class Culture {
     inheritance = Math.random() < 0.7 ? Inheritance.PATRILINEAL :
             (Math.random() < 0.7 ? Inheritance.MATRILINEAL : Inheritance.OPEN);
     NATIVE_RACE = Race.generate();
+    beautyStandard = BeautyStandard.generate(this);
     patterns = generatePatterns();
     symbols = generateSymbols();
   }
@@ -50,6 +52,10 @@ public class Culture {
       symbols.add(FlagPattern.generateSymbol());
 
     return symbols;
+  }
+
+  public BeautyStandard getBeautyStandard() {
+    return beautyStandard;
   }
 
   public Inheritance getInheritance() {
