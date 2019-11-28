@@ -3,6 +3,7 @@ package com.redsquare.citizen.systems.language;
 import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.language.sentences.*;
+import com.redsquare.citizen.util.IOForTesting;
 import com.redsquare.citizen.util.Randoms;
 import org.junit.Test;
 
@@ -134,7 +135,6 @@ public class LanguageTests {
   public void writeSentence() {
     GameDebug.activate();
 
-    Language language = Language.generate();
     Sentence sentence = new Sentence(
             new PronounNP(Meaning.I),
             new VerbAndNounVP(
@@ -143,17 +143,33 @@ public class LanguageTests {
             )
     );
 
-    BufferedImage sentenceText =
-            language.getWritingSystem().drawSentenceWithFont(
-                    language.getSentence(sentence), 200, 6, 3,
-                    Fonts::fontItalicX, Fonts::fontIdentityY);
+    BufferedImage[] ims = new BufferedImage[10];
+    int widest = 0;
+    int sum = 0;
 
-    try {
-      ImageIO.write(sentenceText, IMAGE_FORMAT,
-              new File(FOLDER_PATH + "I_am_a_man." + IMAGE_FORMAT));
-    } catch (IOException e) {
-      e.printStackTrace();
+    for (int i = 0; i < ims.length; i++) {
+      Language l = Language.generate();
+      BufferedImage im = l.getWritingSystem().drawSentenceWithFont(
+              l.getSentence(sentence), 200, 6, 6,
+              Fonts::fontIdentityX, Fonts::fontIdentityY);
+      widest = Math.max(widest, im.getWidth());
+      sum += im.getHeight() + 50;
+      ims[i] = im;
     }
+
+    BufferedImage im = new BufferedImage(widest, sum, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) im.getGraphics();
+    g.setColor(new Color(255, 255, 255));
+    g.fillRect(0, 0, widest, sum);
+
+    int yAt = 0;
+
+    for (BufferedImage i : ims) {
+      g.drawImage(i, 0, yAt, null);
+      yAt += i.getHeight() + 50;
+    }
+
+    IOForTesting.saveImage(im, FOLDER_PATH + "I_am_a_man." + IMAGE_FORMAT);
   }
 
   @Test

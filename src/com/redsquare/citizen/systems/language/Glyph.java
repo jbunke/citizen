@@ -12,6 +12,8 @@ import java.util.function.Function;
 
 class Glyph {
 
+  private static final double PARTIAL_SPAN = 0.30;
+
   private final List<GlyphComponent> components;
 
   private final boolean hasP;
@@ -391,11 +393,18 @@ class Glyph {
   private Glyph setPartial(Glyph partial) {
     double widthToHeight = partial.widthToHeight();
 
+    double xStretch = PARTIAL_SPAN / Math.max(0.1, partial.xSpan());
+    double yStretch = PARTIAL_SPAN / Math.max(0.1, partial.ySpan());
+
     List<GlyphComponent> newCs = new ArrayList<>();
 
     for (GlyphComponent c : partial.components) {
-      Function<Double, Double> xFunc = widthToHeight > 1 ? Glyph::identity : (d -> d * 0.7);
-      Function<Double, Double> yFunc = widthToHeight > 1 ? (d -> d * 0.6) : Glyph::identity;
+      Function<Double, Double> xFunc = widthToHeight > 1 ?
+              Glyph::identity :
+              (d -> d * yStretch + ((1. - yStretch) / 10.));
+      Function<Double, Double> yFunc = widthToHeight > 1 ?
+              (d -> d * xStretch + ((1. - xStretch) / 10.)) :
+              Glyph::identity;
 
       newCs.add(GlyphComponent.copyAndScale(c, xFunc, yFunc));
     }
@@ -417,35 +426,27 @@ class Glyph {
 
     Glyph reflection = new Glyph(newCs, partial.hasP, partial.hasS);
 
+    double xStretch = PARTIAL_SPAN / Math.max(0.1, partial.xSpan());
+    double yStretch = PARTIAL_SPAN / Math.max(0.1, partial.ySpan());
+
     double value = widthToHeight > 1 ? partial.maxY() : partial.maxX();
-    value *= widthToHeight > 1 ? 0.6 : 0.7;
+    double rValue = 1.0 - value;
+    value *= widthToHeight > 1 ? yStretch : xStretch;
+    rValue *= widthToHeight > 1 ? yStretch : xStretch;
 
     List<GlyphComponent> ipcs = new ArrayList<>();
     List<GlyphComponent> ircs = new ArrayList<>();
 
     for (int i = 0; i < partial.components.size(); i++) {
-      Function<Double, Double> xFunc = widthToHeight > 1 ? Glyph::identity : (d -> d * 0.7);
-      Function<Double, Double> yFunc = widthToHeight > 1 ? (d -> d * 0.6) : Glyph::identity;
+      Function<Double, Double> xFunc = widthToHeight > 1 ? Glyph::identity : (d -> d * xStretch);
+      Function<Double, Double> yFunc = widthToHeight > 1 ? (d -> d * yStretch) : Glyph::identity;
 
       ipcs.add(GlyphComponent.copyAndScale(partial.components.get(i), xFunc, yFunc));
       ircs.add(GlyphComponent.copyAndScale(reflection.components.get(i), xFunc, yFunc));
     }
 
-    for (GlyphComponent ipc : ipcs) {
-      double translateX = widthToHeight > 1 ? 0.0 : 0.7 - value;
-      double translateY = widthToHeight > 1 ? 0.6 - value : 0.0;
-
-      ipc.translate(translateX, translateY);
-      components.add(ipc);
-    }
-
-    for (GlyphComponent irc : ircs) {
-      double translateX = widthToHeight > 1 ? 0.0 : value;
-      double translateY = widthToHeight > 1 ? value : 0.0;
-
-      irc.translate(translateX, translateY);
-      components.add(irc);
-    }
+    addToComponents(ipcs, widthToHeight, value);
+    addToComponents(ircs, widthToHeight, rValue);
   }
 
   private void reflectWithAdditional(WritingSystem ws) {
@@ -460,29 +461,82 @@ class Glyph {
     additionalComponents(Randoms.bounded(1, 4), Math.random() < 0.5, ws);
   }
 
+  private Glyph complement(WritingSystem ws, Glyph first, boolean greaterThanOne) {
+    Glyph second = Sets.randomEntry(ws.partialStructures);
+    boolean satisfied = false;
+    int attempts = 0;
+
+    while (!satisfied) {
+      second = Sets.randomEntry(ws.partialStructures);
+      satisfied = !first.equals(second) &&
+              second.widthToHeight() > 1 == greaterThanOne &&
+              !ws.combinedPartials.get(first).contains(second);
+      attempts++;
+
+      if (attempts > 100)
+        return null;
+    }
+
+    return second;
+  }
+
+  private void combineTwoPartials(WritingSystem ws) {
+    Glyph first = Sets.randomEntry(ws.partialStructures);
+    double widthToHeight = first.widthToHeight();
+    Glyph second = complement(ws, first, widthToHeight > 1);
+
+    if (second == null) {
+      regularComponentAssembly(ws);
+      return;
+    }
+
+    ws.combinedPartials.get(first).add(second);
+
+    Glyph nf = setPartial(first);
+    Glyph ns = setPartial(second);
+
+    double fValue = widthToHeight > 1 ? nf.maxY() : nf.maxX();
+    double sValue = widthToHeight > 1 ? ns.minY() : ns.minX();
+
+    addToComponents(nf.components, widthToHeight, fValue);
+    addToComponents(ns.components, widthToHeight, sValue);
+  }
+
+  private void addToComponents(List<GlyphComponent> cs, double widthToHeight,
+                               double translationValue) {
+    for (GlyphComponent c : cs) {
+      double translateX = widthToHeight > 1 ? 0.0 : 0.5 - translationValue;
+      double translateY = widthToHeight > 1 ? 0.5 - translationValue : 0.0;
+
+      c.translate(translateX, translateY);
+      components.add(c);
+    }
+  }
+
   private void buildComponents(WritingSystem ws) {
     /*
      * Options:
      * x Generate as before (20%)
-     * - Use a partial as a starting point and have system add one to three components onto it (25%)
-     * - Use a partial, find out whether it is longer or wider, combine it with another partial with the same
-     * dominant dimension (15%)
+     * x Use a partial as a starting point and have system add one to three components onto it (15%)
+     * x Use a partial, find out whether it is longer or wider, combine it with another partial with the same
+     * dominant dimension (25%)
      * x Use a partial, reflect it and combine it according to its dominant dimension,
      * add third component in the middle (15%)
      * x Use a partial and just reflect it (25%)
      * */
+
     double p = Math.random();
 
-    if (p < 0.2)
-      regularComponentAssembly(ws);
-//    else if (p < 0.45)
-//      something();
-    else if (p < 0.6)
-      partialAndAdditional(ws);
-    else if (p < 0.75 || ws.partialsJustReflected.size() == ws.partialStructures.size())
-      reflectWithAdditional(ws);
-    else
+    if (p < 0.1 && ws.partialsJustReflected.size() < ws.partialStructures.size())
       reflectPartial(ws, true);
+    else if (p < 0.2)
+      reflectWithAdditional(ws);
+    else if (p < 0.4)
+      partialAndAdditional(ws);
+    else if (p < 0.75)
+      combineTwoPartials(ws);
+    else
+      regularComponentAssembly(ws);
   }
 
   private void buildComponentsPartial(WritingSystem ws) {

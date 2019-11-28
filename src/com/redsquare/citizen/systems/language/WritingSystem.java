@@ -54,7 +54,8 @@ public class WritingSystem {
   final Set<GlyphComponent> commonElements;
   final Set<Glyph> partialStructures;
 
-  final Set<Glyph> partialsJustReflected = new HashSet<>();
+  Set<Glyph> partialsJustReflected = new HashSet<>();
+  Map<Glyph, List<Glyph>> combinedPartials = new HashMap<>();
 
   private WritingSystem(WritingSystem parent) {
     this.phonology = parent.phonology;
@@ -93,6 +94,9 @@ public class WritingSystem {
     sortKeys();
 
     glyphs = generateGlyphsFromParent(parent, parentalCE);
+
+    partialsJustReflected = null;
+    combinedPartials = null;
   }
 
   private WritingSystem(Phonology phonology, Type type) {
@@ -130,11 +134,13 @@ public class WritingSystem {
       commonElements.add(GlyphComponent.orig(this));
     }
 
-    int amountPartialStructures = Randoms.bounded(10, 21);
+    int amountPartialStructures = Randoms.bounded(6, 11);
     partialStructures = new HashSet<>();
 
     while (partialStructures.size() < amountPartialStructures) {
-      partialStructures.add(Glyph.generatePartial(this));
+      Glyph partial = Glyph.generatePartial(this);
+      partialStructures.add(partial);
+      combinedPartials.put(partial, new ArrayList<>());
     }
 
     // populate and sort keys
@@ -142,6 +148,9 @@ public class WritingSystem {
     sortKeys();
 
     glyphs = generateGlyphs();
+
+    partialsJustReflected = null;
+    combinedPartials = null;
   }
 
   private WritingSystem(Phonology phonology, Type type,
@@ -185,17 +194,22 @@ public class WritingSystem {
       commonElements.add(GlyphComponent.orig(this));
     }
 
-    int amountPartialStructures = Randoms.bounded(10, 21);
+    int amountPartialStructures = Randoms.bounded(6, 11);
     partialStructures = new HashSet<>();
 
     while (partialStructures.size() < amountPartialStructures) {
-      partialStructures.add(Glyph.generatePartial(this));
+      Glyph partial = Glyph.generatePartial(this);
+      partialStructures.add(partial);
+      combinedPartials.put(partial, new ArrayList<>());
     }
     // populate and sort keys
     keys = enumerateKeys();
     sortKeys();
 
     glyphs = generateGlyphs();
+
+    partialsJustReflected = null;
+    combinedPartials = null;
   }
 
   WritingSystem modify() {

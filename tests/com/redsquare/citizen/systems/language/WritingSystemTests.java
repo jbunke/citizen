@@ -32,8 +32,8 @@ public class WritingSystemTests {
     WritingSystemTests testInstance = new WritingSystemTests();
 
     testLoop(testInstance::customiseEverything, 0);
-    testLoop(testInstance::fontCompare, 0);
-    testLoop(testInstance::allSettlementsInNativeTongue, 10);
+    testLoop(testInstance::fontCompare, 100);
+    testLoop(testInstance::allSettlementsInNativeTongue, 0);
     testLoop(testInstance::glyphGeneration, 0);
   }
 

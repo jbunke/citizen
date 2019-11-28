@@ -20,9 +20,6 @@ import java.util.List;
 
 public class World {
 
-  public final static int DEFAULT_WIDTH = 640;
-  public final static int DEFAULT_HEIGHT = 360;
-
   private final static int LAND_FILL_REPS = 1;
   private final static int LAND_PEER_THRESHOLD = 5;
 
@@ -47,7 +44,7 @@ public class World {
 
   private final WorldManager worldManager;
 
-  private boolean generated[][];
+  private boolean[][] generated;
 
   private Set<Settlement> settlements = null;
 
@@ -59,8 +56,6 @@ public class World {
 
   private final int width;
   private final int height;
-
-  private int poleAt;
 
   public static World safeCreate(int width, int height,
                                  int plateCount, int trials) {
@@ -320,7 +315,7 @@ public class World {
   }
 
   private void generatePoles() {
-    poleAt = width / 2;
+    int poleAt = width / 2;
     Point northPole = new Point(poleAt, 0);
     Point southPole = new Point((width - 1) - poleAt, height - 1);
 
