@@ -323,27 +323,17 @@ class Glyph {
 
   private void additionalComponents(int additional, boolean connecting, WritingSystem ws) {
     final int TOTAL = components.size() + additional;
-    boolean started = false;
-
-    GlyphComponent last = !components.isEmpty() ? components.get(0) : null;
+    final int CONNECT_FROM = components.size();
 
     while (components.size() < TOTAL) {
-      GlyphComponent current = !started ?
-              (connecting && last != null ?
-                      GlyphComponent.continuing(last, true, ws) :
-                      GlyphComponent.orig(ws)) :
-              (Randoms.deviation(ws.avgContinuationProb,
-                      ws.continuationDeviationMax) <= Math.random() || last.endsOutOfBounds()
-                      ? GlyphComponent.orig(ws) :
-                      (Math.random() < 0.5 ?
-                              GlyphComponent.continuing(last, true, ws) :
-                              GlyphComponent.continuing(last, false, ws)));
+      GlyphComponent last = CONNECT_FROM > 0 ? components.get(Randoms.bounded(0, CONNECT_FROM)) : null;
+      GlyphComponent current = connecting && last != null ?
+              GlyphComponent.continuing(last, true, ws) :
+              GlyphComponent.orig(ws);
 
       if (current.endsOutOfBounds()) continue;
 
-      started = true;
       components.add(current);
-      last = current;
     }
   }
 
@@ -380,21 +370,27 @@ class Glyph {
   private Glyph choosePartialForReflection(WritingSystem ws, boolean justReflecting) {
     Glyph partial = Sets.randomEntry(ws.partialStructures);
     boolean satisfied = false;
+    int attempts = 0;
 
     while (!satisfied) {
       partial = Sets.randomEntry(ws.partialStructures);
       if (partial != null && (!justReflecting || !ws.partialsJustReflected.contains(partial)) &&
               partial.widthToHeight() < 40) satisfied = true;
+
+      attempts++;
+
+      if (attempts > 100)
+        return null;
     }
 
     return partial;
   }
 
-  private Glyph setPartial(Glyph partial) {
+  private Glyph setPartial(Glyph partial, boolean isHalf) {
     double widthToHeight = partial.widthToHeight();
 
-    double xStretch = PARTIAL_SPAN / Math.max(0.1, partial.xSpan());
-    double yStretch = PARTIAL_SPAN / Math.max(0.1, partial.ySpan());
+    double xStretch = (PARTIAL_SPAN * (isHalf ? 1. : 2.)) / Math.max(0.1, partial.xSpan());
+    double yStretch = (PARTIAL_SPAN * (isHalf ? 1. : 2.)) / Math.max(0.1, partial.ySpan());
 
     List<GlyphComponent> newCs = new ArrayList<>();
 
@@ -414,6 +410,12 @@ class Glyph {
 
   private void reflectPartial(WritingSystem ws, boolean justReflected) {
     Glyph partial = choosePartialForReflection(ws, justReflected);
+
+    if (partial == null) {
+      regularComponentAssembly(ws);
+      return;
+    }
+
     if (justReflected) ws.partialsJustReflected.add(partial);
 
     double widthToHeight = partial.widthToHeight();
@@ -425,6 +427,16 @@ class Glyph {
     }
 
     Glyph reflection = new Glyph(newCs, partial.hasP, partial.hasS);
+
+    boolean doubleRef = Math.random() < 0.65;
+
+    if (doubleRef) {
+      newCs = new ArrayList<>();
+      for (GlyphComponent c : reflection.components) {
+        newCs.add(c.reflected(widthToHeight > 1 ? 1 : 0));
+      }
+      reflection = new Glyph(newCs, partial.hasP, partial.hasS);
+    }
 
     double xStretch = PARTIAL_SPAN / Math.max(0.1, partial.xSpan());
     double yStretch = PARTIAL_SPAN / Math.max(0.1, partial.ySpan());
@@ -447,18 +459,23 @@ class Glyph {
 
     addToComponents(ipcs, widthToHeight, value);
     addToComponents(ircs, widthToHeight, rValue);
+
+    if (doubleRef) {
+      components.add(GlyphComponent.connector(ipcs.get(ipcs.size() - 1), ircs.get(0)));
+    }
   }
 
   private void reflectWithAdditional(WritingSystem ws) {
     reflectPartial(ws, false);
-    additionalComponents(Randoms.bounded(1, 4), true, ws);
+    additionalComponents(Randoms.bounded(1, 3), true, ws);
   }
 
   private void partialAndAdditional(WritingSystem ws) {
-    Glyph partial = setPartial(Sets.randomEntry(ws.partialStructures));
+    Glyph partial = setPartial(Sets.randomEntry(ws.partialStructures), false);
+    partial.centering();
 
     components.addAll(partial.components);
-    additionalComponents(Randoms.bounded(1, 4), Math.random() < 0.5, ws);
+    additionalComponents(Randoms.bounded(1, 4), Math.random() < 0.8, ws);
   }
 
   private Glyph complement(WritingSystem ws, Glyph first, boolean greaterThanOne) {
@@ -492,14 +509,17 @@ class Glyph {
 
     ws.combinedPartials.get(first).add(second);
 
-    Glyph nf = setPartial(first);
-    Glyph ns = setPartial(second);
+    Glyph nf = setPartial(first, true);
+    Glyph ns = setPartial(second, true);
 
     double fValue = widthToHeight > 1 ? nf.maxY() : nf.maxX();
     double sValue = widthToHeight > 1 ? ns.minY() : ns.minX();
 
     addToComponents(nf.components, widthToHeight, fValue);
     addToComponents(ns.components, widthToHeight, sValue);
+    components.add(GlyphComponent.connector(
+            nf.components.get(nf.components.size() - 1),
+            ns.components.get(ns.components.size() - 1)));
   }
 
   private void addToComponents(List<GlyphComponent> cs, double widthToHeight,
@@ -527,20 +547,18 @@ class Glyph {
 
     double p = Math.random();
 
-    if (p < 0.1 && ws.partialsJustReflected.size() < ws.partialStructures.size())
+    if (p < 0.2 && ws.partialsJustReflected.size() < ws.partialStructures.size())
       reflectPartial(ws, true);
-    else if (p < 0.2)
+    else if (p < 0.45)
       reflectWithAdditional(ws);
-    else if (p < 0.4)
-      partialAndAdditional(ws);
     else if (p < 0.75)
-      combineTwoPartials(ws);
+      partialAndAdditional(ws);
     else
-      regularComponentAssembly(ws);
+      combineTwoPartials(ws);
   }
 
   private void buildComponentsPartial(WritingSystem ws) {
-    int compCount = Randoms.bounded(2, 4);
+    int compCount = 2; // Randoms.bounded(2, 4);
 
     GlyphComponent last = null;
 

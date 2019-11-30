@@ -150,7 +150,7 @@ public class LanguageTests {
     for (int i = 0; i < ims.length; i++) {
       Language l = Language.generate();
       BufferedImage im = l.getWritingSystem().drawSentenceWithFont(
-              l.getSentence(sentence), 200, 6, 6,
+              l.getSentence(sentence), 200, 5, 5,
               Fonts::fontIdentityX, Fonts::fontIdentityY);
       widest = Math.max(widest, im.getWidth());
       sum += im.getHeight() + 50;

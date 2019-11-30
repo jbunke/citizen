@@ -104,9 +104,9 @@ public class WritingSystem {
     this.phonology = phonology;
     this.type = type;
 
-    avgLineCurve = Math.pow(Math.random(), 1.5) * 0.6;
+    avgLineCurve = Math.random() < 0.5 ? Randoms.bounded(0.0, 0.2) : Randoms.bounded(0.35, 0.5);
     avgLineLength = Randoms.bounded(0.4, 1d);
-    curveDeviationMax = Randoms.bounded(0.1, 0.6);
+    curveDeviationMax = Randoms.bounded(0.2, 0.4);
     deviationProb = Math.random();
     avgContinuationProb = 1 - Math.pow(Randoms.bounded(0d, Math.sqrt(0.5)), 2);
     continuationDeviationMax = Math.pow(Randoms.bounded(0d, 0.5), 2);
@@ -134,7 +134,7 @@ public class WritingSystem {
       commonElements.add(GlyphComponent.orig(this));
     }
 
-    int amountPartialStructures = Randoms.bounded(6, 11);
+    int amountPartialStructures = Randoms.bounded(5, 9);
     partialStructures = new HashSet<>();
 
     while (partialStructures.size() < amountPartialStructures) {
@@ -194,7 +194,7 @@ public class WritingSystem {
       commonElements.add(GlyphComponent.orig(this));
     }
 
-    int amountPartialStructures = Randoms.bounded(6, 11);
+    int amountPartialStructures = Randoms.bounded(5, 9);
     partialStructures = new HashSet<>();
 
     while (partialStructures.size() < amountPartialStructures) {
