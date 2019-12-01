@@ -1,14 +1,18 @@
 package com.redsquare.citizen.worldgen;
 
+import com.redsquare.citizen.systems.language.Word;
+import com.redsquare.citizen.util.MathExt;
+
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-public class River {
+class River {
 
-  private String name;
+  private Word name;
   private List<RiverPoint> points = new ArrayList<>();
   private final Direction generalDirection;
+  private Point central;
 
   River(Point origin, Point firstPoint) {
     Direction direction;
@@ -39,8 +43,33 @@ public class River {
     points.add(new RiverPoint(firstPoint, direction, this));
   }
 
+  Word getName() {
+    return name;
+  }
+
+  void setName(Word name) {
+    this.name = name;
+  }
+
+  void setCentral() {
+    central = MathExt.averagePoint(getPurePoints());
+  }
+
   void addRiverPoint(RiverPoint rp) {
     points.add(rp);
+  }
+
+  private List<Point> getPurePoints() {
+    List<Point> points = new ArrayList<>();
+
+    for (RiverPoint rp : this.points)
+      points.add(new Point(rp.point));
+
+    return points;
+  }
+
+  Point getCentral() {
+    return central;
   }
 
   List<RiverPoint> getRiverPoints() {
@@ -134,7 +163,7 @@ public class River {
     }
   }
 
-  class RiverPoint {
+  static class RiverPoint {
     final Point point;
     final Direction flow;
     final River river;

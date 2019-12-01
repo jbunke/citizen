@@ -8,6 +8,17 @@ import java.util.function.Function;
 
 public class MathExt {
 
+  public static Point averagePoint(List<Point> points) {
+    long sumX = 0, sumY = 0;
+    int count = points.size();
+
+    for (Point p : points) {
+      sumX += p.x;
+      sumY += p.y;
+    }
+
+    return new Point((int)(sumX / count), (int)(sumY / count));
+  }
 
   public static boolean pointAllowance(Point p, Point origin, final int leftmost,
                          final int rightmost, final int topmost,

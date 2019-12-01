@@ -638,7 +638,7 @@ public class WorldCell {
   }
 
   boolean isLand() {
-    return type != Type.SEA && type != Type.SHALLOW;
+    return type.isLand();
   }
 
   static Color getMapColor(Type type, Region region) {

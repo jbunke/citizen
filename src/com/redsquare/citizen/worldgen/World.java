@@ -6,6 +6,9 @@ import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.game_states.MenuGameState;
 import com.redsquare.citizen.game_states.menu_elements.MenuStateCode;
 import com.redsquare.citizen.graphics.Font;
+import com.redsquare.citizen.systems.language.Language;
+import com.redsquare.citizen.systems.language.PlaceNameGenerator;
+import com.redsquare.citizen.systems.language.Word;
 import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
@@ -53,6 +56,7 @@ public class World {
   private final WorldCell[][] cells;
   private State[][] borders;
   private final List<River> rivers;
+  private final List<Desert> deserts;
 
   private final int width;
   private final int height;
@@ -123,11 +127,10 @@ public class World {
 
     // RIVERS
     rivers = new ArrayList<>();
-    for (TectonicPlate plate : plates) {
-      rivers.addAll(plate.generateRivers(cells));
-    }
+    riverLogic();
 
     // DESERTS
+    deserts = new ArrayList<>();
     generateDeserts();
 
     for (int i = 0; i < DESERT_FILL_REPS; i++) {
@@ -176,6 +179,9 @@ public class World {
     // BORDERS
     establishBorders();
 
+    // Name physical geography
+    namePhysicalGeography();
+
     updateMenuScreen(MenuStateCode.SIMULATING_HISTORY);
 
     this.worldManager = WorldManager.init(this);
@@ -183,6 +189,39 @@ public class World {
 
   public WorldManager getWorldManager() {
     return worldManager;
+  }
+
+  private void riverLogic() {
+      for (TectonicPlate plate : plates) {
+          if (plate.area > 100)
+              rivers.addAll(plate.generateRivers(cells));
+      }
+
+      // Remove really small rivers
+      for (int i = 0; i < rivers.size(); i++) {
+          if (rivers.get(i).getRiverPoints().size() < 6) {
+              rivers.remove(i);
+              i--;
+          }
+      }
+  }
+
+  private void namePhysicalGeography() {
+    // Rivers
+    for (River r : rivers) {
+      Point rp = r.getCentral();
+      Settlement closest = closestTo(rp.x, rp.y);
+      r.setName(PlaceNameGenerator.generateRandomName(2, 4,
+              closest.getState().getLanguage().getPhonology()));
+    }
+
+    // Desert
+    for (Desert d : deserts) {
+      Point dp = d.getOrigin();
+      Settlement closest = closestTo(dp.x, dp.y);
+      d.nameDesert(PlaceNameGenerator.generateRandomName(2, 4,
+              closest.getState().getLanguage().getPhonology()));
+    }
   }
 
   public void processConsolidation(State from, State to, boolean wasCapital) {
@@ -354,10 +393,10 @@ public class World {
 
     for (int i = 0; i < desertCount; i++) {
       boolean found = false;
-      Point point = randomPoint();
+      Point point = randomPoint(0, width - 1, height / 3, 2 * (height / 3));
 
       while (!found) {
-        point = randomPoint();
+        point = randomPoint(0, width - 1, height / 3, 2 * (height / 3));
 
         if (cells[point.x][point.y].getType() == WorldCell.Type.PLAIN)
           found = true;
@@ -368,6 +407,7 @@ public class World {
   }
 
   private void spawnDesert(Point origin) {
+    deserts.add(new Desert(origin));
     generated = new boolean[width][height];
 
     generated[origin.x][origin.y] = true;
@@ -613,7 +653,7 @@ public class World {
     Graphics2D g = (Graphics2D) map.getGraphics();
 
     // base geography underneath
-    g.drawImage(physicalGeography(SCALE_UP), 0, 0, null);
+    g.drawImage(physicalGeography(SCALE_UP, false), 0, 0, null);
 
     Map<State, Color> stateColorMap = new HashMap<>();
 
@@ -694,7 +734,7 @@ public class World {
     // base geography underneath
     if (withBorders)
       g.drawImage(borderMap(SCALE_UP, regionBorders), 0, 0, null);
-    else g.drawImage(physicalGeography(SCALE_UP), 0, 0, null);
+    else g.drawImage(physicalGeography(SCALE_UP, false), 0, 0, null);
 
     for (State state : states) {
       Set<Settlement> settlements = state.settlements();
@@ -750,24 +790,6 @@ public class World {
                   location.y * SCALE_UP + name.getHeight(),null);
         }
       }
-
-//      Point capitalLoc = state.getCapital().getLocation();
-//      WritingSystem ws = state.getLanguage().getWritingSystem();
-//
-//      BufferedImage text = Font.CLEAN.getText(
-//              Formatter.properNoun(state.getName()));
-//      BufferedImage symbols = ws.draw(state.getName(), 2);
-//
-//      g.setColor(new Color(255, 255, 255, 150));
-//      g.fillRect(capitalLoc.x * SCALE_UP - (symbols.getWidth() / 2 + 5),
-//              capitalLoc.y * SCALE_UP - symbols.getHeight(),
-//              symbols.getWidth() + 10, symbols.getHeight() * 2);
-//
-//      g.drawImage(text, capitalLoc.x * SCALE_UP - text.getWidth() / 2,
-//              capitalLoc.y * SCALE_UP - (int)(1.5 * text.getHeight()),
-//              null);
-//      g.drawImage(symbols, capitalLoc.x * SCALE_UP - symbols.getWidth() / 2,
-//              capitalLoc.y * SCALE_UP, null);
     }
 
     for (State state : states) {
@@ -782,7 +804,7 @@ public class World {
     return map;
   }
 
-  BufferedImage physicalGeography(final int SCALE_UP) {
+  BufferedImage physicalGeography(final int SCALE_UP, boolean marked) {
     BufferedImage map =
             new BufferedImage(width * SCALE_UP, height * SCALE_UP,
                     BufferedImage.TYPE_INT_ARGB);
@@ -797,6 +819,26 @@ public class World {
           g.setColor(WorldCell.getMapColor(
                   WorldCell.Type.SHALLOW, cells[x][y].getRegion()));
         g.fillRect(x * SCALE_UP, y * SCALE_UP, SCALE_UP, SCALE_UP);
+      }
+    }
+
+    if (marked) {
+      // NAMES
+      // Rivers
+      for (River r : rivers) {
+        Word name = r.getName();
+        Point p = r.getCentral();
+
+        BufferedImage label = Font.CLEAN.getText(Formatter.properNoun(name.toString() + " River"));
+        g.drawImage(label, p.x * SCALE_UP - label.getWidth() / 2, p.y * SCALE_UP, null);
+      }
+      // Deserts
+      for (Desert d : deserts) {
+        Word name = d.getName();
+        Point p = d.getOrigin();
+
+        BufferedImage label = Font.CLEAN.getText(Formatter.properNoun(name.toString() + " Desert"));
+        g.drawImage(label, p.x * SCALE_UP - label.getWidth() / 2, p.y * SCALE_UP, null);
       }
     }
 
@@ -894,6 +936,27 @@ public class World {
     OCEANIC, LAND_CAPABLE
   }
 
+  static class Desert {
+    private Word name;
+    private final Point origin;
+
+    Desert(Point origin) {
+      this.origin = origin;
+    }
+
+    Word getName() {
+      return name;
+    }
+
+    Point getOrigin() {
+      return origin;
+    }
+
+    void nameDesert(Word name) {
+      this.name = name;
+    }
+  }
+
   class TectonicPlate {
 
     private final static double DIVISOR = 3.0;
@@ -902,7 +965,7 @@ public class World {
     private final static int MAX_ENCLOSED = 50;
     private final static int MASSES_THRESHOLD = 500;
     private final static int MAX_ADDITIONAL_MASSES = 1;
-    private final static int MAX_RIVER_PER_PLATE = 40;
+    private final static int MAX_RIVER_PER_PLATE = 12;
     private final static int SUPPORTS_RIVER_THRESHOLD = 500;
     private final static int TRIALS_PER_RIVER = 200;
     private final static int GROWTH_TURNS = 20;
@@ -950,7 +1013,8 @@ public class World {
       List<River> rivers = new ArrayList<>();
 
       int RIVER_RANGE = 5;
-      int riverCount = (int)(Math.random() * MAX_RIVER_PER_PLATE);
+      int riverCount = (int)(Randoms.bounded(0.5, 1.0) *
+              Math.min(Math.sqrt(area) / 60., 1.) * MAX_RIVER_PER_PLATE);
 
       for (int i = 0; i < riverCount; i++) {
         // GENERATE ORIGIN
@@ -964,9 +1028,7 @@ public class World {
                   Math.min(rightmost, width - RIVER_RANGE),
                   Math.max(topmost, RIVER_RANGE),
                   Math.min(bottommost, height - RIVER_RANGE));
-          WorldCell.Type type = cells[riverStart.x][riverStart.y].getType();
-          if (!onPlate(riverStart) ||
-                  (type != WorldCell.Type.SHALLOW))
+          if (!onPlate(riverStart))
             found = false;
         }
 
@@ -981,8 +1043,8 @@ public class World {
         while (!found && trials < TRIALS_PER_RIVER) {
           trials++;
           found = true;
-          point = randomPoint(riverStart.x - 3, riverStart.x + 3,
-                  riverStart.y - 3, riverStart.y + 3);
+          point = randomPoint(riverStart.x - 1, riverStart.x + 2,
+                  riverStart.y - 1, riverStart.y + 2);
           if (!cells[point.x][point.y].isLand() ||
                   cells[point.x][point.y].getElevation() != 0)
             found = false;
@@ -999,18 +1061,19 @@ public class World {
           River.RiverPoint next = river.generateNext();
           Point loc = next.point;
 
-          done = Math.random() < 0.02;
+          // done = Math.random() < (0.02 * Math.sqrt(river.getRiverPoints().size()));
 
           if (loc.x < 0 || loc.x >= width || loc.y < 0 || loc.y >= height) {
             break;
           }
 
-          done |= (cells[loc.x][loc.y].getElevation() != 0 ||
-                  !cells[loc.x][loc.y].isLand());
+          done = (!cells[loc.x][loc.y].isLand());
 
           if (!done)
             river.addRiverPoint(next);
         }
+
+        river.setCentral();
 
         for (River.RiverPoint riverPoint : river.getRiverPoints()) {
           Point loc = riverPoint.point;
