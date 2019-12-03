@@ -192,6 +192,8 @@ public class LanguageTests {
 
     BufferedImage image = new BufferedImage(2000, 2000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) image.getGraphics();
+    g.setColor(new Color(255, 255, 255));
+    g.fillRect(0, 0, image.getWidth(), image.getHeight());
 
     g.drawImage(Font.CLEAN.getText("Spouse"), 5, 5, null);
     g.drawImage(w.drawWithFont(language.lookUpWord(Meaning.SPOUSE), 50, 3,
@@ -240,6 +242,8 @@ public class LanguageTests {
 
     BufferedImage image = new BufferedImage(2000, 2000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) image.getGraphics();
+    g.setColor(new Color(255, 255, 255));
+    g.fillRect(0, 0, image.getWidth(), image.getHeight());
 
     g.drawImage(Font.CLEAN.getText("The people see the country."), 5, 5, null);
 

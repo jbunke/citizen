@@ -57,6 +57,7 @@ public class World {
   private State[][] borders;
   private final List<River> rivers;
   private final List<Desert> deserts;
+  private final List<BodyOfWater> bodiesOfWater;
 
   private final int width;
   private final int height;
@@ -124,6 +125,13 @@ public class World {
 
     // ELEVATION
     elevationDetermination();
+
+    // BODIES OF WATER
+      bodiesOfWater = new ArrayList<>();
+    for (TectonicPlate plate : plates) {
+        if (plate.getPlateType() == PlateType.OCEANIC && plate.getArea() > 500)
+            bodiesOfWater.add(new BodyOfWater(plate.origin, plate.bodyOfWaterClassification()));
+    }
 
     // RIVERS
     rivers = new ArrayList<>();
@@ -221,6 +229,14 @@ public class World {
       Settlement closest = closestTo(dp.x, dp.y);
       d.nameDesert(PlaceNameGenerator.generateRandomName(2, 4,
               closest.getState().getLanguage().getPhonology()));
+    }
+
+    // Bodies of water
+    for (BodyOfWater body : bodiesOfWater) {
+        Point bp = body.getOrigin();
+        Settlement closest = closestTo(bp.x, bp.y);
+        body.setName(PlaceNameGenerator.generateRandomName(2, 4,
+                closest.getState().getLanguage().getPhonology()));
     }
   }
 
@@ -840,6 +856,13 @@ public class World {
         BufferedImage label = Font.CLEAN.getText(Formatter.properNoun(name.toString() + " Desert"));
         g.drawImage(label, p.x * SCALE_UP - label.getWidth() / 2, p.y * SCALE_UP, null);
       }
+        // Deserts
+        for (BodyOfWater body : bodiesOfWater) {
+            Point p = body.getOrigin();
+
+            BufferedImage label = Font.CLEAN.getText(Formatter.properNoun(body.getName()));
+            g.drawImage(label, p.x * SCALE_UP - label.getWidth() / 2, p.y * SCALE_UP, null);
+        }
     }
 
     return map;
@@ -936,6 +959,39 @@ public class World {
     OCEANIC, LAND_CAPABLE
   }
 
+  static class BodyOfWater {
+      private final double R;
+      private Word name;
+      private final Point origin;
+      private final Classification classification;
+
+      enum Classification {
+          OCEAN, SEA, GULF
+      }
+
+      BodyOfWater(Point origin, Classification classification) {
+          this.R = Math.random();
+          this.classification = classification;
+          this.origin = origin;
+      }
+
+      void setName(Word name) {
+          this.name = name;
+      }
+
+      Point getOrigin() {
+          return origin;
+      }
+
+      String getName() {
+          if (R < 0.7)
+              return Formatter.properNoun(name.toString()) + " " +
+                      Formatter.properNoun(classification.name().toLowerCase());
+          return Formatter.properNoun(classification.name().toLowerCase()) + " of " +
+                  Formatter.properNoun(name.toString());
+      }
+  }
+
   static class Desert {
     private Word name;
     private final Point origin;
@@ -1005,6 +1061,15 @@ public class World {
       bottommost = origin.y;
 
       generateGrid(plates, index);
+    }
+
+    BodyOfWater.Classification bodyOfWaterClassification() {
+        if (area > 7500)
+            return BodyOfWater.Classification.OCEAN;
+        else if (area > 1000)
+            return BodyOfWater.Classification.SEA;
+        else
+            return BodyOfWater.Classification.GULF;
     }
 
     List<River> generateRivers(WorldCell[][] cells) {

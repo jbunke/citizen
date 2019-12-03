@@ -1,7 +1,6 @@
 package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.systems.language.Word;
-import com.redsquare.citizen.util.MathExt;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -52,7 +51,8 @@ class River {
   }
 
   void setCentral() {
-    central = MathExt.averagePoint(getPurePoints());
+    List<Point> points = getPurePoints();
+    central = points.get(points.size() / 2);
   }
 
   void addRiverPoint(RiverPoint rp) {
