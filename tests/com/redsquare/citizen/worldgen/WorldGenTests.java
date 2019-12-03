@@ -2,6 +2,7 @@ package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
+import com.redsquare.citizen.systems.politics.State;
 import com.redsquare.citizen.util.IOForTesting;
 import org.junit.Test;
 
@@ -76,7 +77,12 @@ public class WorldGenTests {
     String borderPath = "test_output/worldgen/political_border_map.png";
     String regionPath = "test_output/worldgen/region_map.png";
 
-    World testWorld = new World(175, 175, 17); // 640, 360, 75);
+    World testWorld = new World(300, 300, 42); // 640, 360, 75);
+
+    for (State state : testWorld.getStates()) {
+      BufferedImage map = testWorld.stateMap(15, state);
+      IOForTesting.saveImage(map, "test_output/worldgen/states/" + state.getName() + "_map.png");
+    }
 
     BufferedImage tectonicMap = testWorld.tectonicMap(10);
     BufferedImage landSeaMap = testWorld.physicalGeography(10, false);

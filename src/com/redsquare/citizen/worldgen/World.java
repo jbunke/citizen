@@ -6,10 +6,7 @@ import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.game_states.MenuGameState;
 import com.redsquare.citizen.game_states.menu_elements.MenuStateCode;
 import com.redsquare.citizen.graphics.Font;
-import com.redsquare.citizen.systems.language.Language;
-import com.redsquare.citizen.systems.language.PlaceNameGenerator;
-import com.redsquare.citizen.systems.language.Word;
-import com.redsquare.citizen.systems.language.WritingSystem;
+import com.redsquare.citizen.systems.language.*;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
 import com.redsquare.citizen.systems.vexillography.Flag;
@@ -130,7 +127,7 @@ public class World {
       bodiesOfWater = new ArrayList<>();
     for (TectonicPlate plate : plates) {
         if (plate.getPlateType() == PlateType.OCEANIC && plate.getArea() > 500)
-            bodiesOfWater.add(new BodyOfWater(plate.origin, plate.bodyOfWaterClassification()));
+            bodiesOfWater.add(new BodyOfWater(plate.central(), plate.bodyOfWaterClassification()));
     }
 
     // RIVERS
@@ -633,6 +630,74 @@ public class World {
     return map;
   }
 
+  BufferedImage stateMap(final int SCALE_UP, State state) {
+    if (!states.contains(state))
+      return null;
+
+    final int LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
+    final int[] indices = new int[4];
+    final boolean[] found = new boolean[4];
+
+    for (int i = LEFT; i <= RIGHT; i++) {
+      for (int x = i < RIGHT ? 0 : width - 1; x < width && x >= 0; x += (i < RIGHT ? 1 : -1)) {
+        for (int y = 0; y < height; y++) {
+          if (found[i]) break;
+          if (borders[x][y]!= null && borders[x][y].equals(state)) {
+            found[i] = true;
+            switch (i) {
+              case 0:
+                indices[i] = Math.max(0, x - 15);
+                break;
+              case 1:
+                indices[i] = Math.min(width - 1, x + 15);
+                break;
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = TOP; i <= BOTTOM; i++) {
+      for (int y = i < BOTTOM ? 0 : height - 1; y < height && y >= 0; y += (i < BOTTOM ? 1 : -1)) {
+        for (int x = 0; x < width; x++) {
+          if (found[i]) break;
+          if (borders[x][y]!= null && borders[x][y].equals(state)) {
+            found[i] = true;
+            switch (i) {
+              case 2:
+                indices[i] = Math.max(0, y - 15);
+                break;
+              case 3:
+                indices[i] = Math.min(height - 1, y + 15);
+                break;
+            }
+          }
+        }
+      }
+    }
+
+    BufferedImage image = new BufferedImage(((indices[RIGHT] - indices[LEFT]) + 1) * SCALE_UP,
+            ((indices[BOTTOM] - indices[TOP]) + 1) * SCALE_UP, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) image.getGraphics();
+
+    for (int x = indices[LEFT]; x <= indices[RIGHT]; x ++) {
+      for (int y = indices[TOP]; y <= indices[BOTTOM]; y++) {
+        WorldCell wc = cells[x][y];
+        Color c = ColorMath.sepia(WorldCell.getMapColor(wc.getType(), wc.getRegion()));
+        g.setColor(c);
+        g.fillRect((x - indices[LEFT]) * SCALE_UP, (y - indices[TOP]) * SCALE_UP, SCALE_UP, SCALE_UP);
+      }
+    }
+
+    BufferedImage countryName = state.getLanguage().getWritingSystem().drawWithFont(
+            state.getLanguage().lookUpWord(Meaning.THIS_STATE), 60,
+            3, 2, Fonts::fontIdentityX, Fonts::fontIdentityY);
+    g.drawImage(countryName, image.getWidth() - (countryName.getWidth() - 20),
+            image.getHeight() - (countryName.getHeight() + 30), null);
+
+    return image;
+  }
+
   BufferedImage regionMap(final int SCALE_UP) {
     BufferedImage map = new BufferedImage(width * SCALE_UP, height * SCALE_UP,
             BufferedImage.TYPE_INT_ARGB);
@@ -1061,6 +1126,19 @@ public class World {
       bottommost = origin.y;
 
       generateGrid(plates, index);
+    }
+
+    Point central() {
+      List<Point> points = new ArrayList<>();
+
+      for (int x = leftmost; x <= rightmost; x++) {
+        for (int y = topmost; y <= bottommost; y++) {
+          if (grid[x][y])
+            points.add(new Point(x, y));
+        }
+      }
+
+      return MathExt.averagePoint(points);
     }
 
     BodyOfWater.Classification bodyOfWaterClassification() {

@@ -12,6 +12,7 @@ mkdir alphabet
 cd ../..
 mkdir worldgen
 cd worldgen
+mkdir states
 mkdir stress_test
 mkdir changing_borders
 mkdir n_worlds
