@@ -2,6 +2,7 @@
 
 mkdir test_output
 cd test_output
+mkdir graphics
 mkdir vexillography
 mkdir language
 cd language

@@ -32,9 +32,9 @@ public class WritingSystemTests {
     WritingSystemTests testInstance = new WritingSystemTests();
 
     testLoop(testInstance::customiseEverything, 0);
-    testLoop(testInstance::fontCompare, 100);
+    testLoop(testInstance::fontCompare, 0);
     testLoop(testInstance::allSettlementsInNativeTongue, 0);
-    testLoop(testInstance::glyphGeneration, 0);
+    testLoop(testInstance::glyphGeneration, 10);
   }
 
   private static void testLoop(Runnable test, int iterations) {
@@ -57,7 +57,7 @@ public class WritingSystemTests {
   public void allSettlementsInNativeTongue() {
     final String filepath = "test_output/language/settlementsInNative.png";
 
-    World world = new World(160, 90, 30);
+    World world = new World(160, 90, 20);
 
     State state = Sets.randomEntry(world.getStates());
 

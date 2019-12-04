@@ -1142,9 +1142,9 @@ public class World {
     }
 
     BodyOfWater.Classification bodyOfWaterClassification() {
-        if (area > 7500)
+        if (area > 6000)
             return BodyOfWater.Classification.OCEAN;
-        else if (area > 1000)
+        else if (area > 2000)
             return BodyOfWater.Classification.SEA;
         else
             return BodyOfWater.Classification.GULF;

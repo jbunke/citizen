@@ -1,8 +1,10 @@
 package com.redsquare.citizen.graphics;
 
+import com.redsquare.citizen.util.ColorMath;
+import com.redsquare.citizen.util.Formatter;
 import com.redsquare.citizen.util.Orientation;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,10 @@ public class Font extends Sprite {
   }
 
   public BufferedImage getText(String text) {
+    return getText(text, 1., new Color(0, 0, 0));
+  }
+
+  public BufferedImage getText(String text, double s, Color color) {
     BufferedImage image = new BufferedImage(tileWidth * text.length(),
             tileHeight, BufferedImage.TYPE_INT_ARGB);
 
@@ -27,7 +33,9 @@ public class Font extends Sprite {
               tileWidth * i, 0, null);
     }
 
-    return image;
+    if (!color.equals(new Color(0, 0, 0))) image = ColorMath.recolor(image, color);
+
+    return s == 1. ? image : Formatter.scale(image, s);
   }
 
   /**

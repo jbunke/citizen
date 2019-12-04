@@ -46,7 +46,7 @@ public class WorldManager {
     // TODO
     for (Settlement settlement : world.allSettlements()) {
       int toPopulate = MathExt.bounded((int)(settlement.getSetupPower() *
-              Randoms.bounded(0.5, 2.0)), 10, 150);
+              Randoms.bounded(0.5, 2.0)), 10, 20); // TODO: MAX: 150
 
       for (int i = 0; i < toPopulate; i++) {
         int age = Randoms.bounded(16, 91);
