@@ -699,7 +699,7 @@ public class World {
                                 (borders[x][yp] == null || !borders[x][yp].equals(state)))));
 
         if (isBorder) {
-          g.setColor(new Color(0, 0, 0));
+          g.setColor(new Color(0, 0, 0, 200));
           g.fillRect((x - indices[LEFT]) * SCALE_UP, (y - indices[TOP]) * SCALE_UP, SCALE_UP, SCALE_UP);
         }
       }
@@ -708,7 +708,7 @@ public class World {
     BufferedImage countryName = state.getLanguage().getWritingSystem().drawWithFont(
             state.getLanguage().lookUpWord(Meaning.THIS_STATE), 60,
             3, 2, Fonts::fontIdentityX, Fonts::fontIdentityY);
-    g.drawImage(countryName, image.getWidth() - (countryName.getWidth() - 20),
+    g.drawImage(countryName, (image.getWidth() / 2) - (countryName.getWidth() / 2),
             image.getHeight() - (countryName.getHeight() + 30), null);
     g.drawImage(state.getFlag().draw(SCALE_UP / 7), 10, 10, null);
 

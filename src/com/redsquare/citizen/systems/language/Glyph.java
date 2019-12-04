@@ -179,6 +179,19 @@ class Glyph {
     return new Glyph(ws, true);
   }
 
+  /* UTILITY FUNCTIONS */
+  static int numSpaces(List<Glyph> glyphs) {
+    int count = 0;
+
+    for (Glyph glyph : glyphs) {
+      if (glyph.components.size() == 0)
+        count++;
+    }
+
+    return count;
+  }
+  /* END UTILITY FUNCTIONS */
+
   boolean hasP() {
     return hasP;
   }

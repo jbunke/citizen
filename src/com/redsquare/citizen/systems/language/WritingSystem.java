@@ -496,18 +496,20 @@ public class WritingSystem {
   private BufferedImage drawWithFont(List<Glyph> glyphs, final int SIZE, int startWidth,
                                      int endWidth, BiFunction<Double, Double, Double> xFunc,
                                      BiFunction<Double, Double, Double> yFunc) {
+    int spaces = Glyph.numSpaces(glyphs);
     BufferedImage writing =
-            new BufferedImage(glyphs.size() * SIZE,
+            new BufferedImage((int)((glyphs.size() - spaces) * (SIZE * 0.7)) +
+                    (int)(spaces * (SIZE * 1.4)) +
+                    (SIZE / 3),
                     SIZE, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) writing.getGraphics();
 
     int x = 0;
 
-    for (int i = 0; i < glyphs.size(); i++) {
-      BufferedImage img = glyphs.get(i).
-              drawWithFont(SIZE, startWidth, endWidth, xFunc, yFunc);
+    for (Glyph glyph : glyphs) {
+      BufferedImage img = glyph.drawWithFont(SIZE, startWidth, endWidth, xFunc, yFunc);
 
-      double tightness = glyphs.get(i).getComponents().size() == 0 ? 1.4 : 0.7;
+      double tightness = glyph.getComponents().size() == 0 ? 1.4 : 0.7;
       g.drawImage(img, x, 0, null);
       x += (int)(SIZE * tightness);
     }
