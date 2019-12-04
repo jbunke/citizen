@@ -69,32 +69,35 @@ public class WorldGenTests {
   }
 
   @Test
+  public void stateMaps() {
+    World testWorld = new World(300, 300, 42);
+
+    for (State state : testWorld.getStates()) {
+      IOForTesting.saveImage(
+              testWorld.stateMap(15, state),
+              "test_output/worldgen/states/" + state.getName() + "_map.png");
+    }
+  }
+
+  @Test
   public void generateWorldToMaps() {
     String tectonicPath = "test_output/worldgen/tectonic_map.png";
     String landSeaPath = "test_output/worldgen/land_sea_map.png";
     String landSeaPathMarked = "test_output/worldgen/geography_map.png";
     String politicalPath = "test_output/worldgen/political_map.png";
     String borderPath = "test_output/worldgen/political_border_map.png";
-    String regionPath = "test_output/worldgen/region_map.png";
 
-    World testWorld = new World(300, 300, 42); // 640, 360, 75);
-
-    for (State state : testWorld.getStates()) {
-      BufferedImage map = testWorld.stateMap(15, state);
-      IOForTesting.saveImage(map, "test_output/worldgen/states/" + state.getName() + "_map.png");
-    }
+    World testWorld = new World(640, 360, 75); // 640, 360, 75);
 
     BufferedImage tectonicMap = testWorld.tectonicMap(10);
     BufferedImage landSeaMap = testWorld.physicalGeography(10, false);
     BufferedImage landSeaMapMarked = testWorld.physicalGeography(15, true);
-    BufferedImage regionMap = testWorld.regionMap(10);
     BufferedImage politicalMap = testWorld.politicalMap(10, false, true, false);
     BufferedImage borderMap = testWorld.politicalMap(10, true, false, true);
 
     IOForTesting.saveImage(tectonicMap, tectonicPath);
     IOForTesting.saveImage(landSeaMap, landSeaPath);
     IOForTesting.saveImage(landSeaMapMarked, landSeaPathMarked);
-    IOForTesting.saveImage(regionMap, regionPath);
     IOForTesting.saveImage(politicalMap, politicalPath);
     IOForTesting.saveImage(borderMap, borderPath);
   }

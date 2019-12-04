@@ -637,6 +637,7 @@ public class World {
     final int LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
     final int[] indices = new int[4];
     final boolean[] found = new boolean[4];
+    final int BORDER = 5;
 
     for (int i = LEFT; i <= RIGHT; i++) {
       for (int x = i < RIGHT ? 0 : width - 1; x < width && x >= 0; x += (i < RIGHT ? 1 : -1)) {
@@ -646,10 +647,10 @@ public class World {
             found[i] = true;
             switch (i) {
               case 0:
-                indices[i] = Math.max(0, x - 15);
+                indices[i] = Math.max(0, x - BORDER);
                 break;
               case 1:
-                indices[i] = Math.min(width - 1, x + 15);
+                indices[i] = Math.min(width - 1, x + BORDER);
                 break;
             }
           }
@@ -665,10 +666,10 @@ public class World {
             found[i] = true;
             switch (i) {
               case 2:
-                indices[i] = Math.max(0, y - 15);
+                indices[i] = Math.max(0, y - BORDER);
                 break;
               case 3:
-                indices[i] = Math.min(height - 1, y + 15);
+                indices[i] = Math.min(height - 1, y + BORDER);
                 break;
             }
           }
@@ -686,6 +687,21 @@ public class World {
         Color c = ColorMath.sepia(WorldCell.getMapColor(wc.getType(), wc.getRegion()));
         g.setColor(c);
         g.fillRect((x - indices[LEFT]) * SCALE_UP, (y - indices[TOP]) * SCALE_UP, SCALE_UP, SCALE_UP);
+
+        int xm = Math.max(0, x - 1), xp = Math.min(width - 1, x + 1),
+                ym = Math.max(0, y - 1), yp = Math.min(height - 1, y + 1);
+
+        boolean isBorder =
+                ((borders[x][y] != null && borders[x][y].equals(state) &&
+                        ((borders[xm][y] == null || !borders[xm][y].equals(state)) ||
+                                (borders[xp][y] == null || !borders[xp][y].equals(state)) ||
+                                (borders[x][ym] == null || !borders[x][ym].equals(state)) ||
+                                (borders[x][yp] == null || !borders[x][yp].equals(state)))));
+
+        if (isBorder) {
+          g.setColor(new Color(0, 0, 0));
+          g.fillRect((x - indices[LEFT]) * SCALE_UP, (y - indices[TOP]) * SCALE_UP, SCALE_UP, SCALE_UP);
+        }
       }
     }
 
@@ -694,6 +710,7 @@ public class World {
             3, 2, Fonts::fontIdentityX, Fonts::fontIdentityY);
     g.drawImage(countryName, image.getWidth() - (countryName.getWidth() - 20),
             image.getHeight() - (countryName.getHeight() + 30), null);
+    g.drawImage(state.getFlag().draw(SCALE_UP / 7), 10, 10, null);
 
     return image;
   }
