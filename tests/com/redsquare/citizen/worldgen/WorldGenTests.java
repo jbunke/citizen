@@ -77,6 +77,9 @@ public class WorldGenTests {
               testWorld.stateMap(15, state),
               "test_output/worldgen/states/" + state.getName() + "_map.png");
     }
+
+    IOForTesting.saveImage(testWorld.politicalMap(10, true, false, false),
+            "test_output/worldgen/states/_world_map.png");
   }
 
   @Test
@@ -87,7 +90,7 @@ public class WorldGenTests {
     String politicalPath = "test_output/worldgen/political_map.png";
     String borderPath = "test_output/worldgen/political_border_map.png";
 
-    World testWorld = new World(640, 360, 75); // 640, 360, 75);
+    World testWorld = new World(300, 300, 42); // 640, 360, 75);
 
     BufferedImage tectonicMap = testWorld.tectonicMap(10);
     BufferedImage landSeaMap = testWorld.physicalGeography(10, false);

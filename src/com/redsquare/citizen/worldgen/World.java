@@ -684,7 +684,9 @@ public class World {
     for (int x = indices[LEFT]; x <= indices[RIGHT]; x ++) {
       for (int y = indices[TOP]; y <= indices[BOTTOM]; y++) {
         WorldCell wc = cells[x][y];
-        Color c = ColorMath.sepia(WorldCell.getMapColor(wc.getType(), wc.getRegion()));
+        Color c = borders[x][y] != null && borders[x][y].equals(state) ?
+                WorldCell.getMapColor(wc.getType(), wc.getRegion()) :
+                ColorMath.sepia(WorldCell.getMapColor(wc.getType(), wc.getRegion()));
         g.setColor(c);
         g.fillRect((x - indices[LEFT]) * SCALE_UP, (y - indices[TOP]) * SCALE_UP, SCALE_UP, SCALE_UP);
 
@@ -705,11 +707,27 @@ public class World {
       }
     }
 
+    Settlement capital = state.getCapital();
+    int[] coords = new int[] { (capital.getLocation().x - indices[LEFT]) * SCALE_UP,
+            (capital.getLocation().y - indices[TOP]) * SCALE_UP };
+    BufferedImage setLabel = state.getLanguage().
+            getWritingSystem().drawWithFont(capital.getName(), 40, 2, 2,
+            Fonts::fontIdentityX, Fonts::fontIdentityY);
+
+    g.setColor(new Color(255, 0, 0));
+    g.fillOval(coords[0] - 4, coords[1] - 4, 9, 9);
+    g.drawImage(setLabel, coords[0] + 10, coords[1] - 20, null);
+
     BufferedImage countryName = state.getLanguage().getWritingSystem().drawWithFont(
-            state.getLanguage().lookUpWord(Meaning.THIS_STATE), 60,
-            3, 2, Fonts::fontIdentityX, Fonts::fontIdentityY);
+            state.getLanguage().lookUpWord(Meaning.THIS_STATE), SCALE_UP * 10,
+            SCALE_UP / 2, SCALE_UP / 3, Fonts::fontIdentityX, Fonts::fontIdentityY);
+
+    while (countryName.getWidth() / (double)(image.getWidth()) > 0.9) {
+      countryName = Formatter.scale(countryName, 0.8);
+    }
+
     g.drawImage(countryName, (image.getWidth() / 2) - (countryName.getWidth() / 2),
-            image.getHeight() - (countryName.getHeight() + 30), null);
+            image.getHeight() - (countryName.getHeight() + 2 * SCALE_UP), null);
     g.drawImage(state.getFlag().draw(SCALE_UP / 7), 10, 10, null);
 
     return image;
