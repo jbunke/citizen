@@ -45,9 +45,13 @@ public class LanguageTests {
             (Math.random() < 0.5 ? child2.daughterLanguage() : child3.daughterLanguage());
 
     GameDebug.printMessage(String.valueOf(Language.mutualIntelligibility(grandchild, child1)), GameDebug::printDebug);
+    GameDebug.printMessage(String.valueOf(Language.mutualIntelligibility(grandchild, child2)), GameDebug::printDebug);
+    GameDebug.printMessage(String.valueOf(Language.mutualIntelligibility(grandchild, child3)), GameDebug::printDebug);
 
     BufferedImage image = new BufferedImage(1800, 2000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) image.getGraphics();
+    g.setColor(new Color(255, 255, 255));
+    g.fillRect(0, 0, 1800, 2000);
 
     for (int i = 0; i < meanings.length; i++) {
       g.drawImage(Font.CLEAN.getText(meanings[i].toString()), 5, 5 + (i * 100), null);
@@ -84,6 +88,8 @@ public class LanguageTests {
 
   @Test
   public void wordInTenDescendedLanguages() {
+    final String FOLDER_PATH = LanguageTests.FOLDER_PATH + "meanings/";
+
     GameDebug.activate();
 
     Language[] languages = new Language[10];
@@ -93,23 +99,28 @@ public class LanguageTests {
       languages[i] = languages[i - 1].daughterLanguage();
     }
 
-    Meaning meaning = Meaning.GRANDMOTHER;
+    for (Meaning meaning : Meaning.values()) {
+      GameDebug.printMessage("Meaning: " + meaning.toString(), GameDebug::printDebug);
+      BufferedImage scroll = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
+      Graphics2D g = (Graphics2D) scroll.getGraphics();
+      g.setColor(new Color(255, 255, 255));
+      g.fillRect(0, 0, 1000, 1000);
 
-    BufferedImage scroll = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
-    Graphics2D g = (Graphics2D) scroll.getGraphics();
+      for (int i = 0; i < languages.length; i++) {
+        Language l = languages[i];
 
-    for (int i = 0; i < languages.length; i++) {
-      Language l = languages[i];
-      BufferedImage text =
-              l.getWritingSystem().drawWithFont(l.lookUpWord(meaning), 50, 2, 2, Fonts::fontItalicX, Fonts::fontIdentityY);
-      g.drawImage(text, (1000 - text.getWidth()) / 2, i * 100, null);
-    }
+        // TODO: Remove this null check once all vocabulary is populated
+        if (l.lookUpWord(meaning) == null)
+          continue;
 
-    try {
-      ImageIO.write(scroll, IMAGE_FORMAT,
-              new File(FOLDER_PATH + meaning.toString() + "_in_ten_descended_languages." + IMAGE_FORMAT));
-    } catch (IOException e) {
-      e.printStackTrace();
+        BufferedImage text =
+                l.getWritingSystem().drawWithFont(l.lookUpWord(meaning), 50, 2, 2,
+                        Fonts::fontItalicX, Fonts::fontIdentityY);
+        g.drawImage(text, (1000 - text.getWidth()) / 2, i * 100 + 10, null);
+      }
+
+      IOForTesting.saveImage(scroll,
+              FOLDER_PATH + meaning.toString() + "_in_ten_descended_languages." + IMAGE_FORMAT);
     }
   }
 

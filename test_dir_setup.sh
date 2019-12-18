@@ -9,6 +9,7 @@ cd language
 mkdir archive
 mkdir genealogy
 cd genealogy
+mkdir meanings
 mkdir alphabet
 cd ../..
 mkdir worldgen
