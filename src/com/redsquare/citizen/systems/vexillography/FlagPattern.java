@@ -38,7 +38,8 @@ public class FlagPattern {
   private static final Map<Type, File> referenceMap = Map.ofEntries(
           Map.entry(Type.VERT_STRIPES, new File("res/flag_pattern_templates/fpt_vert_stripes.png")),
           Map.entry(Type.HORZ_STRIPES, new File("res/flag_pattern_templates/fpt_horz_stripes.png")),
-          Map.entry(Type.CHECKERS, new File("res/flag_pattern_templates/fpt_checkers.png"))
+          Map.entry(Type.CHECKERS, new File("res/flag_pattern_templates/fpt_checkers.png")),
+          Map.entry(Type.SALTIRE, new File("res/flag_pattern_templates/fpt_saltire.png"))
   );
 
   private final Color primary;
@@ -79,17 +80,13 @@ public class FlagPattern {
   }
 
   public enum Type {
-    VERT_STRIPES, HORZ_STRIPES, MONO, CHECKERS, SYMBOL;
+    VERT_STRIPES, HORZ_STRIPES, SALTIRE, MONO, CHECKERS, SYMBOL;
 
     static Type random(boolean noSymbols) {
       double r = Math.random();
-      double denom = noSymbols ? 4. : 5.;
+      double denom = (double)(Type.values().length - 1) + (noSymbols ? 0. : 1.);
 
-      if (r < 1/denom) return VERT_STRIPES;
-      else if (r < 2/denom) return HORZ_STRIPES;
-      else if (r < 3/denom) return MONO;
-      else if (r < 4/denom) return CHECKERS;
-      else return SYMBOL;
+      return Type.values()[(int)(r * denom)];
     }
   }
 
@@ -128,6 +125,7 @@ public class FlagPattern {
       case CHECKERS:
       case HORZ_STRIPES:
       case VERT_STRIPES:
+      case SALTIRE:
         try {
           BufferedImage reference = ImageIO.read(referenceMap.get(type));
           for (int x = 0; x < reference.getWidth(); x++) {

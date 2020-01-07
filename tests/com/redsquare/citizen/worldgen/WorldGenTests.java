@@ -90,7 +90,7 @@ public class WorldGenTests {
     String politicalPath = "test_output/worldgen/political_map.png";
     String borderPath = "test_output/worldgen/political_border_map.png";
 
-    World testWorld = new World(300, 300, 42); // 640, 360, 75);
+    World testWorld = new World(640, 360, 75); // 300, 300, 42);
 
     BufferedImage tectonicMap = testWorld.tectonicMap(10);
     BufferedImage landSeaMap = testWorld.physicalGeography(10, false);
