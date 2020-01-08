@@ -47,7 +47,8 @@ public class State {
     this.world = world;
 
     culture = Culture.generate();
-    language = Language.generate();
+    language = Language.generate(WritingSystem.generate(Phonology.generate(), WritingSystem.Type.ALPHABET));
+    // TODO: language = Language.generate(); must be made more memory efficient in the SYLLABARY case
     flag = Flag.generate(culture);
     this.name = language.lookUpWord(Meaning.THIS_STATE);
   }

@@ -52,6 +52,10 @@ public class WritingSystem {
   final CompSyllabaryConfig compSyllabaryConfig;
 
   final Set<GlyphComponent> commonElements;
+  final Set<Glyph> partialStructures;
+
+  Set<Glyph> partialsJustReflected = new HashSet<>();
+  Map<Glyph, List<Glyph>> combinedPartials = new HashMap<>();
 
   private WritingSystem(WritingSystem parent) {
     this.phonology = parent.phonology;
@@ -84,10 +88,15 @@ public class WritingSystem {
       commonElements.add(GlyphComponent.orig(this));
     }
 
+    partialStructures = parent.partialStructures;
+
     keys = enumerateKeys();
     sortKeys();
 
     glyphs = generateGlyphsFromParent(parent, parentalCE);
+
+    partialsJustReflected = null;
+    combinedPartials = null;
   }
 
   private WritingSystem(Phonology phonology, Type type) {
@@ -95,9 +104,9 @@ public class WritingSystem {
     this.phonology = phonology;
     this.type = type;
 
-    avgLineCurve = Math.pow(Math.random(), 1.5) * 0.6;
+    avgLineCurve = Math.random() < 0.5 ? Randoms.bounded(0.0, 0.2) : Randoms.bounded(0.35, 0.5);
     avgLineLength = Randoms.bounded(0.4, 1d);
-    curveDeviationMax = Randoms.bounded(0.1, 0.6);
+    curveDeviationMax = Randoms.bounded(0.2, 0.4);
     deviationProb = Math.random();
     avgContinuationProb = 1 - Math.pow(Randoms.bounded(0d, Math.sqrt(0.5)), 2);
     continuationDeviationMax = Math.pow(Randoms.bounded(0d, 0.5), 2);
@@ -125,11 +134,23 @@ public class WritingSystem {
       commonElements.add(GlyphComponent.orig(this));
     }
 
+    int amountPartialStructures = Randoms.bounded(5, 9);
+    partialStructures = new HashSet<>();
+
+    while (partialStructures.size() < amountPartialStructures) {
+      Glyph partial = Glyph.generatePartial(this);
+      partialStructures.add(partial);
+      combinedPartials.put(partial, new ArrayList<>());
+    }
+
     // populate and sort keys
     keys = enumerateKeys();
     sortKeys();
 
     glyphs = generateGlyphs();
+
+    partialsJustReflected = null;
+    combinedPartials = null;
   }
 
   private WritingSystem(Phonology phonology, Type type,
@@ -173,11 +194,22 @@ public class WritingSystem {
       commonElements.add(GlyphComponent.orig(this));
     }
 
+    int amountPartialStructures = Randoms.bounded(5, 9);
+    partialStructures = new HashSet<>();
+
+    while (partialStructures.size() < amountPartialStructures) {
+      Glyph partial = Glyph.generatePartial(this);
+      partialStructures.add(partial);
+      combinedPartials.put(partial, new ArrayList<>());
+    }
     // populate and sort keys
     keys = enumerateKeys();
     sortKeys();
 
     glyphs = generateGlyphs();
+
+    partialsJustReflected = null;
+    combinedPartials = null;
   }
 
   WritingSystem modify() {
@@ -204,9 +236,8 @@ public class WritingSystem {
 
     double p = Math.random();
 
-    if (p < 1/2f) type = Type.ALPHABET;
-    else if (p < 3/4f) type = Type.COMPONENT_SYLLABARY;
-    else type = Type.DISTINCT_SYLLABARY;
+    if (p < 2/3f) type = Type.ALPHABET;
+    else type = Type.SYLLABARY;
 
     return new WritingSystem(phonology, type);
   }
@@ -217,7 +248,7 @@ public class WritingSystem {
   }
 
   public enum Type {
-    ALPHABET, COMPONENT_SYLLABARY, DISTINCT_SYLLABARY
+    ALPHABET, SYLLABARY
   }
 
   public enum CompSyllabaryConfig {
@@ -263,24 +294,22 @@ public class WritingSystem {
   private Map<WordSubUnit, Glyph> generateGlyphs() {
     Map<WordSubUnit, Glyph> glyphs = new HashMap<>();
 
-    Map<Phoneme, Glyph> vowels = new HashMap<>();
-    Map<Phoneme, Glyph> prefixes = new HashMap<>();
-    Map<Phoneme, Glyph> suffixes = new HashMap<>();
+    Map<Phoneme, Glyph> phonemes = new HashMap<>();
 
-    if (this.type == Type.COMPONENT_SYLLABARY) {
+    if (this.type == Type.SYLLABARY) {
       for (String v : phonology.VOWEL_PHONEMES) {
         Phoneme vowel = new Phoneme(v);
-        vowels.put(vowel, Glyph.generate(this));
+        phonemes.put(vowel, Glyph.generate(this));
       }
 
       for (String p : phonology.PREFIX_CONS_PHONEMES) {
         Phoneme prefix = new Phoneme(p);
-        prefixes.put(prefix, Glyph.generate(this));
+        phonemes.put(prefix, Glyph.generate(this));
       }
 
       for (String s : phonology.SUFFIX_CONS_PHONEMES) {
         Phoneme suffix = new Phoneme(s);
-        suffixes.put(suffix, Glyph.generate(this));
+        phonemes.put(suffix, Glyph.generate(this));
       }
     }
 
@@ -289,10 +318,10 @@ public class WritingSystem {
 
       if (key.equals(new Phoneme(" "))) continue;
 
-      if (type == Type.COMPONENT_SYLLABARY) {
-        Glyph vGlyph = vowels.get(new Phoneme(((Syllable) key).getVowel()));
-        Glyph pGlyph = prefixes.get(new Phoneme(((Syllable) key).getPrefix()));
-        Glyph sGlyph = suffixes.get(new Phoneme(((Syllable) key).getSuffix()));
+      if (type == Type.SYLLABARY) {
+        Glyph vGlyph = phonemes.get(new Phoneme(((Syllable) key).getVowel()));
+        Glyph pGlyph = phonemes.get(new Phoneme(((Syllable) key).getPrefix()));
+        Glyph sGlyph = phonemes.get(new Phoneme(((Syllable) key).getSuffix()));
 
         candidate = Glyph.componentBased(this, vGlyph, pGlyph, sGlyph);
       } else {
@@ -312,8 +341,7 @@ public class WritingSystem {
     List<WordSubUnit> keys = new ArrayList<>();
 
     switch (type) {
-      case COMPONENT_SYLLABARY:
-      case DISTINCT_SYLLABARY:
+      case SYLLABARY:
         Set<Syllable> vowelsOnly = new HashSet<>();
         Set<Syllable> prefixVowel = new HashSet<>();
         Set<Syllable> vowelSuffix = new HashSet<>();
@@ -359,7 +387,7 @@ public class WritingSystem {
     List<Glyph> glyphs = new ArrayList<>();
 
     for (Syllable syllable : word.getSyllables()) {
-      if (type == Type.COMPONENT_SYLLABARY || type == Type.DISTINCT_SYLLABARY) {
+      if (type == Type.SYLLABARY) {
         glyphs.add(this.glyphs.get(syllable));
       } else {
         Phoneme prefix = new Phoneme(syllable.getPrefix());
@@ -468,18 +496,20 @@ public class WritingSystem {
   private BufferedImage drawWithFont(List<Glyph> glyphs, final int SIZE, int startWidth,
                                      int endWidth, BiFunction<Double, Double, Double> xFunc,
                                      BiFunction<Double, Double, Double> yFunc) {
+    int spaces = Glyph.numSpaces(glyphs);
     BufferedImage writing =
-            new BufferedImage(glyphs.size() * SIZE,
+            new BufferedImage((int)((glyphs.size() - spaces) * (SIZE * 0.7)) +
+                    (int)(spaces * (SIZE * 1.4)) +
+                    (SIZE / 3),
                     SIZE, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) writing.getGraphics();
 
     int x = 0;
 
-    for (int i = 0; i < glyphs.size(); i++) {
-      BufferedImage img = glyphs.get(i).
-              drawWithFont(SIZE, startWidth, endWidth, xFunc, yFunc);
+    for (Glyph glyph : glyphs) {
+      BufferedImage img = glyph.drawWithFont(SIZE, startWidth, endWidth, xFunc, yFunc);
 
-      double tightness = glyphs.get(i).getComponents().size() == 0 ? 1.4 : 0.7;
+      double tightness = glyph.getComponents().size() == 0 ? 1.4 : 0.7;
       g.drawImage(img, x, 0, null);
       x += (int)(SIZE * tightness);
     }

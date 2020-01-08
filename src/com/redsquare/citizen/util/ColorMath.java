@@ -23,6 +23,13 @@ public class ColorMath {
     return c.getRed() + c.getGreen() + c.getBlue();
   }
 
+  public static Color sepia(Color original) {
+    final double tR = 0.393 * original.getRed() + 0.769 * original.getGreen() + 0.189 * original.getBlue();
+    final double tG = 0.349 * original.getRed() + 0.686 * original.getGreen() + 0.168 * original.getBlue();
+    final double tB = 0.272 * original.getRed() + 0.534 * original.getGreen() + 0.131 * original.getBlue();
+    return new Color(Math.min(255, (int)tR), Math.min(255, (int)tG), Math.min(255, (int)tB));
+  }
+
   public static BufferedImage recolor(BufferedImage original, Color color) {
     BufferedImage result = new BufferedImage(original.getWidth(),
             original.getHeight(), BufferedImage.TYPE_INT_ARGB);

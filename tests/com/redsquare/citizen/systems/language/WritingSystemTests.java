@@ -31,9 +31,9 @@ public class WritingSystemTests {
   public static void main(String[] args) {
     WritingSystemTests testInstance = new WritingSystemTests();
 
-    testLoop(testInstance::customiseEverything, 10);
-    testLoop(testInstance::fontCompare, 100);
-    testLoop(testInstance::allSettlementsInNativeTongue, 10);
+    testLoop(testInstance::customiseEverything, 0);
+    testLoop(testInstance::fontCompare, 0);
+    testLoop(testInstance::allSettlementsInNativeTongue, 0);
     testLoop(testInstance::glyphGeneration, 10);
   }
 
@@ -57,7 +57,7 @@ public class WritingSystemTests {
   public void allSettlementsInNativeTongue() {
     final String filepath = "test_output/language/settlementsInNative.png";
 
-    World world = World.safeCreate(480, 270, 30, 10);
+    World world = new World(160, 90, 20);
 
     State state = Sets.randomEntry(world.getStates());
 
@@ -203,7 +203,7 @@ public class WritingSystemTests {
       BiFunction<Double, Double, Double> xFunc = Fonts.randomXFunc();
       BiFunction<Double, Double, Double> yFunc = Fonts.randomYFunc();
 
-      fonts[i] = l.getWritingSystem().drawWithFont(word.toString(),
+      fonts[i] = l.getWritingSystem().drawWithFont(word,
               size, startWidth, endWidth, xFunc, yFunc);
       maxX = Math.max(maxX, fonts[i].getWidth());
       y += fonts[i].getHeight();

@@ -3,6 +3,7 @@ package com.redsquare.citizen.systems.language;
 import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.systems.language.sentences.*;
+import com.redsquare.citizen.util.IOForTesting;
 import com.redsquare.citizen.util.Randoms;
 import org.junit.Test;
 
@@ -44,9 +45,13 @@ public class LanguageTests {
             (Math.random() < 0.5 ? child2.daughterLanguage() : child3.daughterLanguage());
 
     GameDebug.printMessage(String.valueOf(Language.mutualIntelligibility(grandchild, child1)), GameDebug::printDebug);
+    GameDebug.printMessage(String.valueOf(Language.mutualIntelligibility(grandchild, child2)), GameDebug::printDebug);
+    GameDebug.printMessage(String.valueOf(Language.mutualIntelligibility(grandchild, child3)), GameDebug::printDebug);
 
     BufferedImage image = new BufferedImage(1800, 2000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) image.getGraphics();
+    g.setColor(new Color(255, 255, 255));
+    g.fillRect(0, 0, 1800, 2000);
 
     for (int i = 0; i < meanings.length; i++) {
       g.drawImage(Font.CLEAN.getText(meanings[i].toString()), 5, 5 + (i * 100), null);
@@ -83,6 +88,8 @@ public class LanguageTests {
 
   @Test
   public void wordInTenDescendedLanguages() {
+    final String FOLDER_PATH = LanguageTests.FOLDER_PATH + "meanings/";
+
     GameDebug.activate();
 
     Language[] languages = new Language[10];
@@ -92,23 +99,28 @@ public class LanguageTests {
       languages[i] = languages[i - 1].daughterLanguage();
     }
 
-    Meaning meaning = Meaning.GRANDMOTHER;
+    for (Meaning meaning : Meaning.values()) {
+      GameDebug.printMessage("Meaning: " + meaning.toString(), GameDebug::printDebug);
+      BufferedImage scroll = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
+      Graphics2D g = (Graphics2D) scroll.getGraphics();
+      g.setColor(new Color(255, 255, 255));
+      g.fillRect(0, 0, 1000, 1000);
 
-    BufferedImage scroll = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
-    Graphics2D g = (Graphics2D) scroll.getGraphics();
+      for (int i = 0; i < languages.length; i++) {
+        Language l = languages[i];
 
-    for (int i = 0; i < languages.length; i++) {
-      Language l = languages[i];
-      BufferedImage text =
-              l.getWritingSystem().drawWithFont(l.lookUpWord(meaning), 50, 2, 2, Fonts::fontItalicX, Fonts::fontIdentityY);
-      g.drawImage(text, (1000 - text.getWidth()) / 2, i * 100, null);
-    }
+        // TODO: Remove this null check once all vocabulary is populated
+        if (l.lookUpWord(meaning) == null)
+          continue;
 
-    try {
-      ImageIO.write(scroll, IMAGE_FORMAT,
-              new File(FOLDER_PATH + meaning.toString() + "_in_ten_descended_languages." + IMAGE_FORMAT));
-    } catch (IOException e) {
-      e.printStackTrace();
+        BufferedImage text =
+                l.getWritingSystem().drawWithFont(l.lookUpWord(meaning), 50, 2, 2,
+                        Fonts::fontItalicX, Fonts::fontIdentityY);
+        g.drawImage(text, (1000 - text.getWidth()) / 2, i * 100 + 10, null);
+      }
+
+      IOForTesting.saveImage(scroll,
+              FOLDER_PATH + meaning.toString() + "_in_ten_descended_languages." + IMAGE_FORMAT);
     }
   }
 
@@ -134,7 +146,6 @@ public class LanguageTests {
   public void writeSentence() {
     GameDebug.activate();
 
-    Language language = Language.generate();
     Sentence sentence = new Sentence(
             new PronounNP(Meaning.I),
             new VerbAndNounVP(
@@ -143,17 +154,33 @@ public class LanguageTests {
             )
     );
 
-    BufferedImage sentenceText =
-            language.getWritingSystem().drawSentenceWithFont(
-                    language.getSentence(sentence), 200, 6, 3,
-                    Fonts::fontItalicX, Fonts::fontIdentityY);
+    BufferedImage[] ims = new BufferedImage[10];
+    int widest = 0;
+    int sum = 0;
 
-    try {
-      ImageIO.write(sentenceText, IMAGE_FORMAT,
-              new File(FOLDER_PATH + "I_am_a_man." + IMAGE_FORMAT));
-    } catch (IOException e) {
-      e.printStackTrace();
+    for (int i = 0; i < ims.length; i++) {
+      Language l = Language.generate();
+      BufferedImage im = l.getWritingSystem().drawSentenceWithFont(
+              l.getSentence(sentence), 200, 5, 5,
+              Fonts::fontIdentityX, Fonts::fontIdentityY);
+      widest = Math.max(widest, im.getWidth());
+      sum += im.getHeight() + 50;
+      ims[i] = im;
     }
+
+    BufferedImage im = new BufferedImage(widest, sum, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) im.getGraphics();
+    g.setColor(new Color(255, 255, 255));
+    g.fillRect(0, 0, widest, sum);
+
+    int yAt = 0;
+
+    for (BufferedImage i : ims) {
+      g.drawImage(i, 0, yAt, null);
+      yAt += i.getHeight() + 50;
+    }
+
+    IOForTesting.saveImage(im, FOLDER_PATH + "I_am_a_man." + IMAGE_FORMAT);
   }
 
   @Test
@@ -176,6 +203,8 @@ public class LanguageTests {
 
     BufferedImage image = new BufferedImage(2000, 2000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) image.getGraphics();
+    g.setColor(new Color(255, 255, 255));
+    g.fillRect(0, 0, image.getWidth(), image.getHeight());
 
     g.drawImage(Font.CLEAN.getText("Spouse"), 5, 5, null);
     g.drawImage(w.drawWithFont(language.lookUpWord(Meaning.SPOUSE), 50, 3,
@@ -224,6 +253,8 @@ public class LanguageTests {
 
     BufferedImage image = new BufferedImage(2000, 2000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) image.getGraphics();
+    g.setColor(new Color(255, 255, 255));
+    g.fillRect(0, 0, image.getWidth(), image.getHeight());
 
     g.drawImage(Font.CLEAN.getText("The people see the country."), 5, 5, null);
 

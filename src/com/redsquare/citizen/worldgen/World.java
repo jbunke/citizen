@@ -6,7 +6,7 @@ import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.game_states.MenuGameState;
 import com.redsquare.citizen.game_states.menu_elements.MenuStateCode;
 import com.redsquare.citizen.graphics.Font;
-import com.redsquare.citizen.systems.language.WritingSystem;
+import com.redsquare.citizen.systems.language.*;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.politics.State;
 import com.redsquare.citizen.systems.vexillography.Flag;
@@ -19,9 +19,6 @@ import java.util.*;
 import java.util.List;
 
 public class World {
-
-  public final static int DEFAULT_WIDTH = 640;
-  public final static int DEFAULT_HEIGHT = 360;
 
   private final static int LAND_FILL_REPS = 1;
   private final static int LAND_PEER_THRESHOLD = 5;
@@ -47,7 +44,7 @@ public class World {
 
   private final WorldManager worldManager;
 
-  private boolean generated[][];
+  private boolean[][] generated;
 
   private Set<Settlement> settlements = null;
 
@@ -56,11 +53,11 @@ public class World {
   private final WorldCell[][] cells;
   private State[][] borders;
   private final List<River> rivers;
+  private final List<Desert> deserts;
+  private final List<BodyOfWater> bodiesOfWater;
 
   private final int width;
   private final int height;
-
-  private int poleAt;
 
   public static World safeCreate(int width, int height,
                                  int plateCount, int trials) {
@@ -126,13 +123,19 @@ public class World {
     // ELEVATION
     elevationDetermination();
 
-    // RIVERS
-    rivers = new ArrayList<>();
+    // BODIES OF WATER
+      bodiesOfWater = new ArrayList<>();
     for (TectonicPlate plate : plates) {
-      rivers.addAll(plate.generateRivers(cells));
+        if (plate.getPlateType() == PlateType.OCEANIC && plate.getArea() > 500)
+            bodiesOfWater.add(new BodyOfWater(plate.central(), plate.bodyOfWaterClassification()));
     }
 
+    // RIVERS
+    rivers = new ArrayList<>();
+    riverLogic();
+
     // DESERTS
+    deserts = new ArrayList<>();
     generateDeserts();
 
     for (int i = 0; i < DESERT_FILL_REPS; i++) {
@@ -181,6 +184,9 @@ public class World {
     // BORDERS
     establishBorders();
 
+    // Name physical geography
+    namePhysicalGeography();
+
     updateMenuScreen(MenuStateCode.SIMULATING_HISTORY);
 
     this.worldManager = WorldManager.init(this);
@@ -188,6 +194,47 @@ public class World {
 
   public WorldManager getWorldManager() {
     return worldManager;
+  }
+
+  private void riverLogic() {
+      for (TectonicPlate plate : plates) {
+          if (plate.area > 100)
+              rivers.addAll(plate.generateRivers(cells));
+      }
+
+      // Remove really small rivers
+      for (int i = 0; i < rivers.size(); i++) {
+          if (rivers.get(i).getRiverPoints().size() < 6) {
+              rivers.remove(i);
+              i--;
+          }
+      }
+  }
+
+  private void namePhysicalGeography() {
+    // Rivers
+    for (River r : rivers) {
+      Point rp = r.getCentral();
+      Settlement closest = closestTo(rp.x, rp.y);
+      r.setName(PlaceNameGenerator.generateRandomName(2, 4,
+              closest.getState().getLanguage().getPhonology()));
+    }
+
+    // Desert
+    for (Desert d : deserts) {
+      Point dp = d.getOrigin();
+      Settlement closest = closestTo(dp.x, dp.y);
+      d.nameDesert(PlaceNameGenerator.generateRandomName(2, 4,
+              closest.getState().getLanguage().getPhonology()));
+    }
+
+    // Bodies of water
+    for (BodyOfWater body : bodiesOfWater) {
+        Point bp = body.getOrigin();
+        Settlement closest = closestTo(bp.x, bp.y);
+        body.setName(PlaceNameGenerator.generateRandomName(2, 4,
+                closest.getState().getLanguage().getPhonology()));
+    }
   }
 
   public void processConsolidation(State from, State to, boolean wasCapital) {
@@ -320,7 +367,7 @@ public class World {
   }
 
   private void generatePoles() {
-    poleAt = width / 2;
+    int poleAt = width / 2;
     Point northPole = new Point(poleAt, 0);
     Point southPole = new Point((width - 1) - poleAt, height - 1);
 
@@ -359,10 +406,10 @@ public class World {
 
     for (int i = 0; i < desertCount; i++) {
       boolean found = false;
-      Point point = randomPoint();
+      Point point = randomPoint(0, width - 1, height / 3, 2 * (height / 3));
 
       while (!found) {
-        point = randomPoint();
+        point = randomPoint(0, width - 1, height / 3, 2 * (height / 3));
 
         if (cells[point.x][point.y].getType() == WorldCell.Type.PLAIN)
           found = true;
@@ -373,6 +420,7 @@ public class World {
   }
 
   private void spawnDesert(Point origin) {
+    deserts.add(new Desert(origin));
     generated = new boolean[width][height];
 
     generated[origin.x][origin.y] = true;
@@ -582,6 +630,109 @@ public class World {
     return map;
   }
 
+  BufferedImage stateMap(final int SCALE_UP, State state) {
+    if (!states.contains(state))
+      return null;
+
+    final int LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
+    final int[] indices = new int[4];
+    final boolean[] found = new boolean[4];
+    final int BORDER = 5;
+
+    for (int i = LEFT; i <= RIGHT; i++) {
+      for (int x = i < RIGHT ? 0 : width - 1; x < width && x >= 0; x += (i < RIGHT ? 1 : -1)) {
+        for (int y = 0; y < height; y++) {
+          if (found[i]) break;
+          if (borders[x][y]!= null && borders[x][y].equals(state)) {
+            found[i] = true;
+            switch (i) {
+              case 0:
+                indices[i] = Math.max(0, x - BORDER);
+                break;
+              case 1:
+                indices[i] = Math.min(width - 1, x + BORDER);
+                break;
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = TOP; i <= BOTTOM; i++) {
+      for (int y = i < BOTTOM ? 0 : height - 1; y < height && y >= 0; y += (i < BOTTOM ? 1 : -1)) {
+        for (int x = 0; x < width; x++) {
+          if (found[i]) break;
+          if (borders[x][y]!= null && borders[x][y].equals(state)) {
+            found[i] = true;
+            switch (i) {
+              case 2:
+                indices[i] = Math.max(0, y - BORDER);
+                break;
+              case 3:
+                indices[i] = Math.min(height - 1, y + BORDER);
+                break;
+            }
+          }
+        }
+      }
+    }
+
+    BufferedImage image = new BufferedImage(((indices[RIGHT] - indices[LEFT]) + 1) * SCALE_UP,
+            ((indices[BOTTOM] - indices[TOP]) + 1) * SCALE_UP, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) image.getGraphics();
+
+    for (int x = indices[LEFT]; x <= indices[RIGHT]; x ++) {
+      for (int y = indices[TOP]; y <= indices[BOTTOM]; y++) {
+        WorldCell wc = cells[x][y];
+        Color c = borders[x][y] != null && borders[x][y].equals(state) ?
+                WorldCell.getMapColor(wc.getType(), wc.getRegion()) :
+                ColorMath.sepia(WorldCell.getMapColor(wc.getType(), wc.getRegion()));
+        g.setColor(c);
+        g.fillRect((x - indices[LEFT]) * SCALE_UP, (y - indices[TOP]) * SCALE_UP, SCALE_UP, SCALE_UP);
+
+        int xm = Math.max(0, x - 1), xp = Math.min(width - 1, x + 1),
+                ym = Math.max(0, y - 1), yp = Math.min(height - 1, y + 1);
+
+        boolean isBorder =
+                ((borders[x][y] != null && borders[x][y].equals(state) &&
+                        ((borders[xm][y] == null || !borders[xm][y].equals(state)) ||
+                                (borders[xp][y] == null || !borders[xp][y].equals(state)) ||
+                                (borders[x][ym] == null || !borders[x][ym].equals(state)) ||
+                                (borders[x][yp] == null || !borders[x][yp].equals(state)))));
+
+        if (isBorder) {
+          g.setColor(new Color(0, 0, 0, 200));
+          g.fillRect((x - indices[LEFT]) * SCALE_UP, (y - indices[TOP]) * SCALE_UP, SCALE_UP, SCALE_UP);
+        }
+      }
+    }
+
+    Settlement capital = state.getCapital();
+    int[] coords = new int[] { (capital.getLocation().x - indices[LEFT]) * SCALE_UP,
+            (capital.getLocation().y - indices[TOP]) * SCALE_UP };
+    BufferedImage setLabel = state.getLanguage().
+            getWritingSystem().drawWithFont(capital.getName(), 40, 2, 2,
+            Fonts::fontIdentityX, Fonts::fontIdentityY);
+
+    g.setColor(new Color(255, 0, 0));
+    g.fillOval(coords[0] - 4, coords[1] - 4, 9, 9);
+    g.drawImage(setLabel, coords[0] + 10, coords[1] - 20, null);
+
+    BufferedImage countryName = state.getLanguage().getWritingSystem().drawWithFont(
+            state.getLanguage().lookUpWord(Meaning.THIS_STATE), SCALE_UP * 10,
+            SCALE_UP / 2, SCALE_UP / 3, Fonts::fontIdentityX, Fonts::fontIdentityY);
+
+    while (countryName.getWidth() / (double)(image.getWidth()) > 0.9) {
+      countryName = Formatter.scale(countryName, 0.8);
+    }
+
+    g.drawImage(countryName, (image.getWidth() / 2) - (countryName.getWidth() / 2),
+            image.getHeight() - (countryName.getHeight() + 2 * SCALE_UP), null);
+    g.drawImage(state.getFlag().draw(SCALE_UP / 7), 10, 10, null);
+
+    return image;
+  }
+
   BufferedImage regionMap(final int SCALE_UP) {
     BufferedImage map = new BufferedImage(width * SCALE_UP, height * SCALE_UP,
             BufferedImage.TYPE_INT_ARGB);
@@ -618,7 +769,7 @@ public class World {
     Graphics2D g = (Graphics2D) map.getGraphics();
 
     // base geography underneath
-    g.drawImage(physicalGeography(SCALE_UP), 0, 0, null);
+    g.drawImage(physicalGeography(SCALE_UP, false), 0, 0, null);
 
     Map<State, Color> stateColorMap = new HashMap<>();
 
@@ -699,7 +850,7 @@ public class World {
     // base geography underneath
     if (withBorders)
       g.drawImage(borderMap(SCALE_UP, regionBorders), 0, 0, null);
-    else g.drawImage(physicalGeography(SCALE_UP), 0, 0, null);
+    else g.drawImage(physicalGeography(SCALE_UP, false), 0, 0, null);
 
     for (State state : states) {
       Set<Settlement> settlements = state.settlements();
@@ -755,24 +906,6 @@ public class World {
                   location.y * SCALE_UP + name.getHeight(),null);
         }
       }
-
-//      Point capitalLoc = state.getCapital().getLocation();
-//      WritingSystem ws = state.getLanguage().getWritingSystem();
-//
-//      BufferedImage text = Font.CLEAN.getText(
-//              Formatter.properNoun(state.getName()));
-//      BufferedImage symbols = ws.draw(state.getName(), 2);
-//
-//      g.setColor(new Color(255, 255, 255, 150));
-//      g.fillRect(capitalLoc.x * SCALE_UP - (symbols.getWidth() / 2 + 5),
-//              capitalLoc.y * SCALE_UP - symbols.getHeight(),
-//              symbols.getWidth() + 10, symbols.getHeight() * 2);
-//
-//      g.drawImage(text, capitalLoc.x * SCALE_UP - text.getWidth() / 2,
-//              capitalLoc.y * SCALE_UP - (int)(1.5 * text.getHeight()),
-//              null);
-//      g.drawImage(symbols, capitalLoc.x * SCALE_UP - symbols.getWidth() / 2,
-//              capitalLoc.y * SCALE_UP, null);
     }
 
     for (State state : states) {
@@ -787,7 +920,7 @@ public class World {
     return map;
   }
 
-  BufferedImage physicalGeography(final int SCALE_UP) {
+  BufferedImage physicalGeography(final int SCALE_UP, boolean marked) {
     BufferedImage map =
             new BufferedImage(width * SCALE_UP, height * SCALE_UP,
                     BufferedImage.TYPE_INT_ARGB);
@@ -803,6 +936,33 @@ public class World {
                   WorldCell.Type.SHALLOW, cells[x][y].getRegion()));
         g.fillRect(x * SCALE_UP, y * SCALE_UP, SCALE_UP, SCALE_UP);
       }
+    }
+
+    if (marked) {
+      // NAMES
+      // Rivers
+      for (River r : rivers) {
+        Word name = r.getName();
+        Point p = r.getCentral();
+
+        BufferedImage label = Font.CLEAN.getText(Formatter.properNoun(name.toString() + " River"));
+        g.drawImage(label, p.x * SCALE_UP - label.getWidth() / 2, p.y * SCALE_UP, null);
+      }
+      // Deserts
+      for (Desert d : deserts) {
+        Word name = d.getName();
+        Point p = d.getOrigin();
+
+        BufferedImage label = Font.CLEAN.getText(Formatter.properNoun(name.toString() + " Desert"));
+        g.drawImage(label, p.x * SCALE_UP - label.getWidth() / 2, p.y * SCALE_UP, null);
+      }
+        // Deserts
+        for (BodyOfWater body : bodiesOfWater) {
+            Point p = body.getOrigin();
+
+            BufferedImage label = Font.CLEAN.getText(Formatter.properNoun(body.getName()));
+            g.drawImage(label, p.x * SCALE_UP - label.getWidth() / 2, p.y * SCALE_UP, null);
+        }
     }
 
     return map;
@@ -899,6 +1059,60 @@ public class World {
     OCEANIC, LAND_CAPABLE
   }
 
+  static class BodyOfWater {
+      private final double R;
+      private Word name;
+      private final Point origin;
+      private final Classification classification;
+
+      enum Classification {
+          OCEAN, SEA, GULF
+      }
+
+      BodyOfWater(Point origin, Classification classification) {
+          this.R = Math.random();
+          this.classification = classification;
+          this.origin = origin;
+      }
+
+      void setName(Word name) {
+          this.name = name;
+      }
+
+      Point getOrigin() {
+          return origin;
+      }
+
+      String getName() {
+          if (R < 0.7)
+              return Formatter.properNoun(name.toString()) + " " +
+                      Formatter.properNoun(classification.name().toLowerCase());
+          return Formatter.properNoun(classification.name().toLowerCase()) + " of " +
+                  Formatter.properNoun(name.toString());
+      }
+  }
+
+  static class Desert {
+    private Word name;
+    private final Point origin;
+
+    Desert(Point origin) {
+      this.origin = origin;
+    }
+
+    Word getName() {
+      return name;
+    }
+
+    Point getOrigin() {
+      return origin;
+    }
+
+    void nameDesert(Word name) {
+      this.name = name;
+    }
+  }
+
   class TectonicPlate {
 
     private final static double DIVISOR = 3.0;
@@ -907,7 +1121,7 @@ public class World {
     private final static int MAX_ENCLOSED = 50;
     private final static int MASSES_THRESHOLD = 500;
     private final static int MAX_ADDITIONAL_MASSES = 1;
-    private final static int MAX_RIVER_PER_PLATE = 40;
+    private final static int MAX_RIVER_PER_PLATE = 12;
     private final static int SUPPORTS_RIVER_THRESHOLD = 500;
     private final static int TRIALS_PER_RIVER = 200;
     private final static int GROWTH_TURNS = 20;
@@ -949,13 +1163,36 @@ public class World {
       generateGrid(plates, index);
     }
 
+    Point central() {
+      List<Point> points = new ArrayList<>();
+
+      for (int x = leftmost; x <= rightmost; x++) {
+        for (int y = topmost; y <= bottommost; y++) {
+          if (grid[x][y])
+            points.add(new Point(x, y));
+        }
+      }
+
+      return MathExt.averagePoint(points);
+    }
+
+    BodyOfWater.Classification bodyOfWaterClassification() {
+        if (area > 6000)
+            return BodyOfWater.Classification.OCEAN;
+        else if (area > 2000)
+            return BodyOfWater.Classification.SEA;
+        else
+            return BodyOfWater.Classification.GULF;
+    }
+
     List<River> generateRivers(WorldCell[][] cells) {
       if (area < SUPPORTS_RIVER_THRESHOLD) return new ArrayList<>();
 
       List<River> rivers = new ArrayList<>();
 
       int RIVER_RANGE = 5;
-      int riverCount = (int)(Math.random() * MAX_RIVER_PER_PLATE);
+      int riverCount = (int)(Randoms.bounded(0.5, 1.0) *
+              Math.min(Math.sqrt(area) / 60., 1.) * MAX_RIVER_PER_PLATE);
 
       for (int i = 0; i < riverCount; i++) {
         // GENERATE ORIGIN
@@ -969,9 +1206,7 @@ public class World {
                   Math.min(rightmost, width - RIVER_RANGE),
                   Math.max(topmost, RIVER_RANGE),
                   Math.min(bottommost, height - RIVER_RANGE));
-          WorldCell.Type type = cells[riverStart.x][riverStart.y].getType();
-          if (!onPlate(riverStart) ||
-                  (type != WorldCell.Type.SHALLOW))
+          if (!onPlate(riverStart))
             found = false;
         }
 
@@ -986,8 +1221,8 @@ public class World {
         while (!found && trials < TRIALS_PER_RIVER) {
           trials++;
           found = true;
-          point = randomPoint(riverStart.x - 3, riverStart.x + 3,
-                  riverStart.y - 3, riverStart.y + 3);
+          point = randomPoint(riverStart.x - 1, riverStart.x + 2,
+                  riverStart.y - 1, riverStart.y + 2);
           if (!cells[point.x][point.y].isLand() ||
                   cells[point.x][point.y].getElevation() != 0)
             found = false;
@@ -1004,18 +1239,19 @@ public class World {
           River.RiverPoint next = river.generateNext();
           Point loc = next.point;
 
-          done = Math.random() < 0.02;
+          // done = Math.random() < (0.02 * Math.sqrt(river.getRiverPoints().size()));
 
           if (loc.x < 0 || loc.x >= width || loc.y < 0 || loc.y >= height) {
             break;
           }
 
-          done |= (cells[loc.x][loc.y].getElevation() != 0 ||
-                  !cells[loc.x][loc.y].isLand());
+          done = (!cells[loc.x][loc.y].isLand());
 
           if (!done)
             river.addRiverPoint(next);
         }
+
+        river.setCentral();
 
         for (River.RiverPoint riverPoint : river.getRiverPoints()) {
           Point loc = riverPoint.point;

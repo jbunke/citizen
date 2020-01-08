@@ -143,6 +143,8 @@ public class Grammar {
   BufferedImage verbTable(Meaning meaning, Language language) {
     BufferedImage table = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) table.getGraphics();
+    g.setColor(new Color(255, 255, 255));
+    g.fillRect(0, 0, table.getWidth(), table.getHeight());
 
     Word verb = language.lookUpWord(meaning);
     g.drawImage(Font.CLEAN.getText(Word.compound(verb,
