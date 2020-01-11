@@ -6,8 +6,8 @@ import com.redsquare.citizen.util.FloatPoint;
 import java.awt.*;
 
 public class WorldPosition {
-  public static final int CELLS_IN_WORLD_CELL_DIM = 384;
-  public static final double CELL_DIMENSION_LENGTH = 200.;
+  public static final int CELLS_IN_WORLD_CELL_DIM = 50; // 384
+  public static final double CELL_DIMENSION_LENGTH = 72.; // 72
 
   private final World world;
   private final Entity associated;

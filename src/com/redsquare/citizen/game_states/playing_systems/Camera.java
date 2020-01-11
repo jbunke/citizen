@@ -221,6 +221,14 @@ public class Camera {
       xCoords[CELL] -= WorldPosition.CELLS_IN_WORLD_CELL_DIM;
     }
 
+    if (yCoords[CELL] < 0) {
+      yCoords[WORLD]--;
+      yCoords[CELL] += WorldPosition.CELLS_IN_WORLD_CELL_DIM;
+    } else if (yCoords[CELL] >= WorldPosition.CELLS_IN_WORLD_CELL_DIM) {
+      yCoords[WORLD]++;
+      yCoords[CELL] -= WorldPosition.CELLS_IN_WORLD_CELL_DIM;
+    }
+
     int[] origYCoords = Arrays.copyOf(yCoords, 2);
 
     for (int x = 0; x < width; x++) {

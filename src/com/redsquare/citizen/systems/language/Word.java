@@ -103,9 +103,18 @@ public class Word {
   }
 
   boolean endsWith(final Phoneme[] phonemes) {
+    boolean endsWith = true;
+
     List<Phoneme> word = toPhonemes();
 
-    return true;
+    if (word.size() < phonemes.length) return false;
+
+    for (Phoneme phoneme : phonemes) {
+      endsWith &= phoneme.equals(word.get(word.size() - 1));
+      word.remove(word.size() - 1);
+    }
+
+    return endsWith;
   }
 
   Word offspring(Set<SoundShift> soundShifts) {
