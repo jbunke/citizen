@@ -1,5 +1,6 @@
 package com.redsquare.citizen.systems.language;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -87,6 +88,24 @@ public class Word {
     }
 
     return new Word(syllables);
+  }
+
+  private List<Phoneme> toPhonemes() {
+    List<Phoneme> phonemes = new ArrayList<>();
+
+    for (Syllable syllable : this.syllables) {
+      if (syllable.getPrefix().length() > 0) phonemes.add(new Phoneme(syllable.getPrefix()));
+      phonemes.add(new Phoneme(syllable.getVowel()));
+      if (syllable.getSuffix().length() > 0) phonemes.add(new Phoneme(syllable.getSuffix()));
+    }
+
+    return phonemes;
+  }
+
+  boolean endsWith(final Phoneme[] phonemes) {
+    List<Phoneme> word = toPhonemes();
+
+    return true;
   }
 
   Word offspring(Set<SoundShift> soundShifts) {
