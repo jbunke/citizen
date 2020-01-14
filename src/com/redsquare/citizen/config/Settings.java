@@ -5,7 +5,15 @@ public class Settings {
   public static ExecutionMode executionMode = ExecutionMode.TEST;
 
   // Dedicated threads
+  /**
+   * The SECONDARY thread is the main thread for delegation concurrent tasks
+   * */
   public static Thread secondary = null;
+
+  /**
+   * The DEBUGGER thread is the dedicated thread for
+   * processing runtime debugging commands
+   * */
   public static Thread debugger = null;
 
   public enum ExecutionMode {

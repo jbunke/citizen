@@ -28,6 +28,9 @@ public class Camera {
 
   private FloatPoint ref;
 
+  // DEBUG INFO
+  private int entityCount = 0;
+
   private Camera(Entity target) {
     this.target = target;
 
@@ -130,6 +133,13 @@ public class Camera {
 
     // Entities are sorted by y-position, which determines render order
     Collections.sort(entities);
+
+    if (entities.size() != entityCount) {
+      entityCount = entities.size();
+      GameDebug.printMessage(
+              "Rendering: " + entityCount + " entities",
+              GameDebug::printDebug);
+    }
 
     entities.forEach(x -> {
       x.renderUpdate();

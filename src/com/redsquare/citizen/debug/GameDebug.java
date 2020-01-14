@@ -13,6 +13,7 @@ public class GameDebug {
   private static final int MAX_MESSAGE_AMOUNT = 10;
 
   private static boolean active = false;
+  private static int importanceThreshold = 0;
   private static Message[] messages = new Message[MAX_MESSAGE_AMOUNT];
 
   public static class Message {
@@ -40,6 +41,18 @@ public class GameDebug {
     active = false;
   }
 
+  public static int getImportanceThreshold() {
+    return importanceThreshold;
+  }
+
+  public static void resetImportanceThreshold() {
+    importanceThreshold = 0;
+  }
+
+  public static void setImportanceThreshold(final int importanceThreshold) {
+    GameDebug.importanceThreshold = importanceThreshold;
+  }
+
   public static void printMessage(String message,
                                   Consumer<String> function) {
     if (active)
@@ -52,6 +65,11 @@ public class GameDebug {
     if (Settings.executionMode == Settings.ExecutionMode.GAME)
       addMessage(new Message(content));
     else System.out.println(content);
+  }
+
+  public static void printDebugWithImportance(String message, int importance) {
+    if (importance >= importanceThreshold)
+      printDebug(message);
   }
 
   public static void printDebug(String message) {

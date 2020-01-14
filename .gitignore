@@ -2,5 +2,6 @@
 out/
 lib/
 test_output/
+archive/
 
 *.iml

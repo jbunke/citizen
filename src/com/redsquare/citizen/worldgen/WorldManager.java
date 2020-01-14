@@ -1,5 +1,6 @@
 package com.redsquare.citizen.worldgen;
 
+import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.entity.Entity;
 import com.redsquare.citizen.entity.Person;
 import com.redsquare.citizen.entity.Player;
@@ -20,6 +21,9 @@ public class WorldManager {
   private GameDate date;
   private final Set<Person> people;
   private Player player;
+
+  // DEBUG INFO
+  private int entityCount = 0;
 
   private WorldManager(World world) {
     this.world = world;
@@ -101,6 +105,13 @@ public class WorldManager {
     populateCellsAroundPlayer();
 
     Set<Entity> entities = entitiesCloseBy();
+
+    if (entityCount != entities.size()) {
+      entityCount = entities.size();
+      GameDebug.printMessage(
+              "Processing: " + entityCount + " entities",
+              GameDebug::printDebug);
+    }
 
     for (Entity entity : entities) entity.update();
 

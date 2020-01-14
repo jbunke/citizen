@@ -920,6 +920,20 @@ public class World {
     return map;
   }
 
+
+  public BufferedImage worldMiniMap(Point worldLocation) {
+    BufferedImage miniMap = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+    BufferedImage wholeWorld = physicalGeography(4, false);
+
+    Graphics2D g = (Graphics2D) miniMap.getGraphics();
+
+    g.drawImage(wholeWorld, -1 * (worldLocation.x * 4),
+            -1 * (worldLocation.y * 4), null);
+
+    return miniMap;
+  }
+
+
   BufferedImage physicalGeography(final int SCALE_UP, boolean marked) {
     BufferedImage map =
             new BufferedImage(width * SCALE_UP, height * SCALE_UP,

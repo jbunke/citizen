@@ -23,6 +23,10 @@ public final class PlayingGameState extends GameState {
   private final Player player;
   private final Camera camera;
 
+  // DEBUG
+  private Point worldPosition = new Point(-1, -1);
+  private BufferedImage miniMap = null;
+
   private PlayingGameState() {
     int x = WorldConfig.getXDim();
     int y = (x * 9) / 16;
@@ -52,7 +56,19 @@ public final class PlayingGameState extends GameState {
 
     camera.render(g, world);
 
+
+    // DEBUG
     if (GameDebug.isActive()) {
+      Point worldPosition = player.position().world();
+
+      if (!this.worldPosition.equals(worldPosition) || miniMap == null) {
+        this.worldPosition = worldPosition;
+        miniMap = world.worldMiniMap(worldPosition);
+      }
+
+      g.drawImage(miniMap, Settings.SCREEN_DIM[0] -
+              (miniMap.getWidth() + 10), 10, null);
+
       BufferedImage animState = Font.CLEAN.getText(player.getSpriteCode());
       BufferedImage position = Font.CLEAN.getText(player.position().toString());
       g.drawImage(animState, Settings.SCREEN_DIM[0] - animState.getWidth(),
