@@ -927,14 +927,14 @@ public class World {
 
     Graphics2D g = (Graphics2D) miniMap.getGraphics();
 
-    g.drawImage(wholeWorld, -1 * (worldLocation.x * 4),
-            -1 * (worldLocation.y * 4), null);
+    g.drawImage(wholeWorld, -1 * ((worldLocation.x - 12) * 4),
+            -1 * ((worldLocation.y - 12) * 4), null);
 
     return miniMap;
   }
 
 
-  BufferedImage physicalGeography(final int SCALE_UP, boolean marked) {
+  public BufferedImage physicalGeography(final int SCALE_UP, boolean marked) {
     BufferedImage map =
             new BufferedImage(width * SCALE_UP, height * SCALE_UP,
                     BufferedImage.TYPE_INT_ARGB);

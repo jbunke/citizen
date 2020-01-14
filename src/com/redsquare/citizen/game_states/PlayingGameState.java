@@ -34,10 +34,13 @@ public final class PlayingGameState extends GameState {
     world.getWorldManager().startOfGameSimulation(WorldConfig.getSimulationYears());
     this.player = world.getWorldManager().getPlayer();
     camera = Camera.generate(player);
+
+    if (GameDebug.isArchiving())
+      GameDebug.prepArchiving(player, world);
   }
 
   public static PlayingGameState init() {
-    GameDebug.printMessage("Initialising \"playing\" game state...",
+    GameDebug.printMessage("Initialising \"PLAYING\" game state...",
             GameDebug::printDebug);
     return new PlayingGameState();
   }

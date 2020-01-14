@@ -1,11 +1,18 @@
 package com.redsquare.citizen.debug;
 
 import com.redsquare.citizen.config.Settings;
+import com.redsquare.citizen.entity.Player;
 import com.redsquare.citizen.graphics.Font;
+import com.redsquare.citizen.util.IOForTesting;
 import com.redsquare.citizen.util.Orientation;
+import com.redsquare.citizen.worldgen.World;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.function.Consumer;
 
 public class GameDebug {
@@ -15,6 +22,12 @@ public class GameDebug {
   private static boolean active = false;
   private static int importanceThreshold = 0;
   private static Message[] messages = new Message[MAX_MESSAGE_AMOUNT];
+
+  private static String archiveFilePath = "archive/default/";
+  private static boolean isArchiving = false;
+
+  private static Player archiveCopyPlayer = null;
+  private static World archiveCopyWorld = null;
 
   public static class Message {
     final String content;
@@ -40,6 +53,70 @@ public class GameDebug {
   public static void deactivate() {
     active = false;
   }
+
+  /** START OF ARCHIVING */
+
+  public static boolean isArchiving() {
+    return isArchiving;
+  }
+
+  public static void setIsArchiving(String archiveFilePath) {
+    isArchiving = true;
+    GameDebug.archiveFilePath = archiveFilePath;
+
+    IOForTesting.createDirectory(archiveFilePath);
+  }
+
+  public static void prepArchiving(Player player, World world) {
+    archiveCopyPlayer = player;
+    archiveCopyWorld = world;
+
+    Settings.archive = new Thread(GameDebug::archive);
+    Settings.archive.start();
+  }
+
+  private static void archive() {
+    drawMaps();
+    playerInfo();
+
+    // TODO
+  }
+
+  private static void drawMaps() {
+    String dir = archiveFilePath + "maps/";
+    IOForTesting.createDirectory(dir);
+
+    String geoPath = dir + "physical_geography.png";
+    BufferedImage geoMap = archiveCopyWorld.physicalGeography(
+            10, true);
+    IOForTesting.saveImage(geoMap, geoPath);
+
+    String polPath = dir + "political_map.png";
+    BufferedImage polMap = archiveCopyWorld.politicalMap(
+            10, true, false, true);
+    IOForTesting.saveImage(polMap, polPath);
+  }
+
+  private static void playerInfo() {
+    String dir = archiveFilePath + "player/";
+    IOForTesting.createDirectory(dir);
+
+    try {
+      BufferedWriter bw = new BufferedWriter(
+              new FileWriter(new File(dir + "basic_info.txt")));
+      bw.write("PLAYER INFORMATION\n");
+      bw.newLine();
+
+      bw.write("Birthplace: " + archiveCopyPlayer.getBirthplace());
+      bw.newLine();
+
+      bw.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /** END OF ARCHIVING */
 
   public static int getImportanceThreshold() {
     return importanceThreshold;

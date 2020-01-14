@@ -16,6 +16,12 @@ public class Settings {
    * */
   public static Thread debugger = null;
 
+  /**
+   * The ARCHIVE thread is the dedicated thread for archiving
+   * runtime information for each execution
+   * */
+  public static Thread archive = null;
+
   public enum ExecutionMode {
     GAME, TEST
   }
