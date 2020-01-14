@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+mkdir archive
 
 mkdir test_output
 cd test_output
