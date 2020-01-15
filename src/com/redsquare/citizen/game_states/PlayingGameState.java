@@ -30,7 +30,7 @@ public final class PlayingGameState extends GameState {
   private PlayingGameState() {
     int x = WorldConfig.getXDim();
     int y = (x * 9) / 16;
-    world = World.safeCreate(x, y, WorldConfig.getPlateCount(), 20);
+    world = World.safeCreate(x, y, WorldConfig.getPlateCount(), 5);
     world.getWorldManager().startOfGameSimulation(WorldConfig.getSimulationYears());
     this.player = world.getWorldManager().getPlayer();
     camera = Camera.generate(player);
@@ -58,7 +58,6 @@ public final class PlayingGameState extends GameState {
     // TODO: filter micro-scope entity set
 
     camera.render(g, world);
-
 
     // DEBUG
     if (GameDebug.isActive()) {

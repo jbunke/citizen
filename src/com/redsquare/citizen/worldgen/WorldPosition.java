@@ -2,6 +2,7 @@ package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.entity.Entity;
 import com.redsquare.citizen.util.FloatPoint;
+import com.redsquare.citizen.util.Randoms;
 
 import java.awt.*;
 
@@ -27,6 +28,12 @@ public class WorldPosition {
 
     if (isEntity())
       world.getCell(worldPos.x, worldPos.y).addEntity(associated);
+  }
+
+  public static FloatPoint randomizeWithinSubCell() {
+    return new FloatPoint(
+            Randoms.bounded(0, CELL_DIMENSION_LENGTH - 1.),
+            Randoms.bounded(0, CELL_DIMENSION_LENGTH - 1.));
   }
 
   public static WorldPosition copy(WorldPosition ref) {

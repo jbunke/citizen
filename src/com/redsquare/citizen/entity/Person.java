@@ -169,9 +169,7 @@ public class Person extends LivingMoving {
     Point worldPos = birthplace.getLocation();
     Point cell = new Point(WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2,
             WorldPosition.CELLS_IN_WORLD_CELL_DIM / 2);
-    FloatPoint subCell = new FloatPoint(
-            Randoms.bounded(0, WorldPosition.CELL_DIMENSION_LENGTH - 1.),
-            Randoms.bounded(0, WorldPosition.CELL_DIMENSION_LENGTH - 1.));
+    FloatPoint subCell = WorldPosition.randomizeWithinSubCell();
 
     return new WorldPosition(worldPos, cell, subCell, world, this);
   }

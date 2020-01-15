@@ -15,20 +15,33 @@ public class Collider {
 
   public static Collider getColliderFromType(EntityType type) {
     CollisionBox[] boxes;
-    boolean immovable = false;
+    boolean immovable;
 
-    // TODO: type determines different kinds of collision boxes
-    boxes = new CollisionBox[] {
-            new CollisionBox(-22, -24, 44, 34)
-            // new CollisionBox(-28, -24, 56, 34),
-            // new CollisionBox(-22, -30, 44, 46)
-    };
+    switch (type) {
+      case PERSON:
+        immovable = false;
+        boxes = new CollisionBox[] {
+                new CollisionBox(-22, -24, 44, 34)
+        };
+        break;
+      case WALL:
+        immovable = true;
+        boxes = new CollisionBox[] {
+                new CollisionBox(-36, -36, 72, 72)
+        };
+        break;
+      case NO_COLLISION:
+      default:
+        immovable = true;
+        boxes = new CollisionBox[] {};
+        break;
+    }
 
     return new Collider(boxes, immovable, type);
   }
 
   public enum EntityType {
-    PERSON, WALL
+    PERSON, WALL, NO_COLLISION
   }
 
   public static class CollisionBox {
