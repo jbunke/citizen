@@ -41,7 +41,7 @@ public final class ItemEntity extends Entity {
    * that they can be interacted with; picked up
    * */
   private void floatingUpdate() {
-    double increment = 0.01 + (0.05 * Math.abs(1. - renderFloatHeight));
+    double increment = 0.03 + (0.03 * Math.abs(1. - renderFloatHeight));
 
     renderFloatHeight = increasing ?
             renderFloatHeight + increment :

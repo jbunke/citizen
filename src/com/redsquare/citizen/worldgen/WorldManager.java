@@ -114,7 +114,8 @@ public class WorldManager {
               GameDebug::printDebug);
     }
 
-    for (Entity entity : entities) entity.update();
+    for (Entity entity : entities)
+      entity.update();
 
     collisionCheck(entities);
   }
