@@ -65,7 +65,7 @@ public class WorldCell {
 
     for (int x = 0; x < WorldPosition.CELLS_IN_WORLD_CELL_DIM; x++) {
       for (int y = 0; y < WorldPosition.CELLS_IN_WORLD_CELL_DIM; y++) {
-        subCells[x][y] = new WorldSubCell(new Point(x, y), this, WorldSubCell.Type.GRASS);
+        subCells[x][y] = new WorldSubCell(new Point(x, y), this, type);
       }
     }
   }

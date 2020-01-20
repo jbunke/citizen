@@ -930,6 +930,9 @@ public class World {
     g.drawImage(wholeWorld, -1 * ((worldLocation.x - 12) * 4),
             -1 * ((worldLocation.y - 12) * 4), null);
 
+    g.setColor(new Color(0, 0, 0));
+    g.fillRect(48, 48, 4, 4);
+
     return miniMap;
   }
 

@@ -10,20 +10,55 @@ public class WorldSubCell {
   private final WorldCell cell;
   private final Color testColor;
 
-  private final Type baseType;
+  private final WorldCell.Type type;
 
-  WorldSubCell(Point location, WorldCell cell, Type baseType) {
+  WorldSubCell(Point location, WorldCell cell, WorldCell.Type type) {
     this.location = location;
     this.cell = cell;
-    this.baseType = baseType;
+    this.type = type;
 
-    this.testColor = (location.x + location.y) % 2 == 0 ?
-            new Color(100, 150, 50) :
-            new Color(120, 120, 50);
-  }
-
-  public enum Type {
-    GRASS,
+    switch (type) {
+      case PLAIN:
+        this.testColor = (location.x + location.y) % 2 == 0 ?
+                new Color(100, 150, 50) :
+                new Color(120, 120, 50);
+        break;
+      case DESERT:
+        this.testColor = (location.x + location.y) % 2 == 0 ?
+                new Color(200, 110, 80) :
+                new Color(220, 120, 80);
+        break;
+      case HILL:
+        this.testColor = (location.x + location.y) % 2 == 0 ?
+                new Color(100, 100, 50) :
+                new Color(80, 80, 50);
+        break;
+      case SHALLOW:
+        this.testColor = new Color(100, 120, 200);
+        break;
+      case SEA:
+        this.testColor = new Color(70, 80, 150);
+        break;
+      case BEACH:
+        this.testColor = (location.x + location.y) % 2 == 0 ?
+                new Color(200, 150, 100) :
+                new Color(220, 170, 80);
+        break;
+      case MOUNTAIN:
+        this.testColor = (location.x + location.y) % 2 == 0 ?
+                new Color(100, 100, 100) :
+                new Color(80, 80, 80);
+        break;
+      case FOREST:
+        this.testColor = (location.x + location.y) % 2 == 0 ?
+                new Color(50, 100, 0) :
+                new Color(50, 70, 30);
+        break;
+      case NONE:
+      default:
+        this.testColor = new Color(0, 0, 0);
+        break;
+    }
   }
 
   public WorldCell getCell() {
