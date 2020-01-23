@@ -109,10 +109,10 @@ public final class Player extends Person {
 
   @Override
   public void update() {
+    super.update();
     // TODO
     setDirection();
     setMovementVector();
-    super.update();
   }
 
   private void setDirection() {

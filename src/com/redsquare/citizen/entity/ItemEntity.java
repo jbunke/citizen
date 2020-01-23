@@ -53,6 +53,10 @@ public final class ItemEntity extends Entity {
       increasing = true;
   }
 
+  public Item getItem() {
+    return item;
+  }
+
   @Override
   public BufferedImage getSprite() {
     BufferedImage sprite = new BufferedImage(SPRITE_DIMENSION, SPRITE_DIMENSION,

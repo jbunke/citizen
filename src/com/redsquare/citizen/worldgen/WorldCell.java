@@ -75,11 +75,11 @@ public class WorldCell {
             y >= 0 && y < WorldPosition.CELLS_IN_WORLD_CELL_DIM) ? subCells[x][y] : null;
   }
 
-  void addEntity(Entity e) {
+  public void addEntity(Entity e) {
     entities.add(e);
   }
 
-  void removeEntity(Entity e) {
+  public void removeEntity(Entity e) {
     entities.remove(e);
   }
 

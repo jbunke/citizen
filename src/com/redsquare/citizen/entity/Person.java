@@ -5,6 +5,7 @@ import com.redsquare.citizen.devkit.sprite_gen.Tilemapping;
 import com.redsquare.citizen.entity.collision.Collider;
 import com.redsquare.citizen.entity.movement.MovementLogic;
 import com.redsquare.citizen.graphics.*;
+import com.redsquare.citizen.item.Inventory;
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.politics.Culture;
 import com.redsquare.citizen.systems.politics.Family;
@@ -91,6 +92,7 @@ public class Person extends LivingMoving {
                    Settlement birthplace, World world) {
     this.movementLogic = MovementLogic.assign(this);
     this.sex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
+    this.inventory = Inventory.createInventory(this);
 
     this.father = father;
     this.mother = mother;
@@ -126,6 +128,8 @@ public class Person extends LivingMoving {
   Person(Sex sex, GameDate birthday, Settlement birthplace, World world) {
     this.movementLogic = MovementLogic.assign(this);
     this.sex = sex;
+    this.inventory = Inventory.createInventory(this);
+
     this.birthday = birthday;
     this.birthplace = birthplace;
 
@@ -494,7 +498,7 @@ public class Person extends LivingMoving {
 
   @Override
   public void update() {
-    movementLogic.update();
+    super.update();
   }
 
   @Override
