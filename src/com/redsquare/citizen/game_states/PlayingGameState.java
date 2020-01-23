@@ -61,6 +61,12 @@ public final class PlayingGameState extends GameState {
     camera.render(g, world);
 
     // HUD
+    // Selected slot
+    g.setColor(new Color(0, 0, 0));
+    int selectedSlot = player.getSelectedInventorySlot();
+    g.fillRect((Settings.SCREEN_DIM[0] / 2) + 50 + (selectedSlot * Item.ICON_DIMENSION), 78, 64, 5);
+
+    // Items
     Item[] inventory = player.getInventory().getContents();
     for (int i = 0; i < player.getInventory().getContents().length; i++) {
       if (inventory[i] == null)
@@ -68,6 +74,7 @@ public final class PlayingGameState extends GameState {
       g.drawImage(inventory[i].getItemIcon(), (Settings.SCREEN_DIM[0] / 2) +
               50 + (i * Item.ICON_DIMENSION), 10, null);
     }
+    // END HUD
 
     // DEBUG
     if (GameDebug.isActive()) {

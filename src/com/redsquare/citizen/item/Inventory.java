@@ -3,6 +3,7 @@ package com.redsquare.citizen.item;
 import com.redsquare.citizen.entity.ItemEntity;
 import com.redsquare.citizen.entity.LivingMoving;
 import com.redsquare.citizen.entity.Person;
+import com.redsquare.citizen.graphics.RenderDirection;
 
 public class Inventory {
   private final LivingMoving associated;
@@ -26,6 +27,10 @@ public class Inventory {
 
   public Item[] getContents() {
     return contents;
+  }
+
+  public void dropStack(int selectedSlot, RenderDirection direction) {
+
   }
 
   /**

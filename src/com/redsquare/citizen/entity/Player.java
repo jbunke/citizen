@@ -24,11 +24,14 @@ public final class Player extends Person {
    * used to determine direction */
   private FloatPoint lookingRef;
 
+  private int selectedInventorySlot;
+
   private Player(Sex sex, GameDate birthday, Settlement birthplace, World world) {
     super(sex, birthday, birthplace, world);
 
     dirKeys = new boolean[4];
     lookingRef = new FloatPoint(0., 0.);
+    selectedInventorySlot = 0;
   }
 
   public static Player temp(World world, GameDate birthday) {
@@ -72,6 +75,21 @@ public final class Player extends Person {
               dirKeys[RIGHT] = true;
               processed = true;
               break;
+            case SELECT_SLOT_1:
+              selectedInventorySlot = 0;
+              break;
+            case SELECT_SLOT_2:
+              selectedInventorySlot = 1;
+              break;
+            case SELECT_SLOT_3:
+              selectedInventorySlot = 2;
+              break;
+            case SELECT_SLOT_4:
+              selectedInventorySlot = 3;
+              break;
+            case SELECT_SLOT_5:
+              selectedInventorySlot = 4;
+              break;
           }
           break;
         case RELEASED:
@@ -96,6 +114,9 @@ public final class Player extends Person {
               movementLogic.toggleRunning();
               processed = true;
               break;
+            case DROP_ITEM_STACK:
+              inventory.dropStack(selectedInventorySlot, movementLogic.renderLogic().getDirection());
+              break;
           }
           break;
       }
@@ -105,6 +126,10 @@ public final class Player extends Person {
         i--;
       }
     }
+  }
+
+  public int getSelectedInventorySlot() {
+    return selectedInventorySlot;
   }
 
   @Override
