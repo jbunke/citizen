@@ -44,7 +44,7 @@ public class StackableItem extends Item {
     g.drawImage(
             Font.CLEAN.getText(String.valueOf(quantity), 1.8,
                     new Color(255, 255, 255)),
-            0, (int)(ICON_DIMENSION * 0.6), null);
+            (int)(ICON_DIMENSION * 0.25), (int)(ICON_DIMENSION * 0.6), null);
 
     return base;
   }

@@ -24,6 +24,10 @@ public class Inventory {
     return new Inventory(associatedEntity);
   }
 
+  public Item[] getContents() {
+    return contents;
+  }
+
   /**
    * Attempts to pick up item entities and insert them into inventory;
    * returns true if item entity should be deleted

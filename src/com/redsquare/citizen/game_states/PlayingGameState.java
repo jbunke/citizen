@@ -11,6 +11,7 @@ import com.redsquare.citizen.game_states.playing_systems.ControlScheme;
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.input_events.Event;
 import com.redsquare.citizen.input_events.KeyPressEvent;
+import com.redsquare.citizen.item.Item;
 import com.redsquare.citizen.worldgen.World;
 
 import java.awt.*;
@@ -58,6 +59,15 @@ public final class PlayingGameState extends GameState {
     // TODO: filter micro-scope entity set
 
     camera.render(g, world);
+
+    // HUD
+    Item[] inventory = player.getInventory().getContents();
+    for (int i = 0; i < player.getInventory().getContents().length; i++) {
+      if (inventory[i] == null)
+        continue;
+      g.drawImage(inventory[i].getItemIcon(), (Settings.SCREEN_DIM[0] / 2) +
+              50 + (i * Item.ICON_DIMENSION), 10, null);
+    }
 
     // DEBUG
     if (GameDebug.isActive()) {

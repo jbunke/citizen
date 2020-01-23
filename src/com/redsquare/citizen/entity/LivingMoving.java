@@ -25,6 +25,10 @@ public abstract class LivingMoving extends Lifeform {
     return sex;
   }
 
+  public Inventory getInventory() {
+    return inventory;
+  }
+
   private void pickupCheckUpdate() {
     pickupCheck++;
     pickupCheck %= 5;
