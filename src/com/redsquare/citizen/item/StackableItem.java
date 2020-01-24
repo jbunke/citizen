@@ -15,6 +15,10 @@ public class StackableItem extends Item {
     this.itemID = itemID;
   }
 
+  static StackableItem fromIDAndQuantity(final String ITEM_ID, final int QUANTITY) {
+    return new StackableItem(ITEM_ID, QUANTITY);
+  }
+
   public static StackableItem testCreateItem() {
     return new StackableItem("", STACK_MAXIMUM);
   }
@@ -29,6 +33,8 @@ public class StackableItem extends Item {
 
   void increaseBy(int amount) {
     this.quantity += amount;
+
+    quantitySanityCheck();
   }
 
   private void quantitySanityCheck() {
@@ -38,14 +44,15 @@ public class StackableItem extends Item {
 
   @Override
   public BufferedImage getItemIcon() {
-    BufferedImage base = super.getItemIcon();
-    Graphics2D g = (Graphics2D) base.getGraphics();
+    BufferedImage icon = new BufferedImage(Item.ICON_DIMENSION, Item.ICON_DIMENSION, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) icon.getGraphics();
+    g.drawImage(super.getItemIcon(), 0, 0, null);
 
     g.drawImage(
             Font.CLEAN.getText(String.valueOf(quantity), 1.8,
                     new Color(255, 255, 255)),
             (int)(ICON_DIMENSION * 0.25), (int)(ICON_DIMENSION * 0.6), null);
 
-    return base;
+    return icon;
   }
 }

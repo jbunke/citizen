@@ -4,6 +4,11 @@ import com.redsquare.citizen.entity.ItemEntity;
 import com.redsquare.citizen.entity.LivingMoving;
 import com.redsquare.citizen.entity.Person;
 import com.redsquare.citizen.graphics.RenderDirection;
+import com.redsquare.citizen.util.FloatPoint;
+import com.redsquare.citizen.util.Randoms;
+import com.redsquare.citizen.worldgen.WorldPosition;
+
+import java.awt.*;
 
 public class Inventory {
   private final LivingMoving associated;
@@ -29,8 +34,35 @@ public class Inventory {
     return contents;
   }
 
-  public void dropStack(int selectedSlot, RenderDirection direction) {
+  public void dropItem(final int SELECTED_SLOT, final RenderDirection DIRECTION, final boolean DROP_STACK) {
+    Item itemToDrop = contents[SELECTED_SLOT];
 
+    if (itemToDrop == null)
+      return;
+
+    Point w = associated.position().world();
+    Point c = DIRECTION.moveByNUnits(associated.position().cell(), 1);
+    FloatPoint sc = new FloatPoint(
+            Randoms.bounded(0., WorldPosition.CELL_DIMENSION_LENGTH),
+            Randoms.bounded(0., WorldPosition.CELL_DIMENSION_LENGTH));
+
+    if (itemToDrop instanceof UnstackableItem || DROP_STACK ||
+            (itemToDrop instanceof StackableItem && ((StackableItem) itemToDrop).getQuantity() == 1)) {
+      ItemEntity entity = ItemEntity.fromItem(itemToDrop);
+
+      WorldPosition position = new WorldPosition(w, c, sc, associated.position().getWorld(), entity);
+      entity.setPosition(position);
+
+      contents[SELECTED_SLOT] = null;
+    } else if (itemToDrop instanceof StackableItem) {
+      ItemEntity entity = ItemEntity.fromItem(
+              StackableItem.fromIDAndQuantity(itemToDrop.itemID, 1));
+
+      WorldPosition position = new WorldPosition(w, c, sc, associated.position().getWorld(), entity);
+      entity.setPosition(position);
+
+      ((StackableItem) itemToDrop).decreaseBy(1);
+    }
   }
 
   /**

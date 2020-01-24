@@ -14,8 +14,8 @@ public final class ItemEntity extends Entity {
 
   private final Item item;
 
-  private boolean increasing;
-  private double renderFloatHeight;
+  private boolean increasing = Math.random() < 0.5;
+  private double renderFloatHeight = Math.random();
 
   private ItemEntity(Item item, World world) {
     Player player = world.getWorldManager().getPlayer();
@@ -25,15 +25,27 @@ public final class ItemEntity extends Entity {
             new Point(10, 10), WorldPosition.randomizeWithinSubCell(),
             world, this);
     this.collider = Collider.getColliderFromType(Collider.EntityType.NO_COLLISION);
-
-    this.increasing = Math.random() < 0.5;
-    this.renderFloatHeight = Math.random();
   }
 
   // TODO - TEMPORARY
 
+  private ItemEntity(Item item) {
+    this.item = item;
+    this.position = null;
+
+    this.collider = Collider.getColliderFromType(Collider.EntityType.NO_COLLISION);
+  }
+
+  public static ItemEntity fromItem(Item item) {
+    return new ItemEntity(item);
+  }
+
   public static ItemEntity itemEntityCreateTest(World world) {
     return new ItemEntity(StackableItem.testCreateItem(), world);
+  }
+
+  public void setPosition(WorldPosition position) {
+    this.position = position;
   }
 
   /**

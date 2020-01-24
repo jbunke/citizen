@@ -29,6 +29,10 @@ public class WorldPosition {
     this.world = world;
     this.associated = associated;
 
+    // Sometimes constructed relative to other entities, ex. an entity dropping an item
+    // Thus, can be constructed outside the legal bounds of cell and sub-cell
+    wrapFix();
+
     if (isEntity())
       world.getCell(worldPos.x, worldPos.y).addEntity(associated);
   }

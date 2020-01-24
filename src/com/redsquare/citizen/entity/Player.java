@@ -114,8 +114,13 @@ public final class Player extends Person {
               movementLogic.toggleRunning();
               processed = true;
               break;
+            case DROP_SINGLE_ITEM:
+              inventory.dropItem(selectedInventorySlot,
+                      movementLogic.renderLogic().getDirection(), false);
+              break;
             case DROP_ITEM_STACK:
-              inventory.dropStack(selectedInventorySlot, movementLogic.renderLogic().getDirection());
+              inventory.dropItem(selectedInventorySlot,
+                      movementLogic.renderLogic().getDirection(), true);
               break;
           }
           break;
@@ -160,7 +165,9 @@ public final class Player extends Person {
   }
 
   public void resetDirectionKeys() {
-    for (int i = 0; i < dirKeys.length; i++)
-      dirKeys[i] = false;
+    dirKeys[UP] = false;
+    dirKeys[DOWN] = false;
+    dirKeys[LEFT] = false;
+    dirKeys[RIGHT] = false;
   }
 }
