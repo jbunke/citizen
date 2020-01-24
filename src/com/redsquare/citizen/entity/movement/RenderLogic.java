@@ -56,6 +56,18 @@ public class RenderLogic {
     this.direction = direction;
   }
 
+  public void switchPosture() {
+    switch (posture) {
+      case CALM:
+        posture = RenderPosture.AGGRO;
+        break;
+      case AGGRO:
+      default:
+        posture = RenderPosture.CALM;
+        break;
+    }
+  }
+
   void setActivity(RenderActivity activity) {
     if (this.activity == activity) return;
 

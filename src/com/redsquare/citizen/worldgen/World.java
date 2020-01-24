@@ -152,7 +152,7 @@ public class World {
           }
 
           if (peers >= DESERT_PEER_THRESHOLD)
-            cells[x][y].setElevationAndType(0, WorldCell.Type.DESERT);
+            cells[x][y].setType(WorldCell.Type.DESERT);
         }
       }
     }
@@ -162,6 +162,9 @@ public class World {
 
     // POLES
     generatePoles();
+
+    // ELEVATION
+    generateElevation();
 
     /*
      * END OF PHYSICAL GEOGRAPHY
@@ -190,6 +193,39 @@ public class World {
     updateMenuScreen(MenuStateCode.SIMULATING_HISTORY);
 
     this.worldManager = WorldManager.init(this);
+  }
+
+  private void generateElevation() {
+    // TODO: potentially a naive implementation
+
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) {
+        WorldCell wc = getCell(x, y);
+        int elevation = 0;
+
+        switch (wc.getType()) {
+          case SEA:
+            elevation = Randoms.bounded(-2000, -30);
+            break;
+          case SHALLOW:
+            elevation = Randoms.bounded(-30, 0);
+            break;
+          case PLAIN:
+          case DESERT:
+          case FOREST:
+            elevation = Randoms.bounded(0, 300);
+            break;
+          case HILL:
+            elevation = Randoms.bounded(300, 1500);
+            break;
+          case MOUNTAIN:
+            elevation = Randoms.bounded(1500, 4500);
+            break;
+        }
+
+        wc.setElevation(elevation);
+      }
+    }
   }
 
   public WorldManager getWorldManager() {
@@ -424,7 +460,7 @@ public class World {
     generated = new boolean[width][height];
 
     generated[origin.x][origin.y] = true;
-    cells[origin.x][origin.y].setElevationAndType(0, WorldCell.Type.DESERT);
+    cells[origin.x][origin.y].setType(WorldCell.Type.DESERT);
 
     List<Point> potentials = new ArrayList<>();
 
@@ -452,7 +488,7 @@ public class World {
                 3, (Point c) -> cells[c.x][c.y].getType() == WorldCell.Type.DESERT);
 
         if (allowed)
-          cells[p.x][p.y].setElevationAndType(0, WorldCell.Type.DESERT);
+          cells[p.x][p.y].setType(WorldCell.Type.DESERT);
       }
     }
   }
@@ -473,7 +509,7 @@ public class World {
                             Math.abs(y - loc.y)) / FOREST_RANGE)) {
               if (Math.random() < FOREST_PROB && cells[x][y].getElevation() == 0) {
                 if (cells[x][y].getType() == WorldCell.Type.PLAIN) {
-                  cells[x][y].setElevationAndType(0, WorldCell.Type.FOREST);
+                  cells[x][y].setType(WorldCell.Type.FOREST);
                 }
 
                 if (Math.random() < FOREST_SPAWN_PROB)
@@ -496,7 +532,7 @@ public class World {
         if (Math.random() < FOREST_PROB &&
                 Math.random() < 1 - (dist / maxDist)) {
           if (cells[x1][y1].getType() == WorldCell.Type.PLAIN) {
-            cells[x1][y1].setElevationAndType(0, WorldCell.Type.FOREST);
+            cells[x1][y1].setType(WorldCell.Type.FOREST);
           }
         }
       }
@@ -520,8 +556,7 @@ public class World {
 
           if (isMountain) {
             if (Math.random() < MOUNTAIN_PROB)
-              cells[x][y].setElevationAndType(2,
-                      WorldCell.Type.MOUNTAIN);
+              cells[x][y].setType(WorldCell.Type.MOUNTAIN);
             continue;
           }
 
@@ -540,7 +575,7 @@ public class World {
 
           if (isHill & Math.random() <
                   HILL_PROB * 2 / Math.max(1, closestDistance - MOUNTAIN_RANGE))
-            cells[x][y].setElevationAndType(1, WorldCell.Type.HILL);
+            cells[x][y].setType(WorldCell.Type.HILL);
         }
       }
     }
@@ -558,7 +593,7 @@ public class World {
           }
 
           if (isBeach && Math.random() < BEACH_PROB) {
-            cells[x][y].setElevationAndType(0, WorldCell.Type.BEACH);
+            cells[x][y].setType(WorldCell.Type.BEACH);
           }
         } else {
           boolean isShallow = false;
@@ -571,7 +606,7 @@ public class World {
           }
 
           if (isShallow)
-            cells[x][y].setElevationAndType(-1, WorldCell.Type.SHALLOW);
+            cells[x][y].setType(WorldCell.Type.SHALLOW);
         }
       }
     }

@@ -30,6 +30,8 @@ public abstract class LivingMoving extends Lifeform {
   }
 
   private void pickupCheckUpdate() {
+    // TODO: temporary until pickup is programmed as an explicit decision
+
     pickupCheck++;
     pickupCheck %= 5;
 

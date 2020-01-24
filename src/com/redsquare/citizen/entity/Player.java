@@ -77,18 +77,23 @@ public final class Player extends Person {
               break;
             case SELECT_SLOT_1:
               selectedInventorySlot = 0;
+              processed = true;
               break;
             case SELECT_SLOT_2:
               selectedInventorySlot = 1;
+              processed = true;
               break;
             case SELECT_SLOT_3:
               selectedInventorySlot = 2;
+              processed = true;
               break;
             case SELECT_SLOT_4:
               selectedInventorySlot = 3;
+              processed = true;
               break;
             case SELECT_SLOT_5:
               selectedInventorySlot = 4;
+              processed = true;
               break;
           }
           break;
@@ -114,13 +119,19 @@ public final class Player extends Person {
               movementLogic.toggleRunning();
               processed = true;
               break;
+            case TOGGLE_AGGRO:
+              movementLogic.renderLogic().switchPosture();
+              processed = true;
+              break;
             case DROP_SINGLE_ITEM:
               inventory.dropItem(selectedInventorySlot,
                       movementLogic.renderLogic().getDirection(), false);
+              processed = true;
               break;
             case DROP_ITEM_STACK:
               inventory.dropItem(selectedInventorySlot,
                       movementLogic.renderLogic().getDirection(), true);
+              processed = true;
               break;
           }
           break;

@@ -128,9 +128,12 @@ public class WorldCell {
     this.riverPoint = riverPoint;
   }
 
-  void setElevationAndType(int elevation, Type type) {
-    this.elevation = elevation;
+  void setType(Type type) {
     this.type = type;
+  }
+
+  void setElevation(int elevation) {
+    this.elevation = elevation;
   }
 
   void generate() {

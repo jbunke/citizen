@@ -17,6 +17,9 @@ public class ControlScheme {
   private static final char O_KEY = 'o';
   private static final char P_KEY = 'p';
 
+  private static final char SPACE_KEY = ' ';
+  private static final char SHIFT_KEY = '\uFFFF';
+
   private static final char _1_KEY = '1';
   private static final char _2_KEY = '2';
   private static final char _3_KEY = '3';
@@ -24,6 +27,7 @@ public class ControlScheme {
   private static final char _5_KEY = '5';
 
   private Map<Character, Action> controlScheme = Map.ofEntries(
+          Map.entry(SPACE_KEY, Action.INTERACT_FIGHT),
           Map.entry(W_KEY, Action.UP),
           Map.entry(A_KEY, Action.LEFT),
           Map.entry(D_KEY, Action.RIGHT),
@@ -31,6 +35,7 @@ public class ControlScheme {
           Map.entry(Z_KEY, Action.ZOOM),
           Map.entry(ESC_KEY, Action.PAUSE),
           Map.entry(X_KEY, Action.TOGGLE_SPRINT),
+          Map.entry(SHIFT_KEY, Action.TOGGLE_AGGRO),
           Map.entry(_1_KEY, Action.SELECT_SLOT_1),
           Map.entry(_2_KEY, Action.SELECT_SLOT_2),
           Map.entry(_3_KEY, Action.SELECT_SLOT_3),
@@ -42,8 +47,10 @@ public class ControlScheme {
 
   public enum Action {
     DO_NOTHING,
+    INTERACT_FIGHT,
     UP, LEFT, RIGHT, DOWN,
     TOGGLE_SPRINT,
+    TOGGLE_AGGRO,
     ZOOM,
     PAUSE,
     DROP_SINGLE_ITEM,
