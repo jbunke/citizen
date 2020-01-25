@@ -3,6 +3,7 @@ package com.redsquare.citizen.entity;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.game_states.playing_systems.ControlScheme;
 import com.redsquare.citizen.graphics.RenderDirection;
+import com.redsquare.citizen.graphics.RenderPosture;
 import com.redsquare.citizen.input_events.Event;
 import com.redsquare.citizen.input_events.KeyPressEvent;
 import com.redsquare.citizen.systems.politics.Settlement;
@@ -156,10 +157,58 @@ public final class Player extends Person {
     setMovementVector();
   }
 
+  /**
+   * If AGGRO or stationary (not moving),
+   * player should face where they are LOOKING
+   *
+   * Otherwise, player should face where they are MOVING
+   * */
   private void setDirection() {
+    RenderDirection facingDirection;
+
+    if (movementLogic.renderLogic().getPosture() == RenderPosture.AGGRO ||
+            !isMoving()) {
+      facingDirection = lookingDirection();
+    } else {
+      facingDirection = movingDirection();
+    }
+
+    movementLogic.renderLogic().setDirection(facingDirection);
+  }
+
+  private RenderDirection lookingDirection() {
     double angle = Math.atan((-1. * lookingRef.y) / lookingRef.x);
     if (lookingRef.x < 0) angle += Math.PI;
-    movementLogic.renderLogic().setDirection(RenderDirection.fromAngle(angle));
+    return RenderDirection.fromAngle(angle);
+  }
+
+  private RenderDirection movingDirection() {
+    if (dirKeys[UP] && !dirKeys[DOWN]) {
+      if (dirKeys[LEFT] == dirKeys[RIGHT])
+        return RenderDirection.U;
+      else if (dirKeys[LEFT])
+        return RenderDirection.UL;
+      else
+        return RenderDirection.UR;
+    } else if (dirKeys[DOWN] && !dirKeys[UP]) {
+      if (dirKeys[LEFT] == dirKeys[RIGHT])
+        return RenderDirection.D;
+      else if (dirKeys[LEFT])
+        return RenderDirection.DL;
+      else
+        return RenderDirection.DR;
+    } else {
+      if (dirKeys[LEFT])
+        return RenderDirection.L;
+      else if (dirKeys[RIGHT])
+        return RenderDirection.R;
+      else
+        return lookingDirection();
+    }
+  }
+
+  private boolean isMoving() {
+    return dirKeys[UP] != dirKeys[DOWN] || dirKeys[LEFT] != dirKeys[RIGHT];
   }
 
   private void setMovementVector() {
