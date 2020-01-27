@@ -491,6 +491,10 @@ public class Person extends LivingMoving {
     return psychology;
   }
 
+  public Culture getCulture() {
+    return culture;
+  }
+
   @Override
   public Point getSpriteOffset() {
     return new Point((-1 * SPRITE_WIDTH) / 2, (-1 * SPRITE_HEIGHT) + 12);

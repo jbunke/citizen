@@ -13,6 +13,7 @@ public class Culture {
   private final BeautyStandard beautyStandard;
   private final Set<FlagPattern> patterns;
   private final Set<FlagPattern> symbols;
+  private final CulturalReligiousProfile religiousProfile;
 
   private Culture() {
     inheritance = Math.random() < 0.7 ? Inheritance.PATRILINEAL :
@@ -21,6 +22,7 @@ public class Culture {
     beautyStandard = BeautyStandard.generate(this);
     patterns = generatePatterns();
     symbols = generateSymbols();
+    religiousProfile = CulturalReligiousProfile.generate();
   }
 
   public static Culture generate() {
@@ -52,6 +54,10 @@ public class Culture {
       symbols.add(FlagPattern.generateSymbol());
 
     return symbols;
+  }
+
+  public CulturalReligiousProfile getReligiousProfile() {
+    return religiousProfile;
   }
 
   public BeautyStandard getBeautyStandard() {
