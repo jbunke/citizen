@@ -1,6 +1,9 @@
 package com.redsquare.citizen.entity.animal;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Species {
   public final Range range;
@@ -33,9 +36,14 @@ public class Species {
   }
 
   public enum Classification {
-    FELINE, EQUINE, PRIMATE, AVIAN, CANINE, URSINE,
-    HIRCINE, BOVINE, OVINE, // GOAT, COW
-    ANGUINE, CERVINE;
+    FELINE, EQUINE, PRIMATE, // CAT, HORSE, MONKEY
+    AVIAN, CANINE, URSINE, // BIRD, DOG, BEAR
+    HIRCINE, BOVINE, OVINE, // GOAT, COW, SHEEP
+    SERPENTINE, CERVINE; // SNAKE, DEER
+
+    public static Set<Classification> all() {
+      return new HashSet<>(Arrays.asList(Classification.values()));
+    }
 
     boolean isMountable() {
       switch (this) {

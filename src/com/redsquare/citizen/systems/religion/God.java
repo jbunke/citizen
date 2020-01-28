@@ -3,6 +3,8 @@ package com.redsquare.citizen.systems.religion;
 import com.redsquare.citizen.systems.language.Phonology;
 import com.redsquare.citizen.systems.language.Word;
 import com.redsquare.citizen.systems.politics.Culture;
+import com.redsquare.citizen.util.Formatter;
+import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
 
 import java.util.Arrays;
@@ -18,6 +20,7 @@ public final class God {
   private final boolean isAnthropomorphic;
   private final boolean isNamed;
   private final Word name;
+  private final GodForm form;
 
   public enum GodGender {
     NONE, M, F
@@ -47,9 +50,9 @@ public final class God {
   }
 
   God(final boolean MONOTHEISTIC_RELIGION, Set<God> pantheon, final boolean IS_ATTRIBUTIVE, Culture culture) {
-    this.isOmniscient = MONOTHEISTIC_RELIGION ? Math.random() < 0.7 : Math.random() < 0.2;
-    this.isOmnipotent = MONOTHEISTIC_RELIGION && Math.random() < 0.8;
-    this.isNamed = !MONOTHEISTIC_RELIGION || Math.random() < 0.5;
+    this.isOmniscient = MONOTHEISTIC_RELIGION ? Randoms.prob(0.7) : Randoms.prob(0.2);
+    this.isOmnipotent = MONOTHEISTIC_RELIGION && Randoms.prob(0.8);
+    this.isNamed = !MONOTHEISTIC_RELIGION || Randoms.prob(0.5);
 
     // TODO - temporary
     if (isNamed)
@@ -61,13 +64,41 @@ public final class God {
 
     // TODO
     this.gender = GodGender.NONE;
-    this.isCorporeal = false;
-    this.isAnthropomorphic = false;
 
     if (MONOTHEISTIC_RELIGION || !IS_ATTRIBUTIVE)
       this.attribute = Attribute.NONE;
     else {
       this.attribute = Attribute.nonNoneAndAvailable(pantheon);
     }
+
+    // Corporeal, anthropomorphism, and form
+    if (MONOTHEISTIC_RELIGION) {
+      this.isCorporeal = Randoms.prob(0.7);
+      this.isAnthropomorphic = isCorporeal && Randoms.prob(0.5);
+    } else {
+      if (!pantheon.isEmpty()) {
+        God reference = Sets.randomEntry(pantheon);
+
+        this.isCorporeal = reference.isCorporeal;
+        this.isAnthropomorphic = reference.isAnthropomorphic;
+      } else {
+        this.isCorporeal = Randoms.prob(0.7);
+        this.isAnthropomorphic = isCorporeal && Randoms.prob(0.5);
+      }
+    }
+
+    this.form = isAnthropomorphic ? null : GodForm.generate(attribute);
+  }
+
+  Attribute getAttribute() {
+    return attribute;
+  }
+
+  @Override
+  public String toString() {
+    if (attribute.equals(Attribute.NONE))
+      return Formatter.properNoun(name.toString());
+    else
+      return Formatter.properNoun(name.toString()) + ", god of " + attribute.toString();
   }
 }

@@ -10,4 +10,8 @@ public class MonotheisticReligion extends DeisticReligion {
 
     god = new God(true, null, false, this.culture);
   }
+
+  public God getGod() {
+    return god;
+  }
 }
