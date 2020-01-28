@@ -22,7 +22,7 @@ public class Culture {
     beautyStandard = BeautyStandard.generate(this);
     patterns = generatePatterns();
     symbols = generateSymbols();
-    religiousProfile = CulturalReligiousProfile.generate();
+    religiousProfile = CulturalReligiousProfile.generate(this);
   }
 
   public static Culture generate() {

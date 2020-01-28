@@ -7,12 +7,12 @@ public class CulturalReligiousProfile {
   private Religion[] religions;
   private double[] prevalence; // corresponds to religions and must sum to one
 
-  private CulturalReligiousProfile() {
+  private CulturalReligiousProfile(final Culture culture) {
 
   }
 
-  static CulturalReligiousProfile generate() {
-    return new CulturalReligiousProfile();
+  static CulturalReligiousProfile generate(final Culture culture) {
+    return new CulturalReligiousProfile(culture);
   }
 
   public double getTolerance() {
