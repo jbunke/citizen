@@ -7,8 +7,8 @@ public class ReligionTests {
 
   @Test
   public void createReligion() {
-    NonDeisticReligion ndr = new NonDeisticReligion(Culture.generate());
+    PolytheisticReligion religion = new PolytheisticReligion(Culture.generate());
 
-    System.out.println(ndr);
+    System.out.println(religion);
   }
 }

@@ -27,6 +27,10 @@ public class Word {
     }
   }
 
+  public static Word EMPTY() {
+    return new Word(new Syllable[] {});
+  }
+
   public static Word compound(Word w1, Word w2) {
     return new Word(w1, w2);
   }

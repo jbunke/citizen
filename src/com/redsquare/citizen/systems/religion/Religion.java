@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Religion {
+  final Culture culture;
   static final int INSTITUTION_INDEX = 0,
           INDIVIDUAL_INDEX = 1, ENVIRONMENT_INDEX = 2;
   private static final int NUM_PRIORITIES = 3;
@@ -14,6 +15,8 @@ public abstract class Religion {
   final Virtues[] virtues;
 
   Religion(Culture culture) {
+    this.culture = culture;
+
     this.priorities = new double[NUM_PRIORITIES];
 
     /* TODO: Use culture to determine how the culture generating the religion prioritizes
@@ -45,5 +48,13 @@ public abstract class Religion {
 
     for (int i = 0; i < eligible.size(); i++)
       virtues[i] = eligible.get(i);
+  }
+
+  public double[] getPriorities() {
+    return priorities;
+  }
+
+  public Virtues[] getVirtues() {
+    return virtues;
   }
 }
