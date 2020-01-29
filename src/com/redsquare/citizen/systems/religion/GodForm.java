@@ -12,10 +12,14 @@ public abstract class GodForm {
     this.depictionPalette = ColorPalettes.randomColorScheme();
   }
 
-  static GodForm generate(God.Attribute attribute) {
+  static GodForm generateBeastly(God.Attribute attribute) {
     if (Randoms.random())
-      return new BasicForm(attribute);
+      return new AnimalForm(attribute);
     else
       return new ChimeraForm(attribute);
+  }
+
+  static GodForm generateAnthropomorphic(God.Attribute attribute) {
+    return new AnthropomorphicForm(attribute);
   }
 }

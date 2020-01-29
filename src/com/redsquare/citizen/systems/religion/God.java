@@ -87,7 +87,9 @@ public final class God {
       }
     }
 
-    this.form = isAnthropomorphic ? null : GodForm.generate(attribute);
+    this.form = isAnthropomorphic ?
+            GodForm.generateAnthropomorphic(attribute) :
+            GodForm.generateBeastly(attribute);
   }
 
   Attribute getAttribute() {
