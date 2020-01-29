@@ -1,5 +1,8 @@
 package com.redsquare.citizen.systems.language;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public enum Meaning {
   // CORE MORPHEMES // LESSER
 
@@ -72,7 +75,22 @@ public enum Meaning {
   PROXIMAL(0, LexClass.ADJECTIVE), OPPOSITE(0, LexClass.ADJECTIVE),
   DISTANT(1, LexClass.ADJECTIVE),
 
+  // Quality
+  BIG(0, LexClass.ADJECTIVE), SMALL(0, LexClass.ADJECTIVE),
+  FAST(0, LexClass.ADJECTIVE), SLOW(0, LexClass.ADJECTIVE),
+
   PLACEHOLDER(0, LexClass.INTERJECTION);
+
+  public static Set<Meaning> getAll(LexClass filter) {
+    Set<Meaning> meanings = new HashSet<>();
+
+    for (Meaning meaning : Meaning.values()) {
+      if (meaning.lexClass.equals(filter))
+        meanings.add(meaning);
+    }
+
+    return meanings;
+  }
 
   private final int degree;
   private final LexClass lexClass;
@@ -90,7 +108,7 @@ public enum Meaning {
     return degree;
   }
 
-  enum LexClass {
+  public enum LexClass {
     NOUN, VERB, ADJECTIVE, ADVERB, CONJUNCTION, ARTICLE, PRONOUN,
     PREPOSITION, INTERJECTION
   }

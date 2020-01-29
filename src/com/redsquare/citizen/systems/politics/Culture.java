@@ -20,6 +20,7 @@ public class Culture {
   private final Set<FlagPattern> symbols;
   private final CulturalReligiousProfile religiousProfile;
   private final List<Language> daughterLanguages;
+  private final CulturalNameProfile nameProfile;
 
   private Culture() {
     inheritance = Math.random() < 0.7 ? Inheritance.PATRILINEAL :
@@ -32,6 +33,7 @@ public class Culture {
     daughterLanguages = new ArrayList<>();
     daughterLanguages.add(Language.generate(WritingSystem.generate(
             Phonology.generate(), WritingSystem.Type.ALPHABET)));
+    nameProfile = CulturalNameProfile.generate(daughterLanguages.get(0));
   }
 
   public static Culture generate() {

@@ -1,15 +1,17 @@
 package com.redsquare.citizen.systems.language;
 
-import com.redsquare.citizen.systems.language.sentences.Sentence;
+import com.redsquare.citizen.systems.language.sentences.BasicNounNP;
 import com.redsquare.citizen.util.Formatter;
+import com.redsquare.citizen.util.Randoms;
 
 import java.util.Map;
 
 public class Name {
-  private final Sentence meaning;
+  private final BasicNounNP meaning;
   private final NameGender gender;
   private final Language languageOfOrigin;
   private final Word name;
+  private final double popularity;
 
   private final Map<Language, Word> variants;
 
@@ -17,7 +19,7 @@ public class Name {
     M, F, U
   }
 
-  private Name(final Word name, final Sentence meaning,
+  private Name(final Word name, final BasicNounNP meaning,
                final NameGender gender, final Language languageOfOrigin) {
     this.name = name;
     this.gender = gender;
@@ -27,6 +29,17 @@ public class Name {
     this.variants = Map.ofEntries(
             Map.entry(languageOfOrigin, name)
     );
+
+    this.popularity = Randoms.bounded(0., 1.);
+  }
+
+  public static Name generate(final Word name, final BasicNounNP meaning,
+                              final NameGender gender, final Language languageOfOrigin) {
+    return new Name(name, meaning, gender, languageOfOrigin);
+  }
+
+  public double getPopularity() {
+    return popularity;
   }
 
   @Override

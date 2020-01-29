@@ -311,21 +311,37 @@ public class WordVocabulary {
     // populate core concepts first
     for (Meaning meaning : allMeanings) {
       if (meaning.getDegree() == 0) {
-        Word candidate = null;
-        boolean violates = true;
-
-        while (violates) {
-          candidate = Word.generateRandomWord(1, 3, v);
-          violates = usedWords.contains(candidate);
-        }
-
-        usedWords.add(candidate);
-        wordDictionary.put(meaning, candidate);
-        semanticDictionary.put(candidate, meaning);
+        populateRandomWord(v, meaning, usedWords);
       }
     }
 
     generatePossibleCompounds(v, usedWords, allMeanings);
+
+    // TODO: temporary function to populate non-inserted words
+    generateRemaining(v, allMeanings, usedWords);
+  }
+
+  private void populateRandomWord(Phonology v, Meaning meaning, Set<Word> usedWords) {
+    Word candidate = null;
+    boolean violates = true;
+
+    while (violates) {
+      candidate = Word.generateRandomWord(1, 3, v);
+      violates = usedWords.contains(candidate);
+    }
+
+    usedWords.add(candidate);
+    wordDictionary.put(meaning, candidate);
+    semanticDictionary.put(candidate, meaning);
+  }
+
+  private void generateRemaining(final Phonology v, final Meaning[] allMeanings,
+                                 final Set<Word> usedWords) {
+    for (Meaning meaning : allMeanings) {
+      if (!wordDictionary.containsKey(meaning)) {
+        populateRandomWord(v, meaning, usedWords);
+      }
+    }
   }
 
   private void generateNonCoreFor(Meaning[] meanings, double derivedProb,
