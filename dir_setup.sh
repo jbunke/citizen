@@ -8,6 +8,10 @@ mkdir test_output
 cd test_output
 mkdir graphics
 mkdir vexillography
+mkdir people
+cd people
+mkdir parents
+cd ..
 mkdir language
 cd language
 mkdir archive

@@ -564,6 +564,17 @@ public class Person extends LivingMoving implements ICharacter {
     return name;
   }
 
+  public String formatEntireName() {
+    StringBuilder sb = new StringBuilder();
+
+    for (Word name : name) {
+      sb.append(Formatter.properNoun(name.toString()));
+      sb.append(" ");
+    }
+
+    return sb.toString().trim();
+  }
+
   public Culture getCulture() {
     return culture;
   }

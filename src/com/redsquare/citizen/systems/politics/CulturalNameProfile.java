@@ -125,7 +125,7 @@ public class CulturalNameProfile {
     nameList.sort(Comparator.comparingDouble(Name::getPopularity));
 
     for (Name name : nameList) {
-      if (Randoms.prob(0.1))
+      if (Randoms.prob(0.05))
         return name;
     }
 
