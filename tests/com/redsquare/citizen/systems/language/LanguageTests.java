@@ -109,10 +109,6 @@ public class LanguageTests {
       for (int i = 0; i < languages.length; i++) {
         Language l = languages[i];
 
-        // TODO: Remove this null check once all vocabulary is populated
-        if (l.lookUpWord(meaning) == null)
-          continue;
-
         BufferedImage text =
                 l.getWritingSystem().drawWithFont(l.lookUpWord(meaning), 50, 2, 2,
                         Fonts::fontItalicX, Fonts::fontIdentityY);

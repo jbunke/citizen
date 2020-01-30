@@ -116,7 +116,7 @@ public class World {
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
         if (plateIndex(x, y) == -1)
-          cells[x][y] = new WorldCell(WorldCell.Type.SEA, this, new Point(x, y));
+          cells[x][y] = new WorldCell(WorldCell.CellLandType.SEA, this, new Point(x, y));
       }
     }
 
@@ -141,18 +141,18 @@ public class World {
     for (int i = 0; i < DESERT_FILL_REPS; i++) {
       for (int x = 1; x < width - 1; x++) {
         for (int y = 1; y < height - 1; y++) {
-          if (cells[x][y].getType() != WorldCell.Type.PLAIN) continue;
+          if (cells[x][y].getCellLandType() != WorldCell.CellLandType.PLAIN) continue;
 
           int peers = 0;
           for (int x1 = x - 1; x1 <= x + 1; x1++) {
             for (int y1 = y - 1; y1 <= y + 1; y1++) {
-              if (cells[x1][y1].getType() == WorldCell.Type.DESERT)
+              if (cells[x1][y1].getCellLandType() == WorldCell.CellLandType.DESERT)
                 peers++;
             }
           }
 
           if (peers >= DESERT_PEER_THRESHOLD)
-            cells[x][y].setType(WorldCell.Type.DESERT);
+            cells[x][y].setCellLandType(WorldCell.CellLandType.DESERT);
         }
       }
     }
@@ -203,7 +203,7 @@ public class World {
         WorldCell wc = getCell(x, y);
         int elevation = 0;
 
-        switch (wc.getType()) {
+        switch (wc.getCellLandType()) {
           case SEA:
             elevation = Randoms.bounded(-2000, -30);
             break;
@@ -337,14 +337,14 @@ public class World {
     int yMax = Integer.MIN_VALUE;
 
     for (Settlement settlement : newState.settlements()) {
-      xMin = settlement.getLocation().x < xMin ? settlement.getLocation().x : xMin;
-      yMin = settlement.getLocation().y < yMin ? settlement.getLocation().y : yMin;
-      xMax = settlement.getLocation().x > xMax ? settlement.getLocation().x : xMax;
-      yMax = settlement.getLocation().y > yMax ? settlement.getLocation().y : yMax;
+      xMin = Math.min(settlement.getLocation().x, xMin);
+      yMin = Math.min(settlement.getLocation().y, yMin);
+      xMax = Math.max(settlement.getLocation().x, xMax);
+      yMax = Math.max(settlement.getLocation().y, yMax);
     }
 
-    xMin = xMin - 40 >= 0 ? xMin - 40 : 0;
-    yMin = yMin - 40 >= 0 ? yMin - 40 : 0;
+    xMin = Math.max(xMin - 40, 0);
+    yMin = Math.max(yMin - 40, 0);
     xMax = xMax + 40 < width ? xMax + 40 : width - 1;
     yMax = yMax + 40 < height ? yMax + 40 : height - 1;
 
@@ -447,7 +447,7 @@ public class World {
       while (!found) {
         point = randomPoint(0, width - 1, height / 3, 2 * (height / 3));
 
-        if (cells[point.x][point.y].getType() == WorldCell.Type.PLAIN)
+        if (cells[point.x][point.y].getCellLandType() == WorldCell.CellLandType.PLAIN)
           found = true;
       }
 
@@ -460,7 +460,7 @@ public class World {
     generated = new boolean[width][height];
 
     generated[origin.x][origin.y] = true;
-    cells[origin.x][origin.y].setType(WorldCell.Type.DESERT);
+    cells[origin.x][origin.y].setCellLandType(WorldCell.CellLandType.DESERT);
 
     List<Point> potentials = new ArrayList<>();
 
@@ -471,7 +471,7 @@ public class World {
 
     for (int x = leftmost; x <= rightmost; x++) {
       for (int y = topmost; y <= bottommost; y++) {
-        if (cells[x][y].getType() == WorldCell.Type.PLAIN &&
+        if (cells[x][y].getCellLandType() == WorldCell.CellLandType.PLAIN &&
           MathExt.distance(new Point(x, y), origin) != 0.)
           potentials.add(new Point(x, y));
       }
@@ -485,10 +485,10 @@ public class World {
                       (MathExt.distance(origin, p) / DESERT_MAX_DIST)) {
         boolean allowed = MathExt.pointAllowance(p, origin,
                 leftmost, rightmost, topmost, bottommost,
-                3, (Point c) -> cells[c.x][c.y].getType() == WorldCell.Type.DESERT);
+                3, (Point c) -> cells[c.x][c.y].getCellLandType() == WorldCell.CellLandType.DESERT);
 
         if (allowed)
-          cells[p.x][p.y].setType(WorldCell.Type.DESERT);
+          cells[p.x][p.y].setCellLandType(WorldCell.CellLandType.DESERT);
       }
     }
   }
@@ -508,8 +508,8 @@ public class World {
                     (Math.hypot(Math.abs(x - loc.x),
                             Math.abs(y - loc.y)) / FOREST_RANGE)) {
               if (Math.random() < FOREST_PROB && cells[x][y].getElevation() == 0) {
-                if (cells[x][y].getType() == WorldCell.Type.PLAIN) {
-                  cells[x][y].setType(WorldCell.Type.FOREST);
+                if (cells[x][y].getCellLandType() == WorldCell.CellLandType.PLAIN) {
+                  cells[x][y].setCellLandType(WorldCell.CellLandType.FOREST);
                 }
 
                 if (Math.random() < FOREST_SPAWN_PROB)
@@ -531,8 +531,8 @@ public class World {
 
         if (Math.random() < FOREST_PROB &&
                 Math.random() < 1 - (dist / maxDist)) {
-          if (cells[x1][y1].getType() == WorldCell.Type.PLAIN) {
-            cells[x1][y1].setType(WorldCell.Type.FOREST);
+          if (cells[x1][y1].getCellLandType() == WorldCell.CellLandType.PLAIN) {
+            cells[x1][y1].setCellLandType(WorldCell.CellLandType.FOREST);
           }
         }
       }
@@ -556,7 +556,7 @@ public class World {
 
           if (isMountain) {
             if (Math.random() < MOUNTAIN_PROB)
-              cells[x][y].setType(WorldCell.Type.MOUNTAIN);
+              cells[x][y].setCellLandType(WorldCell.CellLandType.MOUNTAIN);
             continue;
           }
 
@@ -575,7 +575,7 @@ public class World {
 
           if (isHill & Math.random() <
                   HILL_PROB * 2 / Math.max(1, closestDistance - MOUNTAIN_RANGE))
-            cells[x][y].setType(WorldCell.Type.HILL);
+            cells[x][y].setCellLandType(WorldCell.CellLandType.HILL);
         }
       }
     }
@@ -593,7 +593,7 @@ public class World {
           }
 
           if (isBeach && Math.random() < BEACH_PROB) {
-            cells[x][y].setType(WorldCell.Type.BEACH);
+            cells[x][y].setCellLandType(WorldCell.CellLandType.BEACH);
           }
         } else {
           boolean isShallow = false;
@@ -606,7 +606,7 @@ public class World {
           }
 
           if (isShallow)
-            cells[x][y].setType(WorldCell.Type.SHALLOW);
+            cells[x][y].setCellLandType(WorldCell.CellLandType.SHALLOW);
         }
       }
     }
@@ -617,19 +617,19 @@ public class World {
       for (int y = 1; y < height - 1; y++) {
 
         if (cells[x][y] != null &&
-                cells[x][y].getType() == WorldCell.Type.PLAIN) continue;
+                cells[x][y].getCellLandType() == WorldCell.CellLandType.PLAIN) continue;
 
         int peers = 0;
         for (int x1 = x - 1; x1 <= x + 1; x1++) {
           for (int y1 = y - 1; y1 <= y + 1; y1++) {
             if (cells[x1][y1] != null &&
-                    cells[x1][y1].getType() == WorldCell.Type.PLAIN)
+                    cells[x1][y1].getCellLandType() == WorldCell.CellLandType.PLAIN)
               peers++;
           }
         }
 
         if (peers >= LAND_PEER_THRESHOLD)
-          cells[x][y] = new WorldCell(WorldCell.Type.PLAIN, this, new Point(x, y));
+          cells[x][y] = new WorldCell(WorldCell.CellLandType.PLAIN, this, new Point(x, y));
       }
     }
   }
@@ -646,23 +646,6 @@ public class World {
         }
       }
     }
-  }
-
-  /** TEST FUNCTION */
-  BufferedImage chunkMap() {
-    BufferedImage map = new BufferedImage(width * 16, height * 16,
-            BufferedImage.TYPE_INT_ARGB);
-    Graphics2D g = (Graphics2D) map.getGraphics();
-
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
-        cells[x][y].generate();
-
-        g.drawImage(cells[x][y].getChunkImage(), x * 16, y * 16, null);
-      }
-    }
-
-    return map;
   }
 
   BufferedImage stateMap(final int SCALE_UP, State state) {
@@ -720,8 +703,8 @@ public class World {
       for (int y = indices[TOP]; y <= indices[BOTTOM]; y++) {
         WorldCell wc = cells[x][y];
         Color c = borders[x][y] != null && borders[x][y].equals(state) ?
-                WorldCell.getMapColor(wc.getType(), wc.getRegion()) :
-                ColorMath.sepia(WorldCell.getMapColor(wc.getType(), wc.getRegion()));
+                WorldCell.getMapColor(wc.getCellLandType(), wc.getRegion()) :
+                ColorMath.sepia(WorldCell.getMapColor(wc.getCellLandType(), wc.getRegion()));
         g.setColor(c);
         g.fillRect((x - indices[LEFT]) * SCALE_UP, (y - indices[TOP]) * SCALE_UP, SCALE_UP, SCALE_UP);
 
@@ -982,10 +965,10 @@ public class World {
       for (int y = 0; y < height; y++) {
         if (cells[x][y] == null) continue;
         g.setColor(WorldCell.getMapColor(
-                cells[x][y].getType(), cells[x][y].getRegion()));
+                cells[x][y].getCellLandType(), cells[x][y].getRegion()));
         if (cells[x][y].getRiverPoint() != null)
           g.setColor(WorldCell.getMapColor(
-                  WorldCell.Type.SHALLOW, cells[x][y].getRegion()));
+                  WorldCell.CellLandType.SHALLOW, cells[x][y].getRegion()));
         g.fillRect(x * SCALE_UP, y * SCALE_UP, SCALE_UP, SCALE_UP);
       }
     }
@@ -1344,7 +1327,7 @@ public class World {
       for (int x = leftmost; x <= rightmost; x++) {
         for (int y = topmost; y <= bottommost; y++) {
           if (cells[x][y] == null)
-            cells[x][y] = new WorldCell(WorldCell.Type.SEA, world, new Point(x, y));
+            cells[x][y] = new WorldCell(WorldCell.CellLandType.SEA, world, new Point(x, y));
         }
       }
     }
@@ -1373,7 +1356,7 @@ public class World {
           generated[p.x][p.y] = true;
 
           if (landLikelihood(MathExt.distance(origin, p), maxDist)) {
-            cells[p.x][p.y] = new WorldCell(WorldCell.Type.PLAIN, world, new Point(p));
+            cells[p.x][p.y] = new WorldCell(WorldCell.CellLandType.PLAIN, world, new Point(p));
           }
         }
       }
@@ -1401,7 +1384,7 @@ public class World {
     }
 
     private void generateGrid(TectonicPlate[] plates, int index) {
-      double worldDiag = Math.hypot((double) width, (double) height);
+      double worldDiag = Math.hypot(width, height);
 
       int reduction = plates.length;
 
@@ -1700,7 +1683,7 @@ public class World {
 
       for (int x = minX; x <= maxX; x++) {
         for (int y = minY; y <= maxY; y++) {
-          switch (cells[x][y].getType()) {
+          switch (cells[x][y].getCellLandType()) {
             case FOREST:
             case SEA:
             case SHALLOW:

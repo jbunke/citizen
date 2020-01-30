@@ -10,14 +10,14 @@ public class WorldSubCell {
   private final WorldCell cell;
   private final Color testColor;
 
-  private final WorldCell.Type type;
+  private final WorldCell.CellLandType cellLandType;
 
-  WorldSubCell(Point location, WorldCell cell, WorldCell.Type type) {
+  WorldSubCell(Point location, WorldCell cell, WorldCell.CellLandType cellLandType) {
     this.location = location;
     this.cell = cell;
-    this.type = type;
+    this.cellLandType = cellLandType;
 
-    switch (type) {
+    switch (cellLandType) {
       case PLAIN:
         this.testColor = (location.x + location.y) % 2 == 0 ?
                 new Color(100, 150, 50) :

@@ -7,7 +7,7 @@ import com.redsquare.citizen.util.Sets;
 
 import java.util.Set;
 
-public abstract class LivingMoving extends Lifeform {
+public abstract class LivingMoving extends LivingEntity {
   private int pickupCheck = 0;
 
   Sex sex;
