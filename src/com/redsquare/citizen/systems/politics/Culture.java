@@ -79,6 +79,10 @@ public class Culture {
     return religiousProfile;
   }
 
+  public CulturalNameProfile getNameProfile() {
+    return nameProfile;
+  }
+
   public BeautyStandard getBeautyStandard() {
     return beautyStandard;
   }

@@ -19,12 +19,8 @@ public class Word {
   private Word(Word w1, Word w2) {
     syllables = new Syllable[w1.syllables.length + w2.syllables.length];
 
-    for (int i = 0; i < w1.syllables.length; i++) {
-      syllables[i] = w1.syllables[i];
-    }
-    for (int i = 0; i < w2.syllables.length; i++) {
-      syllables[w1.syllables.length + i] = w2.syllables[i];
-    }
+    System.arraycopy(w1.syllables, 0, syllables, 0, w1.syllables.length);
+    System.arraycopy(w2.syllables, 0, syllables, w1.syllables.length, w2.syllables.length);
   }
 
   public static Word EMPTY() {

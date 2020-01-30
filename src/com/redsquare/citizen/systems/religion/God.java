@@ -1,5 +1,6 @@
 package com.redsquare.citizen.systems.religion;
 
+import com.redsquare.citizen.entity.ICharacter;
 import com.redsquare.citizen.systems.language.Phonology;
 import com.redsquare.citizen.systems.language.Word;
 import com.redsquare.citizen.systems.politics.Culture;
@@ -11,7 +12,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class God {
+public final class God implements ICharacter {
   private final boolean isOmniscient;
   private final boolean isOmnipotent;
   private final boolean isCorporeal;
@@ -94,6 +95,16 @@ public final class God {
 
   Attribute getAttribute() {
     return attribute;
+  }
+
+  @Override
+  public String getFamiliarName() {
+    return Formatter.properNoun(name.toString());
+  }
+
+  @Override
+  public String getFormalName() {
+    return Formatter.properNoun(name.toString());
   }
 
   @Override

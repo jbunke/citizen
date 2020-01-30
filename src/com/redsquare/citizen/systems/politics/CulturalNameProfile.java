@@ -1,5 +1,7 @@
 package com.redsquare.citizen.systems.politics;
 
+import com.redsquare.citizen.entity.Person;
+import com.redsquare.citizen.entity.Sex;
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.language.Meaning;
 import com.redsquare.citizen.systems.language.Name;
@@ -18,10 +20,33 @@ public class CulturalNameProfile {
   private final List<Name> femaleNames;
   private final List<Name> maleNames;
 
+  private final int[] givenNameRange;
+  private final SurnameConvention surnameConvention;
+
+  public enum SurnameConvention {
+    SURNAME, BOTH_PARENTS, FIRST_NAME_PLUS_POSTNOMIAL, FIRST_NAME
+  }
+
   private CulturalNameProfile(Language language) {
     this.unisexNames = new ArrayList<>();
     this.maleNames = new ArrayList<>();
     this.femaleNames = new ArrayList<>();
+
+    int lesser = Randoms.prob(0.8) ? 1 : 2;
+    this.givenNameRange = new int[] {
+            lesser, lesser + Randoms.bounded(0, 2)
+    };
+
+    double prob = Randoms.bounded(0., 1.);
+
+    if (prob < 0.5)
+      this.surnameConvention = SurnameConvention.SURNAME;
+    else if (prob < 4 / 6.)
+      this.surnameConvention = SurnameConvention.BOTH_PARENTS;
+    else if (prob < 5 / 6.)
+      this.surnameConvention = SurnameConvention.FIRST_NAME;
+    else
+      this.surnameConvention = SurnameConvention.FIRST_NAME_PLUS_POSTNOMIAL;
 
     populateNames(language);
   }
@@ -117,5 +142,52 @@ public class CulturalNameProfile {
     if (Randoms.random())
       return getNameFromList(unisexNames);
     return getNameFromList(maleNames);
+  }
+
+  public int pickGivenNameAmount() {
+    return Randoms.bounded(givenNameRange[0], givenNameRange[1] + 1);
+  }
+
+  public Word[] generateSurname(Person[] surnameGivers, Sex sex, Language language) {
+    Word[] surnames = new Word[surnameGivers.length];
+
+    for (int i = 0; i < surnameGivers.length; i++) {
+      Word[] parentName = surnameGivers[i].getName();
+      Word surname;
+
+      switch (surnameConvention) {
+        case SURNAME:
+          surname = parentName[parentName.length - 1];
+          break;
+        case BOTH_PARENTS:
+          surname = parentName[parentName.length - 2];
+          break;
+        case FIRST_NAME:
+          surname = parentName[0];
+          break;
+        case FIRST_NAME_PLUS_POSTNOMIAL:
+        default:
+          switch (sex) {
+            case MALE:
+              surname = Word.compound(parentName[0],
+                      language.lookUpWord(Meaning.SON));
+              break;
+            case FEMALE:
+            default:
+              surname = Word.compound(parentName[0],
+                      language.lookUpWord(Meaning.DAUGHTER));
+              break;
+          }
+          break;
+      }
+
+      surnames[i] = surname;
+    }
+
+    return surnames;
+  }
+
+  public SurnameConvention getSurnameConvention() {
+    return surnameConvention;
   }
 }

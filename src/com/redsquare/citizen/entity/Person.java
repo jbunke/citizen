@@ -7,15 +7,14 @@ import com.redsquare.citizen.entity.movement.MovementLogic;
 import com.redsquare.citizen.graphics.*;
 import com.redsquare.citizen.item.Inventory;
 import com.redsquare.citizen.systems.language.Language;
+import com.redsquare.citizen.systems.language.Word;
+import com.redsquare.citizen.systems.politics.CulturalNameProfile;
 import com.redsquare.citizen.systems.politics.Culture;
 import com.redsquare.citizen.systems.politics.Family;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.psychology.Psychology;
 import com.redsquare.citizen.systems.time.GameDate;
-import com.redsquare.citizen.util.ColorMath;
-import com.redsquare.citizen.util.FloatPoint;
-import com.redsquare.citizen.util.Randoms;
-import com.redsquare.citizen.util.Sets;
+import com.redsquare.citizen.util.*;
 import com.redsquare.citizen.worldgen.World;
 import com.redsquare.citizen.worldgen.WorldPosition;
 
@@ -25,7 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Person extends LivingMoving {
+public class Person extends LivingMoving implements ICharacter {
   /* Person constants */
 
   // Animation
@@ -52,8 +51,8 @@ public class Person extends LivingMoving {
 
 
   /* Instance fields */
-  protected String[] name;
-  protected String called;
+  protected Word[] name;
+  protected Word called;
 
   private boolean alive;
 
@@ -123,6 +122,10 @@ public class Person extends LivingMoving {
 
     this.mother.children.add(this);
     this.father.children.add(this);
+
+    this.name = nameGeneration();
+    // TODO: just have the nickname be the first given name for now
+    this.called = name[0];
   }
 
   Person(Sex sex, GameDate birthday, Settlement birthplace, World world) {
@@ -157,6 +160,8 @@ public class Person extends LivingMoving {
             getNativeRace().generateHairColor();
     height = randomHeight();
     bodyType = randomBodyType();
+
+    this.name = noParentsNameGeneration();
   }
 
   public static Person create(Sex sex, GameDate birthday,
@@ -229,6 +234,59 @@ public class Person extends LivingMoving {
       return father.family;
 
     return mother.family;
+  }
+
+  private Word[] givenNameGeneration() {
+    Word[] givenNames =
+            new Word[culture.getNameProfile().pickGivenNameAmount()];
+
+    for (int i = 0; i < givenNames.length; i++) {
+      givenNames[i] = sex == Sex.FEMALE ?
+              culture.getNameProfile().getFemaleName().getName() :
+              culture.getNameProfile().getMaleName().getName();
+    }
+
+    return givenNames;
+  }
+
+  private Word[] parentalSurnameGeneration() {
+    Person surnameDeterminer =
+            culture.getInheritance() != Culture.Inheritance.MATRILINEAL ?
+                    father : mother;
+
+    Person[] surnameGivers =
+            surnameDeterminer.getCulture().getNameProfile().
+                    getSurnameConvention() ==
+                    CulturalNameProfile.SurnameConvention.BOTH_PARENTS ?
+                    new Person[] { father, mother } :
+                    new Person[] { surnameDeterminer };
+
+    return culture.getNameProfile().generateSurname(
+            surnameGivers, sex, motherTongue);
+  }
+
+  private Word[] noParentsNameGeneration() {
+    Word[] surnames = new Word[] {
+            Word.generateRandomWord(2, 4,
+                    motherTongue.getPhonology())
+    };
+    Word[] givenNames = givenNameGeneration();
+    return nameCombination(givenNames, surnames);
+  }
+
+  private Word[] nameCombination(Word[] givenNames, Word[] surnames) {
+    Word[] names = new Word[givenNames.length + surnames.length];
+
+    System.arraycopy(givenNames, 0, names, 0, givenNames.length);
+    System.arraycopy(surnames, 0, names, givenNames.length, surnames.length);
+
+    return names;
+  }
+
+  private Word[] nameGeneration() {
+    Word[] surnames = parentalSurnameGeneration();
+    Word[] givenNames = givenNameGeneration();
+    return nameCombination(givenNames, surnames);
   }
 
   private Culture cultureGeneration() {
@@ -365,6 +423,17 @@ public class Person extends LivingMoving {
     return ColorMath.colorBetween(darker, lighter, hairSkew);
   }
 
+  @Override
+  public String getFormalName() {
+    return Formatter.properNoun(name[0].toString()) + " " +
+            Formatter.properNoun(name[name.length - 1].toString());
+  }
+
+  @Override
+  public String getFamiliarName() {
+    return Formatter.properNoun(called.toString());
+  }
+
   public enum Height {
     TALL, MEDIUM, SHORT
   }
@@ -489,6 +558,10 @@ public class Person extends LivingMoving {
   /* UTILITY FUNCTIONS */
   public Psychology getPsychology() {
     return psychology;
+  }
+
+  public Word[] getName() {
+    return name;
   }
 
   public Culture getCulture() {

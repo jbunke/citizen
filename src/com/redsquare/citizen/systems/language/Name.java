@@ -38,6 +38,10 @@ public class Name {
     return new Name(name, meaning, gender, languageOfOrigin);
   }
 
+  public Word getName() {
+    return name;
+  }
+
   public double getPopularity() {
     return popularity;
   }
