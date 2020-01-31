@@ -4,6 +4,7 @@ import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.language.Word;
 import com.redsquare.citizen.util.Randoms;
 import com.redsquare.citizen.util.Sets;
+import com.redsquare.citizen.worldgen.WorldCell;
 
 import java.util.*;
 
@@ -23,43 +24,37 @@ public class Species {
 //  public final int amountOfColours;
 //  public final Color[][] coatOptions;
 
-  private Species(HumanRelation humanRelation) {
+  private Species(HumanRelation humanRelation,
+                  WorldCell.CellLandType primary, Habitat.Range range) {
     this.SEXUAL_DIMORPHISM_COEFFICIENT = Randoms.bounded(0., 1.);
 
-    this.habitat = Habitat.generate();
+    this.habitat = Habitat.generate(primary, range);
     this.humanRelation = humanRelation;
 
     this.domesticated = humanRelation.isDomesticated();
     this.classification = humanRelation.getClassification();
-    this.mountable = classification.isMountable();
+    this.mountable = humanRelation.isMountable();
 
-    this.characteristics = this.classification.getCharacteristics();
+    this.characteristics = this.classification.generateCharacteristics();
     this.nameInLanguageMap = new HashMap<>();
+  }
+
+  public static Species generate(HumanRelation humanRelation,
+                                 WorldCell.CellLandType primary, Habitat.Range range) {
+    return new Species(humanRelation, primary, range);
   }
 
   public enum Classification {
     FELINE, EQUINE, PRIMATE, // CAT, HORSE, MONKEY
     AVIAN, CANINE, URSINE, // BIRD, DOG, BEAR
-    HIRCINE, BOVINE, OVINE, // GOAT, COW, SHEEP
-    SERPENTINE, CERVINE; // SNAKE, DEER
+    GOAT_LIKE, BOVINE, SHEEP_LIKE, // GOAT, COW, SHEEP
+    SERPENTINE, DEER_LIKE; // SNAKE, DEER
 
     public static Set<Classification> all() {
       return new HashSet<>(Arrays.asList(Classification.values()));
     }
 
-    boolean isMountable() {
-      switch (this) {
-        case FELINE:
-        case EQUINE:
-        case URSINE:
-        case CERVINE:
-          return true;
-        default:
-          return false;
-      }
-    }
-
-    Set<String> getCharacteristics() {
+    Set<String> generateCharacteristics() {
       Set<Set<String>> selectionSet;
 
       switch (this) {
@@ -85,13 +80,13 @@ public class Species {
                   Set.of("HIBERNATING", "NOT_HIBERNATING")
           );
           break;
-        case CERVINE:
+        case DEER_LIKE:
           selectionSet = Set.of(
                   Set.of("STRIPED", "SPOTTED", "PLAIN"),
                   Set.of("STAMPEDING", "ROAMING")
           );
           break;
-        case OVINE:
+        case SHEEP_LIKE:
           selectionSet = Set.of(
                   Set.of("WOOLLY", "PARTIAL_COAT", "NOT_WOOLLY")
           );
@@ -101,7 +96,7 @@ public class Species {
                   Set.of("SPOTTED", "PLAIN")
           );
           break;
-        case HIRCINE:
+        case GOAT_LIKE:
           selectionSet = Set.of(
                   Set.of("GOATEE", "NO_GOATEE"),
                   Set.of("IBEX_HORNS", "SCREW_HORNS", "LITTLE_HORNS")
@@ -157,9 +152,9 @@ public class Species {
           possibilities = new Classification[] {
                   Classification.FELINE, Classification.EQUINE,
                   Classification.PRIMATE, Classification.CANINE,
-                  Classification.URSINE, Classification.HIRCINE,
-                  Classification.BOVINE, Classification.OVINE,
-                  Classification.CERVINE
+                  Classification.URSINE, Classification.GOAT_LIKE,
+                  Classification.BOVINE, Classification.SHEEP_LIKE,
+                  Classification.DEER_LIKE
           };
           probs = new double[] {
                   0.03, 0.1, 0.15, 0.18, 0.3, 0.4, 0.5, 0.7, 1.0
@@ -195,13 +190,13 @@ public class Species {
         case FAST_TRANSPORT:
           possibilities = new Classification[] {
                   Classification.FELINE, Classification.CANINE,
-                  Classification.CERVINE, Classification.EQUINE
+                  Classification.DEER_LIKE, Classification.EQUINE
           };
           probs = new double[] { 0.2, 0.4, 0.7, 1. };
           break;
         case BEAST_OF_BURDEN:
           possibilities = new Classification[] {
-                  Classification.EQUINE, Classification.CERVINE,
+                  Classification.EQUINE, Classification.DEER_LIKE,
                   Classification.BOVINE, Classification.PRIMATE,
                   Classification.URSINE
           };
@@ -211,16 +206,14 @@ public class Species {
           possibilities = new Classification[] {
                   Classification.URSINE, Classification.PRIMATE,
                   Classification.CANINE, Classification.FELINE,
-                  Classification.SERPENTINE, Classification.OVINE,
-                  Classification.HIRCINE, Classification.CERVINE,
-                  Classification.PRIMATE, Classification.AVIAN,
-                  Classification.URSINE, Classification.BOVINE,
+                  Classification.SERPENTINE, Classification.SHEEP_LIKE,
+                  Classification.GOAT_LIKE, Classification.DEER_LIKE,
+                  Classification.AVIAN, Classification.BOVINE,
                   Classification.EQUINE
           };
           probs = new double[] {
-                  1 / 13., 2 / 13., 3 / 13., 4 / 13., 5 / 13.,
-                  6 / 13., 7 / 13., 8 / 13., 9 / 13., 10 / 13.,
-                  11 / 13., 12 / 13., 1.
+                  1 / 11., 2 / 11., 3 / 11., 4 / 11., 5 / 11.,
+                  6 / 11., 7 / 11., 8 / 11., 9 / 11., 10 / 11., 1.
           };
           break;
       }
@@ -233,7 +226,7 @@ public class Species {
       return possibilities[possibilities.length - 1];
     }
 
-    boolean isDomesticated() {
+    public boolean isDomesticated() {
       switch (this) {
         case APEX_PREDATOR:
         case VENOMOUS:
@@ -243,5 +236,40 @@ public class Species {
           return true;
       }
     }
+
+    boolean isMountable() {
+      switch (this) {
+        case BEAST_OF_BURDEN:
+        case FAST_TRANSPORT:
+          return true;
+        default:
+          return false;
+      }
+    }
+  }
+
+  public Habitat getHabitat() {
+    return habitat;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append(classification);
+    sb.append(", ");
+    sb.append(humanRelation);
+    sb.append("; [");
+
+    for (String characteristic : characteristics) {
+      sb.append(" ");
+      sb.append(characteristic);
+    }
+
+    sb.append(" ] ");
+
+    sb.append(habitat.toString());
+
+    return sb.toString();
   }
 }

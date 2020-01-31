@@ -1,6 +1,7 @@
 package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.entity.Entity;
+import com.redsquare.citizen.entity.animal.Species;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.util.ColorMath;
 import com.redsquare.citizen.util.MathExt;
@@ -34,6 +35,7 @@ public class WorldCell {
   private Settlement settlement = null;
   private Settlement province = null;
   private River.RiverPoint riverPoint = null;
+  private final Set<Species> species;
 
   WorldCell(CellLandType cellLandType, World world, Point location) {
     this.location = location;
@@ -47,6 +49,8 @@ public class WorldCell {
 
     surroundings = new CellLandType[3][3];
     chunks = new CellLandType[16][16];
+
+    species = new HashSet<>();
   }
 
   public Point getLocation() {
@@ -93,6 +97,25 @@ public class WorldCell {
   void populateSettlement(Settlement settlement) {
     this.settlement = settlement;
     settlement.setWorldCell(this);
+  }
+
+  boolean containsSpecies(Species species) {
+    return this.species.contains(species);
+  }
+
+  void addSpecies(Species toAdd) {
+    species.add(toAdd);
+  }
+
+  void removeNonAdaptableSpecies() {
+    Set<Species> toRemove = new HashSet<>();
+
+    for (Species s : species) {
+      if (!s.getHabitat().getLandTypes().contains(cellLandType))
+        toRemove.add(s);
+    }
+
+    species.removeAll(toRemove);
   }
 
   boolean hasSettlement() {

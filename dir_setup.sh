@@ -22,6 +22,7 @@ mkdir alphabet
 cd ../..
 mkdir worldgen
 cd worldgen
+mkdir species_maps
 mkdir states
 mkdir stress_test
 mkdir changing_borders

@@ -3,6 +3,8 @@ package com.redsquare.citizen.worldgen;
 import com.redsquare.citizen.GameManager;
 import com.redsquare.citizen.config.Settings;
 import com.redsquare.citizen.debug.GameDebug;
+import com.redsquare.citizen.entity.animal.Habitat;
+import com.redsquare.citizen.entity.animal.Species;
 import com.redsquare.citizen.game_states.MenuGameState;
 import com.redsquare.citizen.game_states.menu_elements.MenuStateCode;
 import com.redsquare.citizen.graphics.Font;
@@ -56,6 +58,8 @@ public class World {
   private final List<Desert> deserts;
   private final List<BodyOfWater> bodiesOfWater;
 
+  private final Set<Species> fauna;
+
   private final int width;
   private final int height;
 
@@ -86,6 +90,8 @@ public class World {
   public World(int width, int height, int plateCount) {
     this.width = width;
     this.height = height;
+
+    fauna = new HashSet<>();
 
     // GENERATE PLATES
     plates = new TectonicPlate[plateCount];
@@ -163,6 +169,9 @@ public class World {
     // POLES
     generatePoles();
 
+    // ANIMALS
+    generateAnimalSpecies();
+
     // ELEVATION
     generateElevation();
 
@@ -193,6 +202,64 @@ public class World {
     updateMenuScreen(MenuStateCode.SIMULATING_HISTORY);
 
     this.worldManager = WorldManager.init(this);
+  }
+
+  private void generateAnimalSpecies() {
+    // Global
+    generateSpecies(Habitat.Range.GLOBAL, 2, 5,
+            new int[] { 0, width - 1, 0, height - 1 }, null);
+
+    // CONTINENTAL
+    for (TectonicPlate plate : plates) {
+      generateSpecies(Habitat.Range.CONTINENTAL, 1, 3,
+              new int[] { plate.leftmost, plate.rightmost,
+                      plate.topmost, plate.bottommost }, plate);
+    }
+
+    removeNonAdaptableSpecies();
+  }
+
+  private void generateSpecies(final Habitat.Range RANGE, final int LOW,
+                               final int HIGH, final int[] BOUNDS,
+                               final TectonicPlate plate) {
+    final int LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
+
+    Set<Species> areaSpecies = new HashSet<>();
+
+    // Phase 1: create species
+    for (Species.HumanRelation humanRelation : Species.HumanRelation.values()) {
+      for (WorldCell.CellLandType cellLandType : WorldCell.CellLandType.values()) {
+        if (!cellLandType.isLand()) continue;
+
+        final int AMOUNT = humanRelation.isDomesticated() ? Randoms.bounded(0, 2) :
+                Randoms.bounded(LOW, HIGH);
+
+        for (int i = 0; i < AMOUNT; i++) {
+          areaSpecies.add(Species.generate(humanRelation,
+                  cellLandType, RANGE));
+        }
+      }
+    }
+
+    this.fauna.addAll(areaSpecies);
+
+    // Phase 2: populate species in world
+    for (int x = BOUNDS[LEFT]; x <= BOUNDS[RIGHT]; x++) {
+      for (int y = BOUNDS[TOP]; y <= BOUNDS[BOTTOM]; y++) {
+        if (plate != null && !plate.onPlate(new Point(x, y)))
+          continue;
+        for (Species species : areaSpecies)
+          cells[x][y].addSpecies(species);
+      }
+    }
+  }
+
+  private void removeNonAdaptableSpecies() {
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) {
+        cells[x][y].removeNonAdaptableSpecies();
+      }
+    }
   }
 
   private void generateElevation() {
@@ -385,6 +452,10 @@ public class World {
 
   public Set<State> getStates() {
     return states;
+  }
+
+  Set<Species> getFauna() {
+    return fauna;
   }
 
   public Set<Settlement> allSettlements() {
@@ -954,6 +1025,20 @@ public class World {
     return miniMap;
   }
 
+  public BufferedImage speciesRangeMap(final int SCALE_UP, Species species) {
+    BufferedImage map = physicalGeography(SCALE_UP, false);
+    Graphics2D g = (Graphics2D) map.getGraphics();
+    g.setColor(new Color(255, 0, 0, 150));
+
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) {
+        if (cells[x][y].containsSpecies(species))
+          g.fillRect(x * SCALE_UP, y * SCALE_UP, SCALE_UP, SCALE_UP);
+      }
+    }
+
+    return map;
+  }
 
   public BufferedImage physicalGeography(final int SCALE_UP, boolean marked) {
     BufferedImage map =
