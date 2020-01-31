@@ -1,6 +1,7 @@
 .idea/
 out/
 lib/
-test_output/
+test_output/*
+archive/*
 
 *.iml

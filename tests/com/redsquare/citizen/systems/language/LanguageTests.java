@@ -109,10 +109,6 @@ public class LanguageTests {
       for (int i = 0; i < languages.length; i++) {
         Language l = languages[i];
 
-        // TODO: Remove this null check once all vocabulary is populated
-        if (l.lookUpWord(meaning) == null)
-          continue;
-
         BufferedImage text =
                 l.getWritingSystem().drawWithFont(l.lookUpWord(meaning), 50, 2, 2,
                         Fonts::fontItalicX, Fonts::fontIdentityY);
@@ -224,12 +220,7 @@ public class LanguageTests {
               10, 200 + (130 * i), null);
     }
 
-    try {
-      ImageIO.write(image, IMAGE_FORMAT,
-              new File(FOLDER_PATH + "sentences." + IMAGE_FORMAT));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    IOForTesting.saveImage(image, FOLDER_PATH + "sentences." + IMAGE_FORMAT);
   }
 
   @Test

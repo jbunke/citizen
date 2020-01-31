@@ -28,6 +28,9 @@ public class Camera {
 
   private FloatPoint ref;
 
+  // DEBUG INFO
+  private int entityCount = 0;
+
   private Camera(Entity target) {
     this.target = target;
 
@@ -131,6 +134,13 @@ public class Camera {
     // Entities are sorted by y-position, which determines render order
     Collections.sort(entities);
 
+    if (entities.size() != entityCount) {
+      entityCount = entities.size();
+      GameDebug.printMessage(
+              "Rendering: " + entityCount + " entities",
+              GameDebug::printDebug);
+    }
+
     entities.forEach(x -> {
       x.renderUpdate();
       renderEntity(g, x);
@@ -219,6 +229,14 @@ public class Camera {
     } else if (xCoords[CELL] >= WorldPosition.CELLS_IN_WORLD_CELL_DIM) {
       xCoords[WORLD]++;
       xCoords[CELL] -= WorldPosition.CELLS_IN_WORLD_CELL_DIM;
+    }
+
+    if (yCoords[CELL] < 0) {
+      yCoords[WORLD]--;
+      yCoords[CELL] += WorldPosition.CELLS_IN_WORLD_CELL_DIM;
+    } else if (yCoords[CELL] >= WorldPosition.CELLS_IN_WORLD_CELL_DIM) {
+      yCoords[WORLD]++;
+      yCoords[CELL] -= WorldPosition.CELLS_IN_WORLD_CELL_DIM;
     }
 
     int[] origYCoords = Arrays.copyOf(yCoords, 2);

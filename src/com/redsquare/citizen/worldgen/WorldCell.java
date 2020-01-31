@@ -1,6 +1,7 @@
 package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.entity.Entity;
+import com.redsquare.citizen.entity.animal.Species;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.util.ColorMath;
 import com.redsquare.citizen.util.MathExt;
@@ -23,31 +24,33 @@ public class WorldCell {
 
   private final Set<Entity> entities;
 
-  private final Type[][] surroundings;
-  private final Type[][] chunks;
+  private final CellLandType[][] surroundings;
+  private final CellLandType[][] chunks;
   private WorldSubCell[][] subCells;
-  private BufferedImage chunkImage;
 
   private boolean generated;
   private int elevation = 0;
-  private Type type;
+  private CellLandType cellLandType;
   private Region region;
   private Settlement settlement = null;
   private Settlement province = null;
   private River.RiverPoint riverPoint = null;
+  private final Set<Species> species;
 
-  WorldCell(Type type, World world, Point location) {
+  WorldCell(CellLandType cellLandType, World world, Point location) {
     this.location = location;
     this.world = world;
 
     this.entities = new HashSet<>();
 
     generated = false;
-    this.type = type;
+    this.cellLandType = cellLandType;
     region = Region.TEMPERATE;
 
-    surroundings = new Type[3][3];
-    chunks = new Type[16][16];
+    surroundings = new CellLandType[3][3];
+    chunks = new CellLandType[16][16];
+
+    species = new HashSet<>();
   }
 
   public Point getLocation() {
@@ -65,7 +68,7 @@ public class WorldCell {
 
     for (int x = 0; x < WorldPosition.CELLS_IN_WORLD_CELL_DIM; x++) {
       for (int y = 0; y < WorldPosition.CELLS_IN_WORLD_CELL_DIM; y++) {
-        subCells[x][y] = new WorldSubCell(new Point(x, y), this, WorldSubCell.Type.GRASS);
+        subCells[x][y] = new WorldSubCell(new Point(x, y), this, cellLandType);
       }
     }
   }
@@ -75,11 +78,11 @@ public class WorldCell {
             y >= 0 && y < WorldPosition.CELLS_IN_WORLD_CELL_DIM) ? subCells[x][y] : null;
   }
 
-  void addEntity(Entity e) {
+  public void addEntity(Entity e) {
     entities.add(e);
   }
 
-  void removeEntity(Entity e) {
+  public void removeEntity(Entity e) {
     entities.remove(e);
   }
 
@@ -96,6 +99,25 @@ public class WorldCell {
     settlement.setWorldCell(this);
   }
 
+  boolean containsSpecies(Species species) {
+    return this.species.contains(species);
+  }
+
+  void addSpecies(Species toAdd) {
+    species.add(toAdd);
+  }
+
+  void removeNonAdaptableSpecies() {
+    Set<Species> toRemove = new HashSet<>();
+
+    for (Species s : species) {
+      if (!s.getHabitat().getLandTypes().contains(cellLandType))
+        toRemove.add(s);
+    }
+
+    species.removeAll(toRemove);
+  }
+
   boolean hasSettlement() {
     return settlement != null;
   }
@@ -106,10 +128,6 @@ public class WorldCell {
 
   boolean isGenerated() {
     return generated;
-  }
-
-  BufferedImage getChunkImage() {
-    return chunkImage;
   }
 
   Settlement getProvince() {
@@ -128,23 +146,21 @@ public class WorldCell {
     this.riverPoint = riverPoint;
   }
 
-  void setElevationAndType(int elevation, Type type) {
+  void setCellLandType(CellLandType cellLandType) {
+    this.cellLandType = cellLandType;
+  }
+
+  void setElevation(int elevation) {
     this.elevation = elevation;
-    this.type = type;
   }
 
   void generate() {
     // Phase 1: Generate surroundings
     generateSurroundings();
 
-    // Phase 2: Generate chunks
-    chunkImage = chunkImage();
-    // drawOverChunkImage();
-    // TODO
+    // Phase 2: Generate sub-cells
 
-    // Phase 3: Generate sub-cells
-
-    // Phase 4: Superimpose potential settlement
+    // Phase 3: Superimpose potential settlement
     if (settlement != null) {
 
     }
@@ -159,85 +175,7 @@ public class WorldCell {
         WorldCell cell =
                 world.getCell((location.x - 1) + x, (location.y - 1) + y);
 
-        surroundings[x][y] = cell != null ? cell.type : Type.NONE;
-      }
-    }
-  }
-
-  private void drawOverChunkImage() {
-    Graphics2D g = (Graphics2D) chunkImage.getGraphics();
-    final Color ambiguous = new Color(178, 0, 255);
-    final Color land = new Color(80, 146, 15);
-    final Color sea = new Color(0, 120, 192);
-
-    final Point center = new Point(8, 8);
-
-    final Map<Point, Point> adjacencyMapping = Map.ofEntries(
-            Map.entry(new Point(0, 0), new Point(-1, -1)),
-            Map.entry(new Point(8, 0), new Point(0, -1)),
-            Map.entry(new Point(16, 0), new Point(1, -1)),
-            Map.entry(new Point(0, 16), new Point(-1, 1)),
-            Map.entry(new Point(8, 16), new Point(0, 1)),
-            Map.entry(new Point(16, 16), new Point(1, 1)),
-            Map.entry(new Point(0, 8), new Point(-1, 0)),
-            Map.entry(new Point(16, 8), new Point(1, 0))
-    );
-
-    for (int x = 0; x < 16; x++) {
-      for (int y = 0; y < 16; y++) {
-        // Settle coast ambiguities (purple pixels sorted into land and sea)
-        if (ColorMath.nighEqual(
-                new Color(chunkImage.getRGB(x, y)), ambiguous)) {
-          if (Math.random() < 0.5) g.setColor(land);
-          else g.setColor(sea);
-
-          g.fillRect(x, y, 1, 1);
-        }
-
-        Color c = new Color(chunkImage.getRGB(x, y));
-
-        if (ColorMath.nighEqual(c, sea)) {
-          // Water case
-          if (type.isLand() || type == Type.SHALLOW) {
-            g.setColor(getMapColor(Type.SHALLOW, region));
-          } else {
-            g.setColor(getMapColor(Type.SEA, region));
-          }
-        } else if (ColorMath.nighEqual(c, land)) {
-          // Land case
-
-          // Check if within pure circle
-          Point location = new Point(x, y);
-          double distance = MathExt.distance(center, location);
-
-          if (distance <= 5) {
-            g.setColor(getMapColor(type, region));
-          } else {
-            double skew = ((distance - 5.) / 5.) * 0.5;
-            Point closest = Sets.randomEntry(adjacencyMapping.keySet());
-            double cd = Double.MAX_VALUE;
-
-            for (Point corner : adjacencyMapping.keySet()) {
-              if (cd > MathExt.distance(location, corner)) {
-                closest = corner;
-                cd = MathExt.distance(location, corner);
-              }
-            }
-
-            Point transform = adjacencyMapping.get(closest);
-
-            Type adjacent = surroundings[1 + transform.x][1 + transform.y];
-
-            Color comb = adjacent.isLand() ? ColorMath.colorBetween(getMapColor(adjacent, region),
-                    getMapColor(type, region), skew) : land;
-            g.setColor(comb);
-          }
-        } else {
-          // Indeterminate case
-          g.setColor(new Color(255, 0, 0));
-        }
-
-        g.fillRect(x, y, 1, 1);
+        surroundings[x][y] = cell != null ? cell.cellLandType : CellLandType.NONE;
       }
     }
   }
@@ -603,7 +541,7 @@ public class WorldCell {
     POLAR, TEMPERATE, SUBTROPICAL, TROPICAL
   }
 
-  public enum Type {
+  public enum CellLandType {
     PLAIN, DESERT, SEA, SHALLOW, BEACH, MOUNTAIN, HILL, FOREST, // MAIN TYPES
     NONE; // TECHNICAL TYPE
 
@@ -625,8 +563,8 @@ public class WorldCell {
     }
   }
 
-  Type getType() {
-    return type;
+  CellLandType getCellLandType() {
+    return cellLandType;
   }
 
   Region getRegion() {
@@ -638,13 +576,13 @@ public class WorldCell {
   }
 
   boolean isLand() {
-    return type.isLand();
+    return cellLandType.isLand();
   }
 
-  static Color getMapColor(Type type, Region region) {
+  static Color getMapColor(CellLandType cellLandType, Region region) {
     Color c = new Color(0, 0, 0);
 
-    switch (type) {
+    switch (cellLandType) {
       case SHALLOW:
         switch (region) {
           case POLAR:

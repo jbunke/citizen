@@ -5,6 +5,8 @@ import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.util.MathExt;
 import com.redsquare.citizen.util.Randoms;
 
+// TODO: Refactor class to use PersonTraits in a map from PersonTrait to tendency double
+
 public class Psychology {
   private static final int TENDENCY_COUNT = 13;
   public static final int PARENTAL_INSTINCTS = 0, AMBITION = 1, IDEALISM = 2,

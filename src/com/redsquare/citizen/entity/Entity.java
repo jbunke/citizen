@@ -6,6 +6,8 @@ import com.redsquare.citizen.worldgen.WorldPosition;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class Entity implements Comparable<Entity> {
 
@@ -13,6 +15,24 @@ public abstract class Entity implements Comparable<Entity> {
   Sprite[] layers;
   WorldPosition position;
   Collider collider;
+
+  static Set<Entity> filterEntitySet(Set<Entity> entities, final boolean OTHER_PEOPLE, final boolean PLAYER,
+                                     final boolean ANIMALS, final boolean ITEMS) {
+    Set<Entity> filtered = new HashSet<>();
+
+    entities.forEach(x -> {
+      if (PLAYER && x instanceof Player)
+        filtered.add(x);
+      else if (OTHER_PEOPLE && x instanceof Person)
+        filtered.add(x);
+      else if (ANIMALS && x instanceof Animal)
+        filtered.add(x);
+      else if (ITEMS && x instanceof ItemEntity)
+        filtered.add(x);
+    });
+
+    return filtered;
+  }
 
   public WorldPosition position() {
     return position;

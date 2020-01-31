@@ -11,13 +11,42 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PersonTests {
 
   private static final int DAYS_IN_YEAR = 10;
   private static final String IMAGE_FORMAT = "png";
   private static final String PATH = "test_output/people/parents";
+
+  @Test
+  public void fatherMotherChild() {
+    State state = new State(null);
+    Settlement settlement = new Settlement(new Point(0, 0), state);
+
+    GameDate date = new GameDate(1, 1);
+
+    Person mother = Person.create(Sex.FEMALE, date, settlement, null);
+    Person father = Person.create(Sex.MALE, date, settlement, null);
+
+    for (int i = 0; i < 22; i++)
+      date = GameDate.incrementYear(date);
+
+    Set<Person> children = new HashSet<>();
+
+    for (int i = 0; i < 10; i++)
+      children.add(Person.birth(mother, father, date, settlement, null));
+
+    System.out.println("MOTHER: " + mother.formatEntireName());
+    System.out.println("FATHER: " + father.formatEntireName());
+    System.out.println("CHILDREN:");
+
+    for (Person child : children) {
+      System.out.println(child.formatEntireName());
+    }
+  }
 
   @Test
   public void differentBackgroundParentsTest() {

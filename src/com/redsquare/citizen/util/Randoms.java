@@ -2,6 +2,14 @@ package com.redsquare.citizen.util;
 
 public class Randoms {
 
+  public static boolean random() {
+    return Math.random() < 0.5;
+  }
+
+  public static boolean prob(final double PROB) {
+    return Math.random() < PROB;
+  }
+
   public static double bounded(double minimum, double maximum) {
     return minimum + (Math.random() * (maximum - minimum));
   }

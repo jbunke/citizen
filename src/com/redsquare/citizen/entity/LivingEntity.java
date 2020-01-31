@@ -2,7 +2,7 @@ package com.redsquare.citizen.entity;
 
 import com.redsquare.citizen.systems.time.GameDate;
 
-abstract class Lifeform extends Entity {
+abstract class LivingEntity extends Entity {
   /**
    * @return The age of the life form in game-years
    * */

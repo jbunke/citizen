@@ -1,5 +1,7 @@
 package com.redsquare.citizen.util;
 
+import com.redsquare.citizen.debug.GameDebug;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -12,5 +14,14 @@ public class IOForTesting {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public static void createDirectory(String location) {
+    File directory = new File(location);
+
+    if (!directory.mkdir())
+      GameDebug.printMessage(
+              "Could not create directory at " + location,
+              GameDebug::printError);
   }
 }

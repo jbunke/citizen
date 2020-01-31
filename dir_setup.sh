@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
+mkdir archive
+cd archive
+mkdir default
+cd ..
 
 mkdir test_output
 cd test_output
 mkdir graphics
 mkdir vexillography
+mkdir people
+cd people
+mkdir parents
+cd ..
 mkdir language
 cd language
 mkdir archive
@@ -14,6 +22,7 @@ mkdir alphabet
 cd ../..
 mkdir worldgen
 cd worldgen
+mkdir species_maps
 mkdir states
 mkdir stress_test
 mkdir changing_borders

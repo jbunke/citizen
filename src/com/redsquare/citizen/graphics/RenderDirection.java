@@ -1,5 +1,7 @@
 package com.redsquare.citizen.graphics;
 
+import java.awt.*;
+
 /** Used for animating people, animals, and animate objects (i.e. wheelbarrows) */
 public enum RenderDirection {
   U, UL, L, DL, D, DR, R, UR;
@@ -16,6 +18,29 @@ public enum RenderDirection {
     else if (rad < (11 * Math.PI) / 8.) return DL;
     else if (rad < (13 * Math.PI) / 8.) return D;
     else return DR;
+  }
+
+  public Point moveByNUnits(final Point INPUT, final int N) {
+    switch (this) {
+      case D:
+        return new Point(INPUT.x, INPUT.y + N);
+      case DL:
+        return new Point(INPUT.x - N, INPUT.y + N);
+      case DR:
+        return new Point(INPUT.x + N, INPUT.y + N);
+      case L:
+        return new Point(INPUT.x - N, INPUT.y);
+      case R:
+        return new Point(INPUT.x + N, INPUT.y);
+      case U:
+        return new Point(INPUT.x, INPUT.y - N);
+      case UL:
+        return new Point(INPUT.x - N, INPUT.y - N);
+      case UR:
+        return new Point(INPUT.x + N, INPUT.y - N);
+    }
+
+    return INPUT;
   }
 
   public static RenderDirection opposite(RenderDirection d) {

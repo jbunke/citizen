@@ -11,6 +11,7 @@ import com.redsquare.citizen.game_states.playing_systems.ControlScheme;
 import com.redsquare.citizen.graphics.Font;
 import com.redsquare.citizen.input_events.Event;
 import com.redsquare.citizen.input_events.KeyPressEvent;
+import com.redsquare.citizen.item.Item;
 import com.redsquare.citizen.worldgen.World;
 
 import java.awt.*;
@@ -23,17 +24,24 @@ public final class PlayingGameState extends GameState {
   private final Player player;
   private final Camera camera;
 
+  // DEBUG
+  private Point worldPosition = new Point(-1, -1);
+  private BufferedImage miniMap = null;
+
   private PlayingGameState() {
     int x = WorldConfig.getXDim();
     int y = (x * 9) / 16;
-    world = World.safeCreate(x, y, WorldConfig.getPlateCount(), 20);
+    world = World.safeCreate(x, y, WorldConfig.getPlateCount(), 5);
     world.getWorldManager().startOfGameSimulation(WorldConfig.getSimulationYears());
     this.player = world.getWorldManager().getPlayer();
     camera = Camera.generate(player);
+
+    if (GameDebug.isArchiving())
+      GameDebug.prepArchiving(player, world);
   }
 
   public static PlayingGameState init() {
-    GameDebug.printMessage("Initialising \"playing\" game state...",
+    GameDebug.printMessage("Initialising \"PLAYING\" game state...",
             GameDebug::printDebug);
     return new PlayingGameState();
   }
@@ -52,7 +60,34 @@ public final class PlayingGameState extends GameState {
 
     camera.render(g, world);
 
+    // HUD
+    // Selected slot
+    g.setColor(new Color(0, 0, 0));
+    int selectedSlot = player.getSelectedInventorySlot();
+    g.fillRect((Settings.SCREEN_DIM[0] / 2) + 50 + (selectedSlot * Item.ICON_DIMENSION), 78, 64, 5);
+
+    // Items
+    Item[] inventory = player.getInventory().getContents();
+    for (int i = 0; i < player.getInventory().getContents().length; i++) {
+      if (inventory[i] == null)
+        continue;
+      g.drawImage(inventory[i].getItemIcon(), (Settings.SCREEN_DIM[0] / 2) +
+              50 + (i * Item.ICON_DIMENSION), 10, null);
+    }
+    // END HUD
+
+    // DEBUG
     if (GameDebug.isActive()) {
+      Point worldPosition = player.position().world();
+
+      if (!this.worldPosition.equals(worldPosition) || miniMap == null) {
+        this.worldPosition = worldPosition;
+        miniMap = world.worldMiniMap(worldPosition);
+      }
+
+      g.drawImage(miniMap, Settings.SCREEN_DIM[0] -
+              (miniMap.getWidth() + 10), 10, null);
+
       BufferedImage animState = Font.CLEAN.getText(player.getSpriteCode());
       BufferedImage position = Font.CLEAN.getText(player.position().toString());
       g.drawImage(animState, Settings.SCREEN_DIM[0] - animState.getWidth(),

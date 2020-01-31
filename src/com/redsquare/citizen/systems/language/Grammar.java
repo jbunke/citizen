@@ -6,6 +6,7 @@ import com.redsquare.citizen.util.Randoms;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Grammar {
@@ -18,8 +19,10 @@ public class Grammar {
   private final Word[] articleWords = new Word[8];
   private final Word infinitiveVerbEnding;
   private final WordOrder wordOrder;
-  private final Word pluralSuffix;
+  private final Word[] pluralSuffixes;
   private final Articles articles;
+
+  private final Language language;
 
   enum Articles {
     NO_GENDER, // [SINGLE DEF., SINGLE INDEF., PLURAL DEF., PLURAL INDEF.]
@@ -31,10 +34,18 @@ public class Grammar {
     SOV, SVO
   }
 
-  private Grammar(Phonology phonology) {
+  private Grammar(Language language) {
+    this.language = language;
+
+    Phonology phonology = language.getPhonology();
+
     wordOrder = WordOrder.values()[Randoms.bounded(0, WordOrder.values().length)];
     articles = Articles.values()[Randoms.bounded(0, Articles.values().length)];
-    pluralSuffix = generateSuffix(phonology);
+
+    pluralSuffixes = new Word[2];
+    pluralSuffixes[0] = generateSuffix(phonology);
+    pluralSuffixes[1] = generateSuffix(phonology);
+
     infinitiveVerbEnding = generateSuffix(phonology);
 
     Word snd = generateSuffix(phonology);
@@ -65,8 +76,8 @@ public class Grammar {
         break;
     }
 
-    articleWords[PD] = Math.random() < 0.7 ? Word.compound(snd, pluralSuffix) : generateSuffix(phonology);
-    articleWords[PI] = Math.random() < 0.7 ? Word.compound(sni, pluralSuffix) : generateSuffix(phonology);
+    articleWords[PD] = Math.random() < 0.7 ? Word.compound(snd, pluralSuffixes[0]) : generateSuffix(phonology);
+    articleWords[PI] = Math.random() < 0.7 ? Word.compound(sni, pluralSuffixes[0]) : generateSuffix(phonology);
 
     for (int tense = 0; tense <= FUTURE; tense++) {
       for (int person = 0; person <= YOU_PL; person++) {
@@ -81,21 +92,36 @@ public class Grammar {
     }
   }
 
-  static Grammar generate(Phonology phonology) {
-    return new Grammar(phonology);
+  static Grammar generate(Language language) {
+    return new Grammar(language);
   }
 
   private Word generateSuffix(Phonology phonology) {
-    Word suffix = Word.generate(new Syllable[] {
-            Math.random() < 0.2 ?
-                    new Syllable(
-                            Phonology.selectUnit(phonology.PREFIX_CONS_PHONEMES),
-                            Phonology.selectUnit(phonology.VOWEL_PHONEMES),
-                            Phonology.selectUnit(phonology.SUFFIX_CONS_PHONEMES)) :
-                    new Syllable("",
-                            Phonology.selectUnit(phonology.VOWEL_PHONEMES),
-                            Phonology.selectUnit(phonology.SUFFIX_CONS_PHONEMES))
-    });
+    double prob = Randoms.bounded(0., 1.);
+    Word suffix;
+
+    if (prob < 0.2) {
+      suffix = Word.generate(new Syllable[] {
+                      new Syllable(
+                              Phonology.selectUnit(phonology.PREFIX_CONS_PHONEMES),
+                              Phonology.selectUnit(phonology.VOWEL_PHONEMES),
+                              Phonology.selectUnit(phonology.SUFFIX_CONS_PHONEMES))
+      });
+    } else if (prob < 0.6) {
+      suffix = Word.generate(new Syllable[] {
+              new Syllable(
+                      "",
+                      Phonology.selectUnit(phonology.VOWEL_PHONEMES),
+                      Phonology.selectUnit(phonology.SUFFIX_CONS_PHONEMES))
+      });
+    } else {
+        suffix = Word.generate(new Syllable[] {
+                new Syllable(
+                        "",
+                        Phonology.selectUnit(phonology.VOWEL_PHONEMES),
+                        "")
+        });
+    }
 
     if (suffixes.contains(suffix)) {
       return generateSuffix(phonology);
@@ -105,8 +131,17 @@ public class Grammar {
     }
   }
 
-  public Word getPluralSuffix() {
-    return pluralSuffix;
+  public Word pluralForm(Meaning meaning) {
+    List<Phoneme> pluralSuffixPhonemes = pluralSuffixes[0].toPhonemes();
+    Phoneme lastLetter =
+            pluralSuffixPhonemes.get(pluralSuffixPhonemes.size() - 1);
+
+    Word word = language.lookUpWord(meaning);
+
+    if (word.endsWith(List.of(lastLetter)))
+      return Word.compound(word, pluralSuffixes[1]);
+    else
+      return Word.compound(word, pluralSuffixes[0]);
   }
 
   public Word conjugate(Word verb, int tense, int person) {

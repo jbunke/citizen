@@ -1,11 +1,13 @@
 package com.redsquare.citizen.entity;
 
+import com.redsquare.citizen.entity.animal.Species;
 import com.redsquare.citizen.systems.time.GameDate;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Animal extends LivingMoving {
+  private Species species;
 
   @Override
   public int age(GameDate now) {

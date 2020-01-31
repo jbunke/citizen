@@ -1,9 +1,14 @@
 package com.redsquare.citizen.systems.politics;
 
+import com.redsquare.citizen.systems.language.Language;
+import com.redsquare.citizen.systems.language.Phonology;
+import com.redsquare.citizen.systems.language.WritingSystem;
 import com.redsquare.citizen.systems.vexillography.FlagPattern;
 import com.redsquare.citizen.util.Randoms;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Culture {
@@ -13,6 +18,9 @@ public class Culture {
   private final BeautyStandard beautyStandard;
   private final Set<FlagPattern> patterns;
   private final Set<FlagPattern> symbols;
+  private final CulturalReligiousProfile religiousProfile;
+  private final List<Language> daughterLanguages;
+  private final CulturalNameProfile nameProfile;
 
   private Culture() {
     inheritance = Math.random() < 0.7 ? Inheritance.PATRILINEAL :
@@ -21,6 +29,11 @@ public class Culture {
     beautyStandard = BeautyStandard.generate(this);
     patterns = generatePatterns();
     symbols = generateSymbols();
+    religiousProfile = CulturalReligiousProfile.generate(this);
+    daughterLanguages = new ArrayList<>();
+    daughterLanguages.add(Language.generate(WritingSystem.generate(
+            Phonology.generate(), WritingSystem.Type.ALPHABET)));
+    nameProfile = CulturalNameProfile.generate(daughterLanguages.get(0));
   }
 
   public static Culture generate() {
@@ -52,6 +65,22 @@ public class Culture {
       symbols.add(FlagPattern.generateSymbol());
 
     return symbols;
+  }
+
+  public void addDaughterLanguage(Language language) {
+    daughterLanguages.add(language);
+  }
+
+  public List<Language> getDaughterLanguages() {
+    return daughterLanguages;
+  }
+
+  public CulturalReligiousProfile getReligiousProfile() {
+    return religiousProfile;
+  }
+
+  public CulturalNameProfile getNameProfile() {
+    return nameProfile;
   }
 
   public BeautyStandard getBeautyStandard() {

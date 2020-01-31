@@ -29,7 +29,7 @@ public enum MenuStateCode {
         TextMenuElement dimensions = TextMenuElement.temp(
                 SliderMenuElement.worldSizeFunction(400),
                 new Point(340, 150));
-        TextMenuElement plateCount = TextMenuElement.temp("35",
+        TextMenuElement plateCount = TextMenuElement.temp("50",
                 new Point(340, 250));
 
         return Set.of(
@@ -46,7 +46,7 @@ public enum MenuStateCode {
                 TextMenuElement.temp("Tectonic plate count",
                         new Point(240, 230)),
                 SliderMenuElement.generate(plateCount, 200,
-                        new Point(160, 250), 20, 50, 1,
+                        new Point(160, 250), 20, 80, 1,
                         SliderMenuElement::plateCountFunction),
                 plateCount,
 

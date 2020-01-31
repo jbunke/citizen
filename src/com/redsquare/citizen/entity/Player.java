@@ -3,6 +3,7 @@ package com.redsquare.citizen.entity;
 import com.redsquare.citizen.InputHandler;
 import com.redsquare.citizen.game_states.playing_systems.ControlScheme;
 import com.redsquare.citizen.graphics.RenderDirection;
+import com.redsquare.citizen.graphics.RenderPosture;
 import com.redsquare.citizen.input_events.Event;
 import com.redsquare.citizen.input_events.KeyPressEvent;
 import com.redsquare.citizen.systems.politics.Settlement;
@@ -24,11 +25,14 @@ public final class Player extends Person {
    * used to determine direction */
   private FloatPoint lookingRef;
 
+  private int selectedInventorySlot;
+
   private Player(Sex sex, GameDate birthday, Settlement birthplace, World world) {
     super(sex, birthday, birthplace, world);
 
     dirKeys = new boolean[4];
     lookingRef = new FloatPoint(0., 0.);
+    selectedInventorySlot = 0;
   }
 
   public static Player temp(World world, GameDate birthday) {
@@ -72,6 +76,26 @@ public final class Player extends Person {
               dirKeys[RIGHT] = true;
               processed = true;
               break;
+            case SELECT_SLOT_1:
+              selectedInventorySlot = 0;
+              processed = true;
+              break;
+            case SELECT_SLOT_2:
+              selectedInventorySlot = 1;
+              processed = true;
+              break;
+            case SELECT_SLOT_3:
+              selectedInventorySlot = 2;
+              processed = true;
+              break;
+            case SELECT_SLOT_4:
+              selectedInventorySlot = 3;
+              processed = true;
+              break;
+            case SELECT_SLOT_5:
+              selectedInventorySlot = 4;
+              processed = true;
+              break;
           }
           break;
         case RELEASED:
@@ -96,6 +120,20 @@ public final class Player extends Person {
               movementLogic.toggleRunning();
               processed = true;
               break;
+            case TOGGLE_AGGRO:
+              movementLogic.renderLogic().switchPosture();
+              processed = true;
+              break;
+            case DROP_SINGLE_ITEM:
+              inventory.dropItem(selectedInventorySlot,
+                      movementLogic.renderLogic().getDirection(), false);
+              processed = true;
+              break;
+            case DROP_ITEM_STACK:
+              inventory.dropItem(selectedInventorySlot,
+                      movementLogic.renderLogic().getDirection(), true);
+              processed = true;
+              break;
           }
           break;
       }
@@ -107,18 +145,70 @@ public final class Player extends Person {
     }
   }
 
+  public int getSelectedInventorySlot() {
+    return selectedInventorySlot;
+  }
+
   @Override
   public void update() {
+    super.update();
     // TODO
     setDirection();
     setMovementVector();
-    super.update();
   }
 
+  /**
+   * If AGGRO or stationary (not moving),
+   * player should face where they are LOOKING
+   *
+   * Otherwise, player should face where they are MOVING
+   * */
   private void setDirection() {
+    RenderDirection facingDirection;
+
+    if (movementLogic.renderLogic().getPosture() == RenderPosture.AGGRO ||
+            !isMoving()) {
+      facingDirection = lookingDirection();
+    } else {
+      facingDirection = movingDirection();
+    }
+
+    movementLogic.renderLogic().setDirection(facingDirection);
+  }
+
+  private RenderDirection lookingDirection() {
     double angle = Math.atan((-1. * lookingRef.y) / lookingRef.x);
     if (lookingRef.x < 0) angle += Math.PI;
-    movementLogic.renderLogic().setDirection(RenderDirection.fromAngle(angle));
+    return RenderDirection.fromAngle(angle);
+  }
+
+  private RenderDirection movingDirection() {
+    if (dirKeys[UP] && !dirKeys[DOWN]) {
+      if (dirKeys[LEFT] == dirKeys[RIGHT])
+        return RenderDirection.U;
+      else if (dirKeys[LEFT])
+        return RenderDirection.UL;
+      else
+        return RenderDirection.UR;
+    } else if (dirKeys[DOWN] && !dirKeys[UP]) {
+      if (dirKeys[LEFT] == dirKeys[RIGHT])
+        return RenderDirection.D;
+      else if (dirKeys[LEFT])
+        return RenderDirection.DL;
+      else
+        return RenderDirection.DR;
+    } else {
+      if (dirKeys[LEFT])
+        return RenderDirection.L;
+      else if (dirKeys[RIGHT])
+        return RenderDirection.R;
+      else
+        return lookingDirection();
+    }
+  }
+
+  private boolean isMoving() {
+    return dirKeys[UP] != dirKeys[DOWN] || dirKeys[LEFT] != dirKeys[RIGHT];
   }
 
   private void setMovementVector() {
@@ -135,7 +225,9 @@ public final class Player extends Person {
   }
 
   public void resetDirectionKeys() {
-    for (int i = 0; i < dirKeys.length; i++)
-      dirKeys[i] = false;
+    dirKeys[UP] = false;
+    dirKeys[DOWN] = false;
+    dirKeys[LEFT] = false;
+    dirKeys[RIGHT] = false;
   }
 }

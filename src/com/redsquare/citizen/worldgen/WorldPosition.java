@@ -2,12 +2,16 @@ package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.entity.Entity;
 import com.redsquare.citizen.util.FloatPoint;
+import com.redsquare.citizen.util.MathExt;
+import com.redsquare.citizen.util.Randoms;
 
 import java.awt.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class WorldPosition {
-  public static final int CELLS_IN_WORLD_CELL_DIM = 384;
-  public static final double CELL_DIMENSION_LENGTH = 200.;
+  public static final int CELLS_IN_WORLD_CELL_DIM = 50; // 384
+  public static final double CELL_DIMENSION_LENGTH = 72.; // 72
 
   private final World world;
   private final Entity associated;
@@ -25,8 +29,18 @@ public class WorldPosition {
     this.world = world;
     this.associated = associated;
 
+    // Sometimes constructed relative to other entities, ex. an entity dropping an item
+    // Thus, can be constructed outside the legal bounds of cell and sub-cell
+    wrapFix();
+
     if (isEntity())
       world.getCell(worldPos.x, worldPos.y).addEntity(associated);
+  }
+
+  public static FloatPoint randomizeWithinSubCell() {
+    return new FloatPoint(
+            Randoms.bounded(0, CELL_DIMENSION_LENGTH - 1.),
+            Randoms.bounded(0, CELL_DIMENSION_LENGTH - 1.));
   }
 
   public static WorldPosition copy(WorldPosition ref) {
@@ -48,6 +62,10 @@ public class WorldPosition {
     return new FloatPoint(x, y);
   }
 
+  public World getWorld() {
+    return world;
+  }
+
   public Point world() {
     return worldPos;
   }
@@ -63,6 +81,34 @@ public class WorldPosition {
   public void move(double changeX, double changeY) {
     subCellPos = new FloatPoint(subCellPos.x + changeX, subCellPos.y + changeY);
     wrapFix();
+  }
+
+  public Set<Entity> getAllEntitiesWithinXCells(int cellsDistance) {
+    Set<Entity> entities = new HashSet<>();
+    Point thisPos = new Point((worldPos.x * CELLS_IN_WORLD_CELL_DIM) + cellPos.x,
+            (worldPos.y * CELLS_IN_WORLD_CELL_DIM) + cellPos.y);
+
+    int amount = (int)(Math.ceil(cellsDistance / (double)CELLS_IN_WORLD_CELL_DIM));
+
+    for (int x = Math.max(0, worldPos.x - amount);
+         x <= Math.min(world.getWidth() - 1, worldPos.x + amount); x++) {
+      for (int y = Math.max(0, worldPos.y - amount);
+           y <= Math.min(world.getHeight() - 1, worldPos.y + amount); y++) {
+        Set<Entity> candidates = world.getCell(x, y).getEntities();
+
+        for (Entity candidate : candidates) {
+          Point w = candidate.position().worldPos;
+          Point c = candidate.position().cellPos;
+          Point position = new Point((w.x * CELLS_IN_WORLD_CELL_DIM) + c.x,
+                  (w.y * CELLS_IN_WORLD_CELL_DIM) + c.y);
+
+          if (MathExt.distance(thisPos, position) < cellsDistance)
+            entities.add(candidate);
+        }
+      }
+    }
+
+    return entities;
   }
 
   private void wrapFix() {

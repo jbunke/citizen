@@ -1,9 +1,7 @@
 package com.redsquare.citizen.worldgen;
 
-import com.redsquare.citizen.entity.Entity;
-import com.redsquare.citizen.entity.Person;
-import com.redsquare.citizen.entity.Player;
-import com.redsquare.citizen.entity.Sex;
+import com.redsquare.citizen.debug.GameDebug;
+import com.redsquare.citizen.entity.*;
 import com.redsquare.citizen.entity.collision.CollisionManager;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.time.GameDate;
@@ -21,6 +19,9 @@ public class WorldManager {
   private final Set<Person> people;
   private Player player;
 
+  // DEBUG INFO
+  private int entityCount = 0;
+
   private WorldManager(World world) {
     this.world = world;
     this.date = new GameDate(1, 600);
@@ -31,6 +32,7 @@ public class WorldManager {
     return new WorldManager(world);
   }
 
+  /** !!! CURRENT SPAWN FUNCTION */
   public void startOfGameSimulation(int years) {
     if (worldStarted) return;
     worldStarted = true;
@@ -39,6 +41,9 @@ public class WorldManager {
 
     simulateYears(years);
     generatePlayer();
+
+    ItemEntity.itemEntityCreateTest(world);
+
     populateCellsAroundPlayer();
   }
 
@@ -102,7 +107,15 @@ public class WorldManager {
 
     Set<Entity> entities = entitiesCloseBy();
 
-    for (Entity entity : entities) entity.update();
+    if (entityCount != entities.size()) {
+      entityCount = entities.size();
+      GameDebug.printMessage(
+              "Processing: " + entityCount + " entities",
+              GameDebug::printDebug);
+    }
+
+    for (Entity entity : entities)
+      entity.update();
 
     collisionCheck(entities);
   }

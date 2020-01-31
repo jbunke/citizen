@@ -54,21 +54,6 @@ public class WorldGenTests {
   }
 
   @Test
-  public void chunkMapTest() {
-    String filepath = "test_output/worldgen/chunk_map/chunks.png";
-
-    World world = World.safeCreate(480, 270, 30, 10);
-
-    BufferedImage i = world.chunkMap();
-
-    try {
-      ImageIO.write(i, IMAGE_FORMAT, new File(filepath));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
   public void stateMaps() {
     World testWorld = new World(300, 300, 42);
 

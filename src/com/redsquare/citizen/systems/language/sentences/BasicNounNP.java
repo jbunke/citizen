@@ -29,7 +29,7 @@ public class BasicNounNP extends NounPhrase {
     for (Meaning adjective : adjectives) words.add(language.lookUpWord(adjective));
 
     Word nounWord = number > 1 ?
-            Word.compound(language.lookUpWord(noun), language.getGrammar().getPluralSuffix()) :
+            language.getGrammar().pluralForm(noun) :
             language.lookUpWord(noun);
     words.add(nounWord);
 
