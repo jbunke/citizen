@@ -90,7 +90,7 @@ public class Word {
     return new Word(syllables);
   }
 
-  private List<Phoneme> toPhonemes() {
+  List<Phoneme> toPhonemes() {
     List<Phoneme> phonemes = new ArrayList<>();
 
     for (Syllable syllable : this.syllables) {
@@ -102,12 +102,12 @@ public class Word {
     return phonemes;
   }
 
-  boolean endsWith(final Phoneme[] phonemes) {
+  boolean endsWith(final List<Phoneme> phonemes) {
     boolean endsWith = true;
 
     List<Phoneme> word = toPhonemes();
 
-    if (word.size() < phonemes.length) return false;
+    if (word.size() < phonemes.size()) return false;
 
     for (Phoneme phoneme : phonemes) {
       endsWith &= phoneme.equals(word.get(word.size() - 1));

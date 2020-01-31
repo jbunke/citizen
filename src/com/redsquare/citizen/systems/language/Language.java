@@ -24,7 +24,7 @@ public class Language {
 
     phonology = Phonology.generate();
     writingSystem = WritingSystem.generate(phonology);
-    grammar = Grammar.generate(phonology);
+    grammar = Grammar.generate(this);
     words = WordVocabulary.generate(phonology);
 
     name = words.lookUp(Meaning.THIS_LANGUAGE);
@@ -35,7 +35,7 @@ public class Language {
 
     this.phonology = writingSystem.phonology;
     this.writingSystem = writingSystem;
-    grammar = Grammar.generate(phonology);
+    grammar = Grammar.generate(this);
     words = WordVocabulary.generate(phonology);
 
     name = words.lookUp(Meaning.THIS_LANGUAGE);

@@ -18,10 +18,10 @@ public class SpeciesTests {
 
     Set<Species> allSpecies = world.getFauna();
 
-    for (int i = 0; i < 25; i++) {
-      BufferedImage speciesMap = world.speciesRangeMap(5, Sets.randomEntry(allSpecies));
+    for (Species species : allSpecies) {
+      BufferedImage speciesMap = world.speciesRangeMap(5, species);
       IOForTesting.saveImage(speciesMap,
-              "test_output/worldgen/species_maps/" + i + ".png");
+              "test_output/worldgen/species_maps/" + species.toString() + ".png");
     }
   }
 }

@@ -220,12 +220,7 @@ public class LanguageTests {
               10, 200 + (130 * i), null);
     }
 
-    try {
-      ImageIO.write(image, IMAGE_FORMAT,
-              new File(FOLDER_PATH + "sentences." + IMAGE_FORMAT));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    IOForTesting.saveImage(image, FOLDER_PATH + "sentences." + IMAGE_FORMAT);
   }
 
   @Test

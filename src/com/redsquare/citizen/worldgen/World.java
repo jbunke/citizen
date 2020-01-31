@@ -206,12 +206,12 @@ public class World {
 
   private void generateAnimalSpecies() {
     // Global
-    generateSpecies(Habitat.Range.GLOBAL, 2, 5,
+    generateSpecies(Habitat.Range.GLOBAL,
             new int[] { 0, width - 1, 0, height - 1 }, null);
 
     // CONTINENTAL
     for (TectonicPlate plate : plates) {
-      generateSpecies(Habitat.Range.CONTINENTAL, 1, 3,
+      generateSpecies(Habitat.Range.CONTINENTAL,
               new int[] { plate.leftmost, plate.rightmost,
                       plate.topmost, plate.bottommost }, plate);
     }
@@ -219,8 +219,8 @@ public class World {
     removeNonAdaptableSpecies();
   }
 
-  private void generateSpecies(final Habitat.Range RANGE, final int LOW,
-                               final int HIGH, final int[] BOUNDS,
+  private void generateSpecies(final Habitat.Range RANGE,
+                               final int[] BOUNDS,
                                final TectonicPlate plate) {
     final int LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
 
@@ -231,8 +231,10 @@ public class World {
       for (WorldCell.CellLandType cellLandType : WorldCell.CellLandType.values()) {
         if (!cellLandType.isLand()) continue;
 
-        final int AMOUNT = humanRelation.isDomesticated() ? Randoms.bounded(0, 2) :
-                Randoms.bounded(LOW, HIGH);
+        final int AMOUNT = humanRelation.isDomesticated() ||
+                RANGE != Habitat.Range.GLOBAL ?
+                (Randoms.bounded(0, 2) * Randoms.bounded(0, 2)) :
+                Randoms.bounded(3, 6);
 
         for (int i = 0; i < AMOUNT; i++) {
           areaSpecies.add(Species.generate(humanRelation,
