@@ -23,5 +23,7 @@ public class SpeciesTests {
       IOForTesting.saveImage(speciesMap,
               "test_output/worldgen/species_maps/" + species.toString() + ".png");
     }
+
+    System.out.println("DONE and commencing FEB 2020");
   }
 }
