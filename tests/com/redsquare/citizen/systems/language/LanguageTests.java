@@ -124,18 +124,14 @@ public class LanguageTests {
   public void verbTable() {
     GameDebug.activate();
 
-    Meaning verb = Meaning.RUN;
+    Meaning verb = Meaning.KNOW;
 
     Language language = Language.generate();
     Grammar grammar = language.getGrammar();
     BufferedImage verbTable = grammar.verbTable(verb, language);
 
-    try {
-      ImageIO.write(verbTable, IMAGE_FORMAT,
-              new File(FOLDER_PATH + verb.toString() + "_conjugation_table." + IMAGE_FORMAT));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    IOForTesting.saveImage(verbTable, FOLDER_PATH + verb.toString() +
+            "_conjugation_table." + IMAGE_FORMAT);
   }
 
   @Test

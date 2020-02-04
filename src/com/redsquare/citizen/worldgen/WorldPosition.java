@@ -107,7 +107,8 @@ public class WorldPosition {
           Point position = new Point((w.x * CELLS_IN_WORLD_CELL_DIM) + c.x,
                   (w.y * CELLS_IN_WORLD_CELL_DIM) + c.y);
 
-          if (MathExt.distance(thisPos, position) < cellsDistance)
+          if ((int)Math.ceil(MathExt.distance(thisPos, position)) <=
+                  cellsDistance)
             entities.add(candidate);
         }
       }
