@@ -4,7 +4,7 @@ import com.redsquare.citizen.GameManager;
 import com.redsquare.citizen.config.Settings;
 import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.entity.animal.Habitat;
-import com.redsquare.citizen.entity.animal.Species;
+import com.redsquare.citizen.entity.animal.AnimalSpecies;
 import com.redsquare.citizen.game_states.MenuGameState;
 import com.redsquare.citizen.game_states.menu_elements.MenuStateCode;
 import com.redsquare.citizen.graphics.Font;
@@ -58,7 +58,7 @@ public class World {
   private final List<Desert> deserts;
   private final List<BodyOfWater> bodiesOfWater;
 
-  private final Set<Species> fauna;
+  private final Set<AnimalSpecies> fauna;
 
   private final int width;
   private final int height;
@@ -224,10 +224,10 @@ public class World {
                                final TectonicPlate plate) {
     final int LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
 
-    Set<Species> areaSpecies = new HashSet<>();
+    Set<AnimalSpecies> areaSpecies = new HashSet<>();
 
     // Phase 1: create species
-    for (Species.HumanRelation humanRelation : Species.HumanRelation.values()) {
+    for (AnimalSpecies.HumanRelation humanRelation : AnimalSpecies.HumanRelation.values()) {
       for (WorldCell.CellLandType cellLandType : WorldCell.CellLandType.values()) {
         if (!cellLandType.isLand()) continue;
 
@@ -237,7 +237,7 @@ public class World {
                 Randoms.bounded(3, 6);
 
         for (int i = 0; i < AMOUNT; i++) {
-          areaSpecies.add(Species.generate(humanRelation,
+          areaSpecies.add(AnimalSpecies.generate(humanRelation,
                   cellLandType, RANGE));
         }
       }
@@ -250,8 +250,8 @@ public class World {
       for (int y = BOUNDS[TOP]; y <= BOUNDS[BOTTOM]; y++) {
         if (plate != null && !plate.onPlate(new Point(x, y)))
           continue;
-        for (Species species : areaSpecies)
-          cells[x][y].addSpecies(species);
+        for (AnimalSpecies animalSpecies : areaSpecies)
+          cells[x][y].addSpecies(animalSpecies);
       }
     }
   }
@@ -456,7 +456,7 @@ public class World {
     return states;
   }
 
-  Set<Species> getFauna() {
+  Set<AnimalSpecies> getFauna() {
     return fauna;
   }
 
@@ -1027,14 +1027,14 @@ public class World {
     return miniMap;
   }
 
-  public BufferedImage speciesRangeMap(final int SCALE_UP, Species species) {
+  public BufferedImage speciesRangeMap(final int SCALE_UP, AnimalSpecies animalSpecies) {
     BufferedImage map = physicalGeography(SCALE_UP, false);
     Graphics2D g = (Graphics2D) map.getGraphics();
     g.setColor(new Color(255, 0, 0, 150));
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
-        if (cells[x][y].containsSpecies(species))
+        if (cells[x][y].containsSpecies(animalSpecies))
           g.fillRect(x * SCALE_UP, y * SCALE_UP, SCALE_UP, SCALE_UP);
       }
     }

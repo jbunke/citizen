@@ -537,20 +537,7 @@ public class Person extends LivingMoving implements ICharacter {
       }
     }
 
-    if (GameDebug.isActive()) {
-      g.setColor(new Color(100, 255, 0));
-      g.setStroke(new BasicStroke(1));
-
-      Collider.CollisionBox[] boxes = collider.getBoxes();
-      Point offset = getSpriteOffset();
-
-      for (Collider.CollisionBox box : boxes) {
-        int x = (box.getStart()[0] - offset.x),
-                y = (box.getStart()[1] - offset.y);
-
-        g.drawRect(x, y, box.getSize()[0], box.getSize()[1]);
-      }
-    }
+    drawCollision(g);
 
     return sprite;
   }

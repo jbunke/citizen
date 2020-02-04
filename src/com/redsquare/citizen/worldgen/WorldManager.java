@@ -8,6 +8,7 @@ import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.util.MathExt;
 import com.redsquare.citizen.util.Randoms;
 
+import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,6 +44,8 @@ public class WorldManager {
     generatePlayer();
 
     ItemEntity.itemEntityCreateTest(world);
+    Building.generate(new WorldPosition(player.position().world(), new Point(1, 1),
+            WorldPosition.centralWithinSubCell(), world, null));
 
     populateCellsAroundPlayer();
   }

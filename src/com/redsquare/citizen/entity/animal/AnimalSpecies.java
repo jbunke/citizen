@@ -8,7 +8,7 @@ import com.redsquare.citizen.worldgen.WorldCell;
 
 import java.util.*;
 
-public class Species {
+public class AnimalSpecies {
   private final double SEXUAL_DIMORPHISM_COEFFICIENT;
 
   private final Habitat habitat;
@@ -24,8 +24,8 @@ public class Species {
 //  public final int amountOfColours;
 //  public final Color[][] coatOptions;
 
-  private Species(HumanRelation humanRelation,
-                  WorldCell.CellLandType primary, Habitat.Range range) {
+  private AnimalSpecies(HumanRelation humanRelation,
+                        WorldCell.CellLandType primary, Habitat.Range range) {
     this.SEXUAL_DIMORPHISM_COEFFICIENT = Randoms.bounded(0., 1.);
 
     this.habitat = Habitat.generate(primary, range);
@@ -39,9 +39,9 @@ public class Species {
     this.nameInLanguageMap = new HashMap<>();
   }
 
-  public static Species generate(HumanRelation humanRelation,
-                                 WorldCell.CellLandType primary, Habitat.Range range) {
-    return new Species(humanRelation, primary, range);
+  public static AnimalSpecies generate(HumanRelation humanRelation,
+                                       WorldCell.CellLandType primary, Habitat.Range range) {
+    return new AnimalSpecies(humanRelation, primary, range);
   }
 
   public enum Classification {

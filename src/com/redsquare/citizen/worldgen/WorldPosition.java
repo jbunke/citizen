@@ -43,6 +43,11 @@ public class WorldPosition {
             Randoms.bounded(0, CELL_DIMENSION_LENGTH - 1.));
   }
 
+  public static FloatPoint centralWithinSubCell() {
+    return new FloatPoint(CELL_DIMENSION_LENGTH / 2.,
+            CELL_DIMENSION_LENGTH / 2.);
+  }
+
   public static WorldPosition copy(WorldPosition ref) {
     return new WorldPosition(ref.worldPos, ref.cellPos,
             ref.subCellPos, ref.world, null);

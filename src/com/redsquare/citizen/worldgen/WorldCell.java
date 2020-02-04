@@ -1,10 +1,8 @@
 package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.entity.Entity;
-import com.redsquare.citizen.entity.animal.Species;
+import com.redsquare.citizen.entity.animal.AnimalSpecies;
 import com.redsquare.citizen.systems.politics.Settlement;
-import com.redsquare.citizen.util.ColorMath;
-import com.redsquare.citizen.util.MathExt;
 import com.redsquare.citizen.util.Sets;
 
 import javax.imageio.ImageIO;
@@ -13,7 +11,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class WorldCell {
@@ -35,7 +32,7 @@ public class WorldCell {
   private Settlement settlement = null;
   private Settlement province = null;
   private River.RiverPoint riverPoint = null;
-  private final Set<Species> species;
+  private final Set<AnimalSpecies> animalSpecies;
 
   WorldCell(CellLandType cellLandType, World world, Point location) {
     this.location = location;
@@ -50,7 +47,7 @@ public class WorldCell {
     surroundings = new CellLandType[3][3];
     chunks = new CellLandType[16][16];
 
-    species = new HashSet<>();
+    animalSpecies = new HashSet<>();
   }
 
   public Point getLocation() {
@@ -99,23 +96,23 @@ public class WorldCell {
     settlement.setWorldCell(this);
   }
 
-  boolean containsSpecies(Species species) {
-    return this.species.contains(species);
+  boolean containsSpecies(AnimalSpecies animalSpecies) {
+    return this.animalSpecies.contains(animalSpecies);
   }
 
-  void addSpecies(Species toAdd) {
-    species.add(toAdd);
+  void addSpecies(AnimalSpecies toAdd) {
+    animalSpecies.add(toAdd);
   }
 
   void removeNonAdaptableSpecies() {
-    Set<Species> toRemove = new HashSet<>();
+    Set<AnimalSpecies> toRemove = new HashSet<>();
 
-    for (Species s : species) {
+    for (AnimalSpecies s : animalSpecies) {
       if (!s.getHabitat().getLandTypes().contains(cellLandType))
         toRemove.add(s);
     }
 
-    species.removeAll(toRemove);
+    animalSpecies.removeAll(toRemove);
   }
 
   boolean hasSettlement() {
