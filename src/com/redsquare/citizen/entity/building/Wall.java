@@ -15,7 +15,7 @@ public class Wall extends BuildingComponent {
 
   @Override
   public BufferedImage getSprite() {
-    BufferedImage sprite = new BufferedImage(73, 73, BufferedImage.TYPE_INT_ARGB);
+    BufferedImage sprite = new BufferedImage(72, 72, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) sprite.getGraphics();
 
     g.setColor(new Color(0, 0, 0));

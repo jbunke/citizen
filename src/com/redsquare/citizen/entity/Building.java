@@ -1,6 +1,7 @@
 package com.redsquare.citizen.entity;
 
 import com.redsquare.citizen.entity.building.BuildingComponent;
+import com.redsquare.citizen.entity.building.BuildingLayouts;
 import com.redsquare.citizen.entity.building.Wall;
 import com.redsquare.citizen.entity.collision.Collider;
 import com.redsquare.citizen.worldgen.WorldPosition;
@@ -11,16 +12,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Building extends Entity {
-  private static char[][][] RESIDENTIAL_LAYOUTS = new char[][][] {
-          new char[][] {
-                  new char[] { 'w', 'w', 'w', 'w', 'w' },
-                  new char[] { 'w', 'f', 'f', 'f', 'w' },
-                  new char[] { 'w', 'f', 'f', 'f', 'w' },
-                  new char[] { 'w', 'f', 'f', 'f', 'w' },
-                  new char[] { 'w', 'f', 'f', 'f', 'w' },
-                  new char[] { 'w', 'w', 'd', 'w', 'w' }
-          }
-  };
 
   private final Set<BuildingComponent> buildingComponents;
   // f : Floor, w : Wall, d : Door, v : Void, s : SideDoor
@@ -64,7 +55,7 @@ public class Building extends Entity {
 
   public static Building generate(WorldPosition position) {
     // TODO
-    char[][] layout = RESIDENTIAL_LAYOUTS[0];
+    char[][] layout = BuildingLayouts.randomResidentialLayout();
     return new Building(position, layout);
   }
 
