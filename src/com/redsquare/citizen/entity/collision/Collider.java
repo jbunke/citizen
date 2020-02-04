@@ -1,5 +1,7 @@
 package com.redsquare.citizen.entity.collision;
 
+import com.redsquare.citizen.entity.building.Entryway;
+
 public class Collider {
   private static final int X = 0, Y = 1;
 
@@ -11,6 +13,37 @@ public class Collider {
     this.immovable = immovable;
     this.type = type;
     this.boxes = boxes;
+  }
+
+  public static Collider getColliderFromDoor(
+          final Entryway.FacingDirection direction) {
+    CollisionBox[] boxes;
+
+    switch (direction) {
+      case DOWN:
+        boxes = new CollisionBox[] {
+                new CollisionBox(-36, 24, 72, 12)
+        };
+        break;
+      case UP:
+        boxes = new CollisionBox[] {
+                new CollisionBox(-36, -36, 72, 12)
+        };
+        break;
+      case RIGHT:
+        boxes = new CollisionBox[] {
+                new CollisionBox(24, -36, 72, 72)
+        };
+        break;
+      case LEFT:
+      default:
+        boxes = new CollisionBox[] {
+                new CollisionBox(-36, -36, 72, 72)
+        };
+        break;
+    }
+
+    return new Collider(boxes, true, EntityType.ENTRYWAY);
   }
 
   public static Collider getColliderFromType(EntityType type) {
@@ -41,7 +74,7 @@ public class Collider {
   }
 
   public enum EntityType {
-    PERSON, WALL, NO_COLLISION
+    PERSON, WALL, NO_COLLISION, ENTRYWAY
   }
 
   public static class CollisionBox {

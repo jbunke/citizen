@@ -2,6 +2,7 @@ package com.redsquare.citizen.entity;
 
 import com.redsquare.citizen.entity.building.BuildingComponent;
 import com.redsquare.citizen.entity.building.BuildingLayouts;
+import com.redsquare.citizen.entity.building.Entryway;
 import com.redsquare.citizen.entity.building.Wall;
 import com.redsquare.citizen.entity.collision.Collider;
 import com.redsquare.citizen.worldgen.WorldPosition;
@@ -14,7 +15,9 @@ import java.util.Set;
 public class Building extends Entity {
 
   private final Set<BuildingComponent> buildingComponents;
-  // f : Floor, w : Wall, d : Door, v : Void, s : SideDoor
+  /* f : Floor, w : Wall,
+   * d : Downward-facing entryway, u : Upward ..., l : Left..., r : Right...
+   * v : Void, s : SideDoor */
   private final char[][] layout;
 
   private Building(final WorldPosition worldPosition, final char[][] layout) {
@@ -32,6 +35,9 @@ public class Building extends Entity {
         switch (layout[y][x]) {
           case 'w':
             component = new Wall(this);
+            break;
+          case 'd':
+            component = new Entryway(this, Entryway.FacingDirection.DOWN);
             break;
           case 'f':
           case 'v':

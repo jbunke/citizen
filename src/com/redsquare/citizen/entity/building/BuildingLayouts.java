@@ -6,12 +6,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BuildingLayouts {
   private static final String RESIDENTIAL_PATH =
-          "res/text_assets/buildings/residential_layouts.txt";
+          "res/text_assets/buildings/down_facing_res_layouts.txt";
   private static final char[][][] RESIDENTIAL_LAYOUTS;
 
   static {
