@@ -45,7 +45,7 @@ public class WorldPosition {
 
   public static FloatPoint centralWithinSubCell() {
     return new FloatPoint(CELL_DIMENSION_LENGTH / 2.,
-            CELL_DIMENSION_LENGTH / 2.);
+            CELL_DIMENSION_LENGTH);
   }
 
   public static WorldPosition copy(WorldPosition ref) {

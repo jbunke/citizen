@@ -39,6 +39,15 @@ public class Building extends Entity {
           case 'd':
             component = new Entryway(this, Entryway.FacingDirection.DOWN);
             break;
+          case 'u':
+            component = new Entryway(this, Entryway.FacingDirection.UP);
+            break;
+          case 'l':
+            component = new Entryway(this, Entryway.FacingDirection.LEFT);
+            break;
+          case 'r':
+            component = new Entryway(this, Entryway.FacingDirection.RIGHT);
+            break;
           case 'f':
           case 'v':
           default:

@@ -26,8 +26,13 @@ public class Entryway extends BuildingComponent {
     setCollider();
   }
 
-  public void openOrClose() {
-    this.isOpen = !isOpen;
+  public void tryOpenOrClose() {
+    if (isOpen)
+      this.isOpen = false;
+    else {
+      if (!isLocked)
+        this.isOpen = true;
+    }
 
     setCollider();
   }
@@ -66,7 +71,19 @@ public class Entryway extends BuildingComponent {
         }
         break;
       case UP:
+        if (isOpen) {
+          g.setColor(new Color(100, 100, 100));
+          g.fillRect(60, 0, 12, 72);
 
+          g.setColor(new Color(0, 0, 0));
+          g.fillRect(60, 72, 12, 72);
+        } else {
+          g.setColor(new Color(100, 100, 100));
+          g.fillRect(0, 0, 72, 12);
+
+          g.setColor(new Color(0, 0, 0));
+          g.fillRect(0, 12, 72, 72);
+        }
         break;
       case LEFT:
 
@@ -78,6 +95,7 @@ public class Entryway extends BuildingComponent {
     }
 
     drawCollision(g);
+    drawCoordinate(g);
 
     return sprite;
   }

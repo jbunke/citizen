@@ -25,6 +25,7 @@ public class Wall extends BuildingComponent {
     g.fillRect(0, 72, 72, 72);
 
     drawCollision(g);
+    drawCoordinate(g);
 
     return sprite;
   }

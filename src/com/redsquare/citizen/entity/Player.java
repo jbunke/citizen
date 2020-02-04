@@ -1,6 +1,7 @@
 package com.redsquare.citizen.entity;
 
 import com.redsquare.citizen.InputHandler;
+import com.redsquare.citizen.entity.building.Entryway;
 import com.redsquare.citizen.game_states.playing_systems.ControlScheme;
 import com.redsquare.citizen.graphics.RenderDirection;
 import com.redsquare.citizen.graphics.RenderPosture;
@@ -13,6 +14,7 @@ import com.redsquare.citizen.worldgen.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public final class Player extends Person {
   private static final int UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3,
@@ -100,6 +102,12 @@ public final class Player extends Person {
           break;
         case RELEASED:
           switch (action) {
+            case INTERACT_FIGHT:
+              if (movementLogic.renderLogic().getPosture() == RenderPosture.CALM)
+                interact();
+
+              // TODO: else case (fight)
+              break;
             case UP:
               dirKeys[UP] = false;
               processed = true;
@@ -155,6 +163,36 @@ public final class Player extends Person {
     // TODO
     setDirection();
     setMovementVector();
+  }
+
+  /**
+   * Interaction hierarchy:
+   * Item pickup
+   * Entryway
+   * Person
+   * */
+  private void interact() {
+    Set<Entity> nearby = position.getAllEntitiesWithinXCells(2);
+
+    boolean processed = false;
+
+    for (Entity e : nearby) {
+      if (e instanceof ItemEntity) {
+        pickupItem((ItemEntity) e);
+
+        processed = true;
+      }
+    }
+
+    if (processed) return;
+
+    for (Entity e : nearby) {
+      if (e instanceof Entryway) {
+        ((Entryway) e).tryOpenOrClose();
+      }
+    }
+
+    // TODO: people
   }
 
   /**

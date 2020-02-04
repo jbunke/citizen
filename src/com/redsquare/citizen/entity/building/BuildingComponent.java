@@ -29,6 +29,6 @@ public abstract class BuildingComponent extends Entity {
 
   @Override
   public Point getSpriteOffset() {
-    return new Point(-36, -108);
+    return new Point(-36, -144);
   }
 }

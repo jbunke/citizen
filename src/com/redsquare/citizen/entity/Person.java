@@ -538,6 +538,7 @@ public class Person extends LivingMoving implements ICharacter {
     }
 
     drawCollision(g);
+    drawCoordinate(g);
 
     return sprite;
   }

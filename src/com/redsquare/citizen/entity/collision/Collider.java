@@ -22,23 +22,23 @@ public class Collider {
     switch (direction) {
       case DOWN:
         boxes = new CollisionBox[] {
-                new CollisionBox(-36, 24, 72, 12)
+                new CollisionBox(-36, -12, 72, 12)
         };
         break;
       case UP:
         boxes = new CollisionBox[] {
-                new CollisionBox(-36, -36, 72, 12)
+                new CollisionBox(-36, -72, 72, 12)
         };
         break;
       case RIGHT:
         boxes = new CollisionBox[] {
-                new CollisionBox(24, -36, 72, 72)
+                new CollisionBox(24, -72, 12, 72)
         };
         break;
       case LEFT:
       default:
         boxes = new CollisionBox[] {
-                new CollisionBox(-36, -36, 72, 72)
+                new CollisionBox(-36, -72, 12, 72)
         };
         break;
     }
@@ -60,7 +60,7 @@ public class Collider {
       case WALL:
         immovable = true;
         boxes = new CollisionBox[] {
-                new CollisionBox(-36, -36, 72, 72)
+                new CollisionBox(-36, -72, 72, 72)
         };
         break;
       case NO_COLLISION:

@@ -55,7 +55,16 @@ public abstract class Entity implements Comparable<Entity> {
     }
   }
 
-  public void drawCollision(Graphics2D g) {
+  protected void drawCoordinate(Graphics2D g) {
+    Point spriteOffset = getSpriteOffset();
+    Point drawAt = new Point((-1 * spriteOffset.x) - 1, (-1 * spriteOffset.y) - 1);
+
+    g.setColor(new Color(255, 100, 0));
+
+    g.fillRect(drawAt.x, drawAt.y, 2, 2);
+  }
+
+  protected void drawCollision(Graphics2D g) {
     if (GameDebug.isActive()) {
       g.setColor(new Color(100, 255, 0));
       g.setStroke(new BasicStroke(1));

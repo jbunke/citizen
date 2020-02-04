@@ -46,12 +46,16 @@ public abstract class LivingMoving extends LivingEntity {
 
     if (!items.isEmpty()) {
       ItemEntity itemEntity = (ItemEntity) Sets.randomEntry(items);
-      boolean delete = inventory.tryPickup(itemEntity);
-
-      if (itemEntity != null && delete)
-        itemEntity.position.getWorld().getCell(
-                itemEntity.position.world().x, itemEntity.position.world().y).removeEntity(itemEntity);
+      pickupItem(itemEntity);
     }
+  }
+
+  protected void pickupItem(ItemEntity itemEntity) {
+    boolean delete = inventory.tryPickup(itemEntity);
+
+    if (itemEntity != null && delete)
+      itemEntity.position.getWorld().getCell(
+              itemEntity.position.world().x, itemEntity.position.world().y).removeEntity(itemEntity);
   }
 
   @Override
