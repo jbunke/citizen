@@ -27,6 +27,9 @@ public final class Player extends Person {
    * used to determine direction */
   private FloatPoint lookingRef;
 
+  private String interactionMessage;
+  private int interactionCounter;
+
   private int selectedInventorySlot;
 
   private Player(Sex sex, GameDate birthday, Settlement birthplace, World world) {
@@ -35,6 +38,9 @@ public final class Player extends Person {
     dirKeys = new boolean[4];
     lookingRef = new FloatPoint(0., 0.);
     selectedInventorySlot = 0;
+
+    interactionMessage = "";
+    interactionCounter = 0;
   }
 
   public static Player temp(World world, GameDate birthday) {
@@ -153,6 +159,10 @@ public final class Player extends Person {
     }
   }
 
+  public String getInteractionMessage() {
+    return interactionMessage;
+  }
+
   public int getSelectedInventorySlot() {
     return selectedInventorySlot;
   }
@@ -163,6 +173,15 @@ public final class Player extends Person {
     // TODO
     setDirection();
     setMovementVector();
+    interactionChecking();
+  }
+
+  private void interactionChecking() {
+    interactionCounter++;
+    interactionCounter %= 10;
+
+    if (interactionCounter == 0)
+      interactionMessage = interactCheck();
   }
 
   /**
@@ -174,25 +193,44 @@ public final class Player extends Person {
   private void interact() {
     Set<Entity> nearby = position.getAllEntitiesWithinXCells(2);
 
-    boolean processed = false;
-
     for (Entity e : nearby) {
       if (e instanceof ItemEntity) {
         pickupItem((ItemEntity) e);
-
-        processed = true;
+        return;
       }
     }
-
-    if (processed) return;
 
     for (Entity e : nearby) {
       if (e instanceof Entryway) {
         ((Entryway) e).tryOpenOrClose();
+        return;
       }
     }
 
     // TODO: people
+  }
+
+  private String interactCheck() {
+    Set<Entity> nearby = position.getAllEntitiesWithinXCells(2);
+
+    for (Entity e : nearby) {
+      if (e instanceof ItemEntity)
+        return "PICK UP";
+    }
+
+    for (Entity e : nearby) {
+      if (e instanceof Entryway) {
+        Entryway de = ((Entryway) e);
+
+        if (de.isOpen())
+          return "CLOSE";
+        else if (!de.isLocked())
+          return "OPEN";
+      }
+    }
+
+    // TODO: people
+    return "";
   }
 
   /**

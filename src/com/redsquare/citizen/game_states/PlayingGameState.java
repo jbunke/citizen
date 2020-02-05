@@ -74,6 +74,18 @@ public final class PlayingGameState extends GameState {
       g.drawImage(inventory[i].getItemIcon(), (Settings.SCREEN_DIM[0] / 2) +
               50 + (i * Item.ICON_DIMENSION), 10, null);
     }
+
+    // Interaction message
+    String interactionMessage = player.getInteractionMessage();
+
+    if (!interactionMessage.equals("")) {
+      BufferedImage message = Font.CLEAN.getText("[SPACE] " + interactionMessage, 1.,
+              new Color(255, 255, 255));
+      g.drawImage(message,
+              (Settings.SCREEN_DIM[0] / 2) - (message.getWidth() / 2),
+              (Settings.SCREEN_DIM[1] / 2) + 30, null);
+    }
+
     // END HUD
 
     // DEBUG

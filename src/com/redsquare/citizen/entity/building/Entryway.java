@@ -26,6 +26,14 @@ public class Entryway extends BuildingComponent {
     setCollider();
   }
 
+  public boolean isOpen() {
+    return isOpen;
+  }
+
+  public boolean isLocked() {
+    return isLocked;
+  }
+
   public void tryOpenOrClose() {
     if (isOpen)
       this.isOpen = false;
