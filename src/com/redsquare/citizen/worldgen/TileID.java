@@ -1,5 +1,11 @@
 package com.redsquare.citizen.worldgen;
 
+import com.redsquare.citizen.devkit.sprite_gen.Tilemapping;
+import com.redsquare.citizen.graphics.SemanticMaps;
+import com.redsquare.citizen.graphics.Sprite;
+
+import java.awt.image.BufferedImage;
+
 public enum TileID {
   SHALLOW_WATER, ROUGH_WATER, CALM_WATER,
 
@@ -15,6 +21,12 @@ public enum TileID {
 
   VOID;
 
+  private static final int TILE_DIMENSION = 72;
+  private static final String FOLDER_PATH = "res/img_assets/tilemaps/";
+
+  private final Sprite sprite;
+
+  /** Lower priority encroaches on high priority in a deadlock */
   private static final TileID[] PRIORITY_ORDER = new TileID[] {
           VOID,
           ROUGH_WATER, CALM_WATER, SHALLOW_WATER,
@@ -23,6 +35,28 @@ public enum TileID {
           HILLY_GRASS, PLAINS_GRASS,
           STONE
   };
+
+  TileID() {
+    this.sprite = new Sprite(
+            Tilemapping.readTilemapFile(FOLDER_PATH + "PLAINS_GRASS.png"),
+            this.name(), TILE_DIMENSION, TILE_DIMENSION, SemanticMaps.TILE_TYPE);
+  }
+
+  BufferedImage getSprite(String code) {
+    return this.sprite.getSprite(code);
+  }
+
+  public static boolean comesBefore(TileID reference, TileID comparison) {
+    if (reference.equals(comparison)) return false;
+
+    for (TileID tileID : PRIORITY_ORDER)
+      if (tileID.equals(reference))
+        return true;
+      else if (tileID.equals(comparison))
+        return false;
+
+    return false;
+  }
 
   public static TileID[] getPriorityOrder() {
     return PRIORITY_ORDER;

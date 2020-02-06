@@ -8,55 +8,51 @@ import java.awt.image.BufferedImage;
 public class WorldSubCell {
   private final Point location;
   private final WorldCell cell;
-  private final Color testColor;
 
+  // TODO: Don't delete; could be relevant later if tile CHANGES
+  //  (ex. tearing the floors out of a building)
   private final WorldCell.CellLandType cellLandType;
   private final TileID tileID;
+  private String onCode;
+
+  private static final int N = 0, W = 1, S = 2, E = 3;
 
   WorldSubCell(Point location, WorldCell cell, WorldCell.CellLandType cellLandType) {
     this.location = location;
     this.cell = cell;
     this.cellLandType = cellLandType;
 
-    this.testColor = tempColorFunction();
     this.tileID = TileID.fromCellLandType(cellLandType);
   }
 
-  // TODO: temp; to be deleted
-  private Color tempColorFunction() {
-    switch (cellLandType) {
-      case PLAIN:
-        return (location.x + location.y) % 2 == 0 ?
-                new Color(100, 150, 50) :
-                new Color(120, 120, 50);
-      case DESERT:
-        return (location.x + location.y) % 2 == 0 ?
-                new Color(200, 110, 80) :
-                new Color(220, 120, 80);
-      case HILL:
-        return (location.x + location.y) % 2 == 0 ?
-                new Color(100, 100, 50) :
-                new Color(80, 80, 50);
-      case SHALLOW:
-        return new Color(100, 120, 200);
-      case SEA:
-        return new Color(70, 80, 150);
-      case BEACH:
-        return (location.x + location.y) % 2 == 0 ?
-                new Color(200, 150, 100) :
-                new Color(220, 170, 80);
-      case MOUNTAIN:
-        return (location.x + location.y) % 2 == 0 ?
-                new Color(100, 100, 100) :
-                new Color(80, 80, 80);
-      case FOREST:
-        return (location.x + location.y) % 2 == 0 ?
-                new Color(50, 100, 0) :
-                new Color(50, 70, 30);
-      case NONE:
-      default:
-        return new Color(0, 0, 0);
+  void generate() {
+    generateOnCode();
+  }
+
+  private WorldSubCell[] getNeighbours() {
+    WorldSubCell[] neighbours = new WorldSubCell[4];
+
+    neighbours[N] = cell.getSubCell(location.x, location.y - 1);
+    neighbours[W] = cell.getSubCell(location.x - 1, location.y);
+    neighbours[S] = cell.getSubCell(location.x, location.y + 1);
+    neighbours[E] = cell.getSubCell(location.x + 1, location.y);
+
+    return neighbours;
+  }
+
+  // TODO: OFF code
+
+  private void generateOnCode() {
+    StringBuilder code = new StringBuilder("ON_");
+
+    for (WorldSubCell neighbour : getNeighbours()) {
+      if (neighbour == null || !neighbour.tileID.equals(tileID))
+        code.append("0");
+      else
+        code.append("1");
     }
+
+    onCode = code.toString();
   }
 
   public WorldCell getCell() {
@@ -74,11 +70,10 @@ public class WorldSubCell {
             BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) subCell.getGraphics();
 
-    g.setColor(testColor);
-    g.fillRect(0, 0, subCell.getWidth(), subCell.getHeight());
+    g.drawImage(tileID.getSprite(onCode), 0, 0,
+            subCell.getWidth(), subCell.getHeight(), null);
 
-    if (GameDebug.isActive())
-      drawBorder(g, subCell.getWidth(), subCell.getHeight());
+    // if (GameDebug.isActive())  drawBorder(g, subCell.getWidth(), subCell.getHeight());
 
     return subCell;
   }

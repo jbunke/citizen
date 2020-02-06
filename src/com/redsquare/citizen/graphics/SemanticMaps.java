@@ -17,8 +17,56 @@ import java.util.Map;
  * */
 public class SemanticMaps {
 
-  public static final Map<String, Point> HOMINID_BODY = generateHominidBody();
-  public static final Map<String, Point> HOMINID_FACE = generateHominidFace();
+  public static final Map<String, Point> HOMINID_BODY;
+  public static final Map<String, Point> HOMINID_FACE;
+  public static final Map<String, Point> TILE_TYPE;
+
+  static {
+    HOMINID_BODY = generateHominidBody();
+    HOMINID_FACE = generateHominidFace();
+    TILE_TYPE = generateTileType();
+  }
+
+  /**
+   * (0/1)(0/1)(0/1)(0/1) represent whether the same tile type
+   * borders the selected tile to the NORTH, WEST, SOUTH, and EAST,
+   * respectively.
+   * */
+  private static Map<String, Point> generateTileType() {
+    return Map.ofEntries(
+            Map.entry("ON_1111", new Point(1, 1)),
+            Map.entry("ON_0000", new Point(3, 3)),
+            Map.entry("ON_0001", new Point(0, 3)),
+            Map.entry("ON_0010", new Point(3, 0)),
+            Map.entry("ON_0011", new Point(0, 0)),
+            Map.entry("ON_0100", new Point(2, 3)),
+            Map.entry("ON_0101", new Point(1, 3)),
+            Map.entry("ON_0110", new Point(2, 0)),
+            Map.entry("ON_0111", new Point(1, 0)),
+            Map.entry("ON_1000", new Point(3, 2)),
+            Map.entry("ON_1001", new Point(0, 2)),
+            Map.entry("ON_1010", new Point(3, 1)),
+            Map.entry("ON_1011", new Point(0, 1)),
+            Map.entry("ON_1100", new Point(2, 2)),
+            Map.entry("ON_1101", new Point(1, 2)),
+            Map.entry("ON_1110", new Point(2, 1)),
+            Map.entry("OFF_0001", new Point(6, 1)),
+            Map.entry("OFF_0010", new Point(5, 2)),
+            Map.entry("OFF_0011", new Point(6, 2)),
+            Map.entry("OFF_0100", new Point(4, 1)),
+            Map.entry("OFF_0101", new Point(7, 1)),
+            Map.entry("OFF_0110", new Point(4, 2)),
+            Map.entry("OFF_0111", new Point(7, 2)),
+            Map.entry("OFF_1000", new Point(5, 0)),
+            Map.entry("OFF_1001", new Point(6, 0)),
+            Map.entry("OFF_1010", new Point(5, 3)),
+            Map.entry("OFF_1011", new Point(6, 3)),
+            Map.entry("OFF_1100", new Point(4, 0)),
+            Map.entry("OFF_1101", new Point(7, 0)),
+            Map.entry("OFF_1110", new Point(4, 3)),
+            Map.entry("OFF_1111", new Point(7, 3))
+    );
+  }
 
   private static Map<String, Point> generateHominidBody() {
     // TODO: temp with calm assumption

@@ -22,7 +22,6 @@ public class WorldCell {
   private final Set<Entity> entities;
 
   private final CellLandType[][] surroundings;
-  private final CellLandType[][] chunks;
   private WorldSubCell[][] subCells;
 
   private boolean generated;
@@ -45,7 +44,6 @@ public class WorldCell {
     region = Region.TEMPERATE;
 
     surroundings = new CellLandType[3][3];
-    chunks = new CellLandType[16][16];
 
     animalSpecies = new HashSet<>();
   }
@@ -68,9 +66,16 @@ public class WorldCell {
         subCells[x][y] = new WorldSubCell(new Point(x, y), this, cellLandType);
       }
     }
+
+    for (int x = 0; x < WorldPosition.CELLS_IN_WORLD_CELL_DIM; x++) {
+      for (int y = 0; y < WorldPosition.CELLS_IN_WORLD_CELL_DIM; y++) {
+        subCells[x][y].generate();
+      }
+    }
   }
 
   public WorldSubCell getSubCell(int x, int y) {
+    // TODO: account by invalid x and y by returning from adjacent world cells
     return (x >= 0 && x < WorldPosition.CELLS_IN_WORLD_CELL_DIM &&
             y >= 0 && y < WorldPosition.CELLS_IN_WORLD_CELL_DIM) ? subCells[x][y] : null;
   }

@@ -39,6 +39,14 @@ public class Tilemapping {
     return duplicated;
   }
 
+  public static BufferedImage readTilemapFile(final String FILE_PATH) {
+    try {
+      return ImageIO.read(new File(FILE_PATH));
+    } catch (IOException e) {
+      return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+    }
+  }
+
   public static BufferedImage getBody(Color skinColor) {
     BufferedImage result = null;
 
