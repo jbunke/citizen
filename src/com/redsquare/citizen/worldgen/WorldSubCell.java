@@ -4,6 +4,8 @@ import com.redsquare.citizen.debug.GameDebug;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.*;
+import java.util.List;
 
 public class WorldSubCell {
   private final Point location;
@@ -13,7 +15,6 @@ public class WorldSubCell {
   //  (ex. tearing the floors out of a building)
   private final WorldCell.CellLandType cellLandType;
   private final TileID tileID;
-  private String onCode;
 
   private static final int N = 0, W = 1, S = 2, E = 3;
 
@@ -26,7 +27,7 @@ public class WorldSubCell {
   }
 
   void generate() {
-    generateOnCode();
+    // TODO
   }
 
   private WorldSubCell[] getNeighbours() {
@@ -40,19 +41,47 @@ public class WorldSubCell {
     return neighbours;
   }
 
-  // TODO: OFF code
+  private void drawNeighbouring(final Graphics2D g,
+                                final int WIDTH, final int HEIGHT) {
+    Set<TileID> neighbourTiles = new HashSet<>();
+    WorldSubCell[] neighbours = getNeighbours();
 
-  private void generateOnCode() {
-    StringBuilder code = new StringBuilder("ON_");
+    for (WorldSubCell neighbour : neighbours)
+      if (neighbour != null) neighbourTiles.add(neighbour.tileID);
+
+    neighbourTiles.remove(this.tileID);
+
+    List<TileID> neighbourTileList = new ArrayList<>(neighbourTiles);
+    neighbourTileList.sort(Comparator.comparingInt(TileID::priorityRank));
+
+    int thisPriority = this.tileID.priorityRank();
+
+    for (TileID neighbour : neighbourTileList) {
+      if (neighbour.priorityRank() < thisPriority) {
+        String offCode = generateCode(false, neighbour);
+
+        g.drawImage(neighbour.getSprite(offCode), 0, 0,
+                WIDTH, HEIGHT, null);
+      }
+    }
+  }
+
+  private String generateCode(final boolean IS_ON, final TileID REFERENCE) {
+    StringBuilder code = IS_ON ?
+            new StringBuilder("ON_") : new StringBuilder("OFF_");
 
     for (WorldSubCell neighbour : getNeighbours()) {
-      if (neighbour == null || !neighbour.tileID.equals(tileID))
+      if (neighbour == null ||
+              (!neighbour.tileID.equals(REFERENCE) &&
+                      IS_ON ? 
+                      neighbour.tileID.priorityRank() < REFERENCE.priorityRank() :
+                      neighbour.tileID.priorityRank() > REFERENCE.priorityRank()))
         code.append("0");
       else
         code.append("1");
     }
 
-    onCode = code.toString();
+    return code.toString();
   }
 
   public WorldCell getCell() {
@@ -70,10 +99,13 @@ public class WorldSubCell {
             BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) subCell.getGraphics();
 
-    g.drawImage(tileID.getSprite(onCode), 0, 0,
+    drawNeighbouring(g, subCell.getWidth(), subCell.getHeight());
+
+    g.drawImage(tileID.getSprite(generateCode(true, tileID)), 0, 0,
             subCell.getWidth(), subCell.getHeight(), null);
 
-    // if (GameDebug.isActive())  drawBorder(g, subCell.getWidth(), subCell.getHeight());
+    if (GameDebug.isActive())
+      drawBorder(g, subCell.getWidth(), subCell.getHeight());
 
     return subCell;
   }

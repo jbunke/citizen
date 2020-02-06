@@ -75,9 +75,22 @@ public class WorldCell {
   }
 
   public WorldSubCell getSubCell(int x, int y) {
-    // TODO: account by invalid x and y by returning from adjacent world cells
+    if (x < 0 && location.x > 0)
+      return world.getCell(location.x - 1, location.y).
+              getSubCell(WorldPosition.CELLS_IN_WORLD_CELL_DIM + x, y);
+    else if (x >= WorldPosition.CELLS_IN_WORLD_CELL_DIM && location.x < world.getWidth() - 1)
+      return world.getCell(location.x + 1, location.y).
+              getSubCell(x - WorldPosition.CELLS_IN_WORLD_CELL_DIM, y);
+    else if (y < 0 && location.y > 0)
+      return world.getCell(location.x, location.y - 1).
+              getSubCell(x, WorldPosition.CELLS_IN_WORLD_CELL_DIM + y);
+    else if (y >= WorldPosition.CELLS_IN_WORLD_CELL_DIM && location.y < world.getHeight() - 1)
+      return world.getCell(location.x, location.y + 1).
+              getSubCell(x, y - WorldPosition.CELLS_IN_WORLD_CELL_DIM);
+
     return (x >= 0 && x < WorldPosition.CELLS_IN_WORLD_CELL_DIM &&
-            y >= 0 && y < WorldPosition.CELLS_IN_WORLD_CELL_DIM) ? subCells[x][y] : null;
+            y >= 0 && y < WorldPosition.CELLS_IN_WORLD_CELL_DIM &&
+            subCells != null) ? subCells[x][y] : null;
   }
 
   public void addEntity(Entity e) {

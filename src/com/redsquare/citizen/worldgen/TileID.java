@@ -6,7 +6,7 @@ import com.redsquare.citizen.graphics.Sprite;
 
 import java.awt.image.BufferedImage;
 
-public enum TileID {
+public enum TileID implements Comparable<TileID> {
   SHALLOW_WATER, ROUGH_WATER, CALM_WATER,
 
   BEACH_SAND,
@@ -38,12 +38,33 @@ public enum TileID {
 
   TileID() {
     this.sprite = new Sprite(
-            Tilemapping.readTilemapFile(FOLDER_PATH + "PLAINS_GRASS.png"),
+            Tilemapping.readTilemapFile(FOLDER_PATH + temp() + ".png"),
             this.name(), TILE_DIMENSION, TILE_DIMENSION, SemanticMaps.TILE_TYPE);
+  }
+
+  private String temp() {
+    String name = this.name();
+
+    switch (name) {
+      case "PLAINS_GRASS":
+      case "HILLY_GRASS":
+      case "FOREST_FLOOR":
+        return name;
+      default:
+        return "VOID";
+    }
   }
 
   BufferedImage getSprite(String code) {
     return this.sprite.getSprite(code);
+  }
+
+  public int priorityRank() {
+    for (int i = 0; i < PRIORITY_ORDER.length; i++)
+      if (PRIORITY_ORDER[i].equals(this))
+        return i;
+
+    return -1;
   }
 
   public static boolean comesBefore(TileID reference, TileID comparison) {
