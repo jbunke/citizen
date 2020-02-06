@@ -11,53 +11,51 @@ public class WorldSubCell {
   private final Color testColor;
 
   private final WorldCell.CellLandType cellLandType;
+  private final TileID tileID;
 
   WorldSubCell(Point location, WorldCell cell, WorldCell.CellLandType cellLandType) {
     this.location = location;
     this.cell = cell;
     this.cellLandType = cellLandType;
 
+    this.testColor = tempColorFunction();
+    this.tileID = TileID.fromCellLandType(cellLandType);
+  }
+
+  // TODO: temp; to be deleted
+  private Color tempColorFunction() {
     switch (cellLandType) {
       case PLAIN:
-        this.testColor = (location.x + location.y) % 2 == 0 ?
+        return (location.x + location.y) % 2 == 0 ?
                 new Color(100, 150, 50) :
                 new Color(120, 120, 50);
-        break;
       case DESERT:
-        this.testColor = (location.x + location.y) % 2 == 0 ?
+        return (location.x + location.y) % 2 == 0 ?
                 new Color(200, 110, 80) :
                 new Color(220, 120, 80);
-        break;
       case HILL:
-        this.testColor = (location.x + location.y) % 2 == 0 ?
+        return (location.x + location.y) % 2 == 0 ?
                 new Color(100, 100, 50) :
                 new Color(80, 80, 50);
-        break;
       case SHALLOW:
-        this.testColor = new Color(100, 120, 200);
-        break;
+        return new Color(100, 120, 200);
       case SEA:
-        this.testColor = new Color(70, 80, 150);
-        break;
+        return new Color(70, 80, 150);
       case BEACH:
-        this.testColor = (location.x + location.y) % 2 == 0 ?
+        return (location.x + location.y) % 2 == 0 ?
                 new Color(200, 150, 100) :
                 new Color(220, 170, 80);
-        break;
       case MOUNTAIN:
-        this.testColor = (location.x + location.y) % 2 == 0 ?
+        return (location.x + location.y) % 2 == 0 ?
                 new Color(100, 100, 100) :
                 new Color(80, 80, 80);
-        break;
       case FOREST:
-        this.testColor = (location.x + location.y) % 2 == 0 ?
+        return (location.x + location.y) % 2 == 0 ?
                 new Color(50, 100, 0) :
                 new Color(50, 70, 30);
-        break;
       case NONE:
       default:
-        this.testColor = new Color(0, 0, 0);
-        break;
+        return new Color(0, 0, 0);
     }
   }
 
@@ -79,12 +77,15 @@ public class WorldSubCell {
     g.setColor(testColor);
     g.fillRect(0, 0, subCell.getWidth(), subCell.getHeight());
 
-    if (GameDebug.isActive()) {
-      g.setStroke(new BasicStroke(1));
-      g.setColor(new Color(255, 100, 0));
-      g.drawRect(0, 0, subCell.getWidth(), subCell.getHeight());
-    }
+    if (GameDebug.isActive())
+      drawBorder(g, subCell.getWidth(), subCell.getHeight());
 
     return subCell;
+  }
+
+  private void drawBorder(Graphics2D g, final int WIDTH, final int HEIGHT) {
+    g.setStroke(new BasicStroke(1));
+    g.setColor(new Color(255, 100, 0));
+    g.drawRect(0, 0, WIDTH, HEIGHT);
   }
 }

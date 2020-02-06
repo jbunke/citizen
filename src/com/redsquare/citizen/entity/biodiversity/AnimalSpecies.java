@@ -1,4 +1,4 @@
-package com.redsquare.citizen.entity.animal;
+package com.redsquare.citizen.entity.biodiversity;
 
 import com.redsquare.citizen.systems.language.Language;
 import com.redsquare.citizen.systems.language.Word;
@@ -28,7 +28,7 @@ public class AnimalSpecies {
                         WorldCell.CellLandType primary, Habitat.Range range) {
     this.SEXUAL_DIMORPHISM_COEFFICIENT = Randoms.bounded(0., 1.);
 
-    this.habitat = Habitat.generate(primary, range);
+    this.habitat = Habitat.generate(primary, range, true);
     this.humanRelation = humanRelation;
 
     this.domesticated = humanRelation.isDomesticated();

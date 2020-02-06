@@ -1,4 +1,4 @@
-package com.redsquare.citizen.entity.animal;
+package com.redsquare.citizen.entity.biodiversity;
 
 import com.redsquare.citizen.worldgen.WorldCell;
 
@@ -14,14 +14,19 @@ public class Habitat {
     this.range = range;
   }
 
-  static Habitat generate(WorldCell.CellLandType mustInclude, Range range) {
+  static Habitat generate(WorldCell.CellLandType mustInclude, Range range,
+                          final boolean IS_ANIMAL) {
     Set<WorldCell.CellLandType> landTypes = new HashSet<>();
     landTypes.add(mustInclude);
-    landTypes.addAll(canAdapt(mustInclude));
+    landTypes.addAll(canAdapt(mustInclude, IS_ANIMAL));
     return new Habitat(landTypes, range);
   }
 
-  private static Set<WorldCell.CellLandType> canAdapt(final WorldCell.CellLandType nativeRange) {
+  private static Set<WorldCell.CellLandType> canAdapt(
+          final WorldCell.CellLandType nativeRange, final boolean IS_ANIMAL) {
+    if (!IS_ANIMAL)
+      return Set.of(nativeRange);
+
     switch (nativeRange) {
       case BEACH:
         return Set.of(WorldCell.CellLandType.SHALLOW);

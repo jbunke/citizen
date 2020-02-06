@@ -1,6 +1,6 @@
 package com.redsquare.citizen.entity;
 
-import com.redsquare.citizen.entity.animal.AnimalSpecies;
+import com.redsquare.citizen.entity.biodiversity.AnimalSpecies;
 import com.redsquare.citizen.systems.time.GameDate;
 
 import java.awt.*;

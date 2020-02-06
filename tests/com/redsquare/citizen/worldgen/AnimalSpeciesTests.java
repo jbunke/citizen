@@ -1,7 +1,7 @@
 package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.debug.GameDebug;
-import com.redsquare.citizen.entity.animal.AnimalSpecies;
+import com.redsquare.citizen.entity.biodiversity.AnimalSpecies;
 import com.redsquare.citizen.util.IOForTesting;
 import org.junit.Test;
 

@@ -1,6 +1,6 @@
 package com.redsquare.citizen.systems.religion;
 
-import com.redsquare.citizen.entity.animal.AnimalSpecies;
+import com.redsquare.citizen.entity.biodiversity.AnimalSpecies;
 import com.redsquare.citizen.util.Sets;
 
 import java.util.Set;

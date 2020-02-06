@@ -1,7 +1,7 @@
 package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.entity.Entity;
-import com.redsquare.citizen.entity.animal.AnimalSpecies;
+import com.redsquare.citizen.entity.biodiversity.AnimalSpecies;
 import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.util.Sets;
 
