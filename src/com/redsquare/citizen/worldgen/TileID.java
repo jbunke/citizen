@@ -49,6 +49,9 @@ public enum TileID implements Comparable<TileID> {
       case "PLAINS_GRASS":
       case "HILLY_GRASS":
       case "FOREST_FLOOR":
+      case "STONE":
+      case "BEACH_SAND":
+      case "SHALLOW_WATER":
         return name;
       default:
         return "VOID";

@@ -93,6 +93,10 @@ public class WorldCell {
             subCells != null) ? subCells[x][y] : null;
   }
 
+  World getWorld() {
+    return world;
+  }
+
   public void addEntity(Entity e) {
     entities.add(e);
   }

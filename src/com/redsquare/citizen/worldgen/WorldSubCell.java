@@ -1,6 +1,7 @@
 package com.redsquare.citizen.worldgen;
 
 import com.redsquare.citizen.debug.GameDebug;
+import com.redsquare.citizen.util.Randoms;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -17,13 +18,116 @@ public class WorldSubCell {
   private final TileID tileID;
 
   private static final int N = 0, W = 1, S = 2, E = 3;
+  private static final int COUNTS_AS_BORDER = 5;
 
   WorldSubCell(Point location, WorldCell cell, WorldCell.CellLandType cellLandType) {
     this.location = location;
     this.cell = cell;
     this.cellLandType = cellLandType;
 
-    this.tileID = TileID.fromCellLandType(cellLandType);
+    this.tileID = generateTileID();
+  }
+
+  private TileID generateTileID() {
+    // Literal edge case
+    if (location.x < COUNTS_AS_BORDER) {
+      WorldCell xNeighbour = cell.getWorld().getCell(cell.getLocation().x - 1, cell.getLocation().y);
+
+      if (location.y < COUNTS_AS_BORDER) {
+        WorldCell diagNeighbour = cell.getWorld().getCell(cell.getLocation().x - 1, cell.getLocation().y - 1);
+        WorldCell yNeighbour = cell.getWorld().getCell(cell.getLocation().x, cell.getLocation().y - 1);
+
+        return getCornerTileID(xNeighbour, yNeighbour, diagNeighbour,
+                location.x, location.y);
+      } else if (location.y >= WorldPosition.CELLS_IN_WORLD_CELL_DIM - COUNTS_AS_BORDER) {
+        WorldCell diagNeighbour = cell.getWorld().getCell(cell.getLocation().x - 1, cell.getLocation().y + 1);
+        WorldCell yNeighbour = cell.getWorld().getCell(cell.getLocation().x, cell.getLocation().y + 1);
+
+        return getCornerTileID(xNeighbour, yNeighbour, diagNeighbour,
+                location.x,
+                WorldPosition.CELLS_IN_WORLD_CELL_DIM - (location.y + 1));
+      } else {
+        return getEdgeTileID(xNeighbour, location.x);
+      }
+    } else if (location.x >= WorldPosition.CELLS_IN_WORLD_CELL_DIM - COUNTS_AS_BORDER) {
+      WorldCell xNeighbour = cell.getWorld().getCell(cell.getLocation().x + 1, cell.getLocation().y);
+
+      if (location.y < COUNTS_AS_BORDER) {
+        WorldCell diagNeighbour = cell.getWorld().getCell(cell.getLocation().x + 1, cell.getLocation().y - 1);
+        WorldCell yNeighbour = cell.getWorld().getCell(cell.getLocation().x, cell.getLocation().y - 1);
+
+        return getCornerTileID(xNeighbour, yNeighbour, diagNeighbour,
+                WorldPosition.CELLS_IN_WORLD_CELL_DIM - (location.x + 1),
+                location.y);
+      } else if (location.y >= WorldPosition.CELLS_IN_WORLD_CELL_DIM - COUNTS_AS_BORDER) {
+        WorldCell diagNeighbour = cell.getWorld().getCell(cell.getLocation().x + 1, cell.getLocation().y + 1);
+        WorldCell yNeighbour = cell.getWorld().getCell(cell.getLocation().x, cell.getLocation().y + 1);
+
+        return getCornerTileID(xNeighbour, yNeighbour, diagNeighbour,
+                WorldPosition.CELLS_IN_WORLD_CELL_DIM - (location.x + 1),
+                WorldPosition.CELLS_IN_WORLD_CELL_DIM - (location.y + 1));
+      } else {
+        return getEdgeTileID(xNeighbour,
+                WorldPosition.CELLS_IN_WORLD_CELL_DIM - (location.x + 1));
+      }
+    } else if (location.y < COUNTS_AS_BORDER) {
+      WorldCell yNeighbour = cell.getWorld().getCell(cell.getLocation().x, cell.getLocation().y - 1);
+      return getEdgeTileID(yNeighbour, location.y);
+    } else if (location.y >= WorldPosition.CELLS_IN_WORLD_CELL_DIM - COUNTS_AS_BORDER) {
+      WorldCell yNeighbour = cell.getWorld().getCell(cell.getLocation().x, cell.getLocation().y + 1);
+      return getEdgeTileID(yNeighbour,
+              WorldPosition.CELLS_IN_WORLD_CELL_DIM - (location.y + 1));
+    }
+
+    return TileID.fromCellLandType(cellLandType);
+  }
+
+  private TileID getEdgeTileID(final WorldCell NEIGHBOUR, final int DEPTH) {
+    if (NEIGHBOUR == null) return TileID.fromCellLandType(cellLandType);
+
+    double odds = (COUNTS_AS_BORDER - DEPTH) / (double)COUNTS_AS_BORDER;
+    double sum = odds + 1. + ((DEPTH) / (double)COUNTS_AS_BORDER);
+
+    double prob = Randoms.bounded(0., sum);
+
+    if (prob < odds)
+      return TileID.fromCellLandType(NEIGHBOUR.getCellLandType());
+
+    return TileID.fromCellLandType(cellLandType);
+  }
+
+  private TileID getCornerTileID(final WorldCell X_NEIGHBOUR,
+                                 final WorldCell Y_NEIGHBOUR, final WorldCell DIAG_NEIGHBOUR,
+                                 final int X_DEPTH, final int Y_DEPTH) {
+    if (X_NEIGHBOUR == null || Y_NEIGHBOUR == null || DIAG_NEIGHBOUR == null)
+      return TileID.fromCellLandType(cellLandType);
+
+    double[] odds = new double[] {
+            ((COUNTS_AS_BORDER - X_DEPTH) / (double)COUNTS_AS_BORDER) * 0.5,
+            ((COUNTS_AS_BORDER - Y_DEPTH) / (double)COUNTS_AS_BORDER) * 0.5,
+            Math.sqrt((Math.pow(COUNTS_AS_BORDER, 2.) -
+                    Math.pow(X_DEPTH + Y_DEPTH, 2.)) /
+                    Math.pow(COUNTS_AS_BORDER, 2.)) * 0.5,
+            0.5 + ((X_DEPTH + Y_DEPTH) / (double)COUNTS_AS_BORDER)
+    };
+
+    double[] thresholds = new double[] {
+            odds[0],
+            odds[0] + odds[1],
+            odds[0] + odds[1] + odds[2],
+            odds[0] + odds[1] + odds[2] + odds[3]
+    };
+
+    double prob = Randoms.bounded(0., thresholds[3]);
+
+    if (prob < thresholds[0])
+      return TileID.fromCellLandType(X_NEIGHBOUR.getCellLandType());
+    else if (prob < thresholds[1])
+      return TileID.fromCellLandType(Y_NEIGHBOUR.getCellLandType());
+    else if (prob < thresholds[2])
+      return TileID.fromCellLandType(DIAG_NEIGHBOUR.getCellLandType());
+
+    return TileID.fromCellLandType(cellLandType);
   }
 
   void generate() {
@@ -73,7 +177,7 @@ public class WorldSubCell {
     for (WorldSubCell neighbour : getNeighbours()) {
       if (neighbour == null ||
               (!neighbour.tileID.equals(REFERENCE) &&
-                      IS_ON ? 
+                      IS_ON ?
                       neighbour.tileID.priorityRank() < REFERENCE.priorityRank() :
                       neighbour.tileID.priorityRank() > REFERENCE.priorityRank()))
         code.append("0");
@@ -99,10 +203,10 @@ public class WorldSubCell {
             BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) subCell.getGraphics();
 
-    drawNeighbouring(g, subCell.getWidth(), subCell.getHeight());
-
     g.drawImage(tileID.getSprite(generateCode(true, tileID)), 0, 0,
             subCell.getWidth(), subCell.getHeight(), null);
+
+    drawNeighbouring(g, subCell.getWidth(), subCell.getHeight());
 
     if (GameDebug.isActive())
       drawBorder(g, subCell.getWidth(), subCell.getHeight());
