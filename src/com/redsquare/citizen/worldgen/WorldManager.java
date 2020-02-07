@@ -7,6 +7,7 @@ import com.redsquare.citizen.systems.politics.Settlement;
 import com.redsquare.citizen.systems.time.GameDate;
 import com.redsquare.citizen.util.MathExt;
 import com.redsquare.citizen.util.Randoms;
+import com.redsquare.citizen.util.Sets;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ public class WorldManager {
 
   // DEBUG INFO
   private int entityCount = 0;
+  private Set<Entity> lastEntitySet = new HashSet<>();
 
   private WorldManager(World world) {
     this.world = world;
@@ -122,6 +124,14 @@ public class WorldManager {
       entity.update();
 
     collisionCheck(entities);
+
+    deallocateEntitiesNoLongerCloseBy(Sets.difference(lastEntitySet, entities));
+    this.lastEntitySet = entities;
+  }
+
+  private void deallocateEntitiesNoLongerCloseBy(final Set<Entity> entities) {
+    for (Entity e : entities)
+      if (e.spritesSetUp()) e.deallocateSprites();
   }
 
   private void collisionCheck(Set<Entity> entities) {

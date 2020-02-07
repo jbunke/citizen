@@ -92,4 +92,8 @@ public abstract class Entity implements Comparable<Entity> {
   public boolean spritesSetUp() {
     return layers != null;
   }
+
+  public void deallocateSprites() {
+    this.layers = null;
+  }
 }

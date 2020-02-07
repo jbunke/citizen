@@ -88,6 +88,8 @@ public class WorldSubCell {
 
   private TileID getEdgeTileID(final WorldCell NEIGHBOUR, final int DEPTH) {
     if (NEIGHBOUR == null) return TileID.fromCellLandType(cellLandType);
+    if (!cellLandType.isLand() || !NEIGHBOUR.getCellLandType().isLand())
+      return TileID.fromCellLandType(cellLandType);
 
     double odds = (COUNTS_AS_BORDER - DEPTH) / (double)COUNTS_AS_BORDER;
     double sum = odds + 1. + ((DEPTH) / (double)COUNTS_AS_BORDER);
@@ -104,6 +106,10 @@ public class WorldSubCell {
                                  final WorldCell Y_NEIGHBOUR, final WorldCell DIAG_NEIGHBOUR,
                                  final int X_DEPTH, final int Y_DEPTH) {
     if (X_NEIGHBOUR == null || Y_NEIGHBOUR == null || DIAG_NEIGHBOUR == null)
+      return TileID.fromCellLandType(cellLandType);
+    if (!cellLandType.isLand() || !(X_NEIGHBOUR.getCellLandType().isLand() &&
+            Y_NEIGHBOUR.getCellLandType().isLand() &&
+            DIAG_NEIGHBOUR.getCellLandType().isLand()))
       return TileID.fromCellLandType(cellLandType);
 
     double[] odds = new double[] {
