@@ -43,11 +43,12 @@ public class WorldManager {
     simulateYears(years);
     generatePlayer();
 
+    populateCellsAroundPlayer();
+
+    // TODO: Spawn test entities after this point
     ItemEntity.itemEntityCreateTest(world);
     Building.generate(new WorldPosition(player.position().world(), new Point(1, 1),
             WorldPosition.centralWithinSubCell(), world, null));
-
-    populateCellsAroundPlayer();
   }
 
   private void initialPopulation() {

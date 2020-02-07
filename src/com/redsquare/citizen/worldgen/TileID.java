@@ -13,7 +13,7 @@ public enum TileID implements Comparable<TileID> {
 
   PLAINS_GRASS, HILLY_GRASS,
 
-  STONE,
+  STONE, COBBLESTONE_FLOOR,
 
   DESERT_SAND, DUNE_SAND,
 
@@ -30,6 +30,7 @@ public enum TileID implements Comparable<TileID> {
   private static final TileID[] PRIORITY_ORDER = new TileID[] {
           VOID,
           ROUGH_WATER, CALM_WATER, SHALLOW_WATER,
+          COBBLESTONE_FLOOR,
           BEACH_SAND, DUNE_SAND, DESERT_SAND,
           DARK_FOREST_FLOOR, FOREST_FLOOR,
           HILLY_GRASS, PLAINS_GRASS,
@@ -52,6 +53,7 @@ public enum TileID implements Comparable<TileID> {
       case "STONE":
       case "BEACH_SAND":
       case "SHALLOW_WATER":
+      case "COBBLESTONE_FLOOR":
         return name;
       default:
         return "VOID";

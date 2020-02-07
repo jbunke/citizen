@@ -5,6 +5,8 @@ import com.redsquare.citizen.entity.building.BuildingLayouts;
 import com.redsquare.citizen.entity.building.Entryway;
 import com.redsquare.citizen.entity.building.Wall;
 import com.redsquare.citizen.entity.collision.Collider;
+import com.redsquare.citizen.worldgen.TileID;
+import com.redsquare.citizen.worldgen.World;
 import com.redsquare.citizen.worldgen.WorldPosition;
 
 import java.awt.*;
@@ -27,6 +29,8 @@ public class Building extends Entity {
 
     this.layout = layout;
     this.buildingComponents = new HashSet<>();
+
+    World world = this.position.getWorld();
 
     for (int y = 0; y < layout.length; y++) {
       for (int x = 0; x < layout[y].length; x++) {
@@ -53,6 +57,13 @@ public class Building extends Entity {
           default:
             component = null;
             break;
+        }
+
+        if (layout[y][x] != 'v') {
+          world.getCell(worldPosition.world().x, worldPosition.world().y).
+                  getSubCell(worldPosition.cell().x + x,
+                          worldPosition.cell().y + y).
+                  setTileID(TileID.COBBLESTONE_FLOOR);
         }
 
         if (component == null)

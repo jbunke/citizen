@@ -15,7 +15,7 @@ public class WorldSubCell {
   // TODO: Don't delete; could be relevant later if tile CHANGES
   //  (ex. tearing the floors out of a building)
   private final WorldCell.CellLandType cellLandType;
-  private final TileID tileID;
+  private TileID tileID;
 
   private static final int N = 0, W = 1, S = 2, E = 3;
   private static final int COUNTS_AS_BORDER = 5;
@@ -26,6 +26,10 @@ public class WorldSubCell {
     this.cellLandType = cellLandType;
 
     this.tileID = generateTileID();
+  }
+
+  public void setTileID(TileID set) {
+    this.tileID = set;
   }
 
   private TileID generateTileID() {

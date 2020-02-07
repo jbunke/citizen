@@ -186,7 +186,7 @@ public class Camera {
             // (int)(-1 * position.subCell().y) / zoomLevel
             // X:
             (Settings.SCREEN_DIM[X] / 2) -
-                    (int)((position.subCell().x + (((subCells.length - 1) / 2) *
+                    (int)((position.subCell().x + ((subCells.length / 2) *
                             WorldPosition.CELL_DIMENSION_LENGTH)) / zoomLevel),
             // Y:
             (Settings.SCREEN_DIM[Y] / 2) -
