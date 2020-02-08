@@ -64,11 +64,16 @@ public class Plant extends LivingEntity {
 
   @Override
   public BufferedImage getSprite() {
-    return null;
+    BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D) image.getGraphics();
+
+    drawDebug(g);
+
+    return image;
   }
 
   @Override
   public Point getSpriteOffset() {
-    return null;
+    return new Point(-50, -50);
   }
 }

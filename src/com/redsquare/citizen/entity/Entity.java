@@ -90,6 +90,10 @@ public abstract class Entity implements Comparable<Entity> {
     }
   }
 
+  public void setPosition(WorldPosition position) {
+    this.position = position;
+  }
+
   public abstract BufferedImage getSprite();
 
   public abstract Point getSpriteOffset();

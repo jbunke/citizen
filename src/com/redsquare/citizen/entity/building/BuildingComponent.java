@@ -14,10 +14,6 @@ public abstract class BuildingComponent extends Entity {
     this.building = building;
   }
 
-  public void setPosition(WorldPosition position) {
-    this.position = position;
-  }
-
   public BufferedImage getSprite() {
     BufferedImage sprite = new BufferedImage(72, 144, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) sprite.getGraphics();
