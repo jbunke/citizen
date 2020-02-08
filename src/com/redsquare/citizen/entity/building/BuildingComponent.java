@@ -22,7 +22,7 @@ public abstract class BuildingComponent extends Entity {
     BufferedImage sprite = new BufferedImage(72, 144, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) sprite.getGraphics();
 
-    drawCollision(g);
+    drawDebug(g);
 
     return sprite;
   }

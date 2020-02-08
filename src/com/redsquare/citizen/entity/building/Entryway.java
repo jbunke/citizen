@@ -102,8 +102,7 @@ public class Entryway extends BuildingComponent {
         break;
     }
 
-    drawCollision(g);
-    drawCoordinate(g);
+    drawDebug(g);
 
     return sprite;
   }

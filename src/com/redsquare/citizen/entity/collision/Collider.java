@@ -46,6 +46,17 @@ public class Collider {
     return new Collider(boxes, true, EntityType.ENTRYWAY);
   }
 
+  public static Collider getTreeCollider(final int GROWTH_STAGE, final double SIZE) {
+    int dim = 20 + Math.min(40, (int)(GROWTH_STAGE * Math.max(0.1, SIZE)));
+    if (dim % 2 != 0) dim++;
+
+    CollisionBox[] boxes = new CollisionBox[] {
+            new CollisionBox(-1 * (dim / 2), -1 * (dim - 10), dim, dim)
+    };
+
+    return new Collider(boxes, true, EntityType.TREE);
+  }
+
   public static Collider getColliderFromType(EntityType type) {
     CollisionBox[] boxes;
     boolean immovable;
@@ -74,7 +85,7 @@ public class Collider {
   }
 
   public enum EntityType {
-    PERSON, WALL, NO_COLLISION, ENTRYWAY
+    PERSON, WALL, NO_COLLISION, ENTRYWAY, TREE
   }
 
   public static class CollisionBox {

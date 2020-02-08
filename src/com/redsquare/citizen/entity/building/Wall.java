@@ -24,8 +24,7 @@ public class Wall extends BuildingComponent {
     g.setColor(new Color(0, 0, 0));
     g.fillRect(0, 72, 72, 72);
 
-    drawCollision(g);
-    drawCoordinate(g);
+    drawDebug(g);
 
     return sprite;
   }

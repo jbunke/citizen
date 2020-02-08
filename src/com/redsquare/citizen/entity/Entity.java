@@ -18,7 +18,7 @@ public abstract class Entity implements Comparable<Entity> {
   protected Collider collider;
 
   static Set<Entity> filterEntitySet(Set<Entity> entities, final boolean OTHER_PEOPLE, final boolean PLAYER,
-                                     final boolean ANIMALS, final boolean ITEMS) {
+                                     final boolean ANIMALS, final boolean PLANTS, final boolean ITEMS) {
     Set<Entity> filtered = new HashSet<>();
 
     entities.forEach(x -> {
@@ -27,6 +27,8 @@ public abstract class Entity implements Comparable<Entity> {
       else if (OTHER_PEOPLE && x instanceof Person)
         filtered.add(x);
       else if (ANIMALS && x instanceof Animal)
+        filtered.add(x);
+      else if (PLANTS && x instanceof Plant)
         filtered.add(x);
       else if (ITEMS && x instanceof ItemEntity)
         filtered.add(x);
@@ -55,7 +57,14 @@ public abstract class Entity implements Comparable<Entity> {
     }
   }
 
-  protected void drawCoordinate(Graphics2D g) {
+  protected void drawDebug(Graphics2D g) {
+    if (!GameDebug.isActive()) return;
+
+    drawCollision(g);
+    drawCoordinate(g);
+  }
+
+  private void drawCoordinate(Graphics2D g) {
     Point spriteOffset = getSpriteOffset();
     Point drawAt = new Point((-1 * spriteOffset.x) - 1, (-1 * spriteOffset.y) - 1);
 
@@ -64,7 +73,7 @@ public abstract class Entity implements Comparable<Entity> {
     g.fillRect(drawAt.x, drawAt.y, 2, 2);
   }
 
-  protected void drawCollision(Graphics2D g) {
+  private void drawCollision(Graphics2D g) {
     if (GameDebug.isActive()) {
       g.setColor(new Color(100, 255, 0));
       g.setStroke(new BasicStroke(1));
