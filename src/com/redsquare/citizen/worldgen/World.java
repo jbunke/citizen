@@ -3,6 +3,7 @@ package com.redsquare.citizen.worldgen;
 import com.redsquare.citizen.GameManager;
 import com.redsquare.citizen.config.Settings;
 import com.redsquare.citizen.debug.GameDebug;
+import com.redsquare.citizen.devkit.visualisation.Visualisation;
 import com.redsquare.citizen.entity.biodiversity.Habitat;
 import com.redsquare.citizen.entity.biodiversity.AnimalSpecies;
 import com.redsquare.citizen.game_states.MenuGameState;
@@ -91,6 +92,8 @@ public class World {
     this.width = width;
     this.height = height;
 
+    Visualisation.set();
+
     fauna = new HashSet<>();
 
     // GENERATE PLATES
@@ -121,8 +124,10 @@ public class World {
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
-        if (plateIndex(x, y) == -1)
+        if (plateIndex(x, y) == -1) {
           cells[x][y] = new WorldCell(WorldCell.CellLandType.SEA, this, new Point(x, y));
+          visualisationRegionCall(x, y, 200);
+        }
       }
     }
 
@@ -157,8 +162,10 @@ public class World {
             }
           }
 
-          if (peers >= DESERT_PEER_THRESHOLD)
+          if (peers >= DESERT_PEER_THRESHOLD) {
             cells[x][y].setCellLandType(WorldCell.CellLandType.DESERT);
+            visualisationRegionCall(x, y, 5);
+          }
         }
       }
     }
@@ -505,8 +512,17 @@ public class World {
         } else {
           cells[x][y].setRegion(WorldCell.Region.TROPICAL);
         }
+
+        visualisationRegionCall(x, y, 300);
       }
     }
+  }
+
+  private void visualisationRegionCall(final int x, final int y, final int t) {
+    Visualisation.updateCell(x, y,
+            WorldCell.getMapColor(cells[x][y].getRiverPoint() == null ?
+                    cells[x][y].getCellLandType() :
+                    WorldCell.CellLandType.SHALLOW, cells[x][y].getRegion()), t);
   }
 
   private void generateDeserts() {
@@ -560,8 +576,10 @@ public class World {
                 leftmost, rightmost, topmost, bottommost,
                 3, (Point c) -> cells[c.x][c.y].getCellLandType() == WorldCell.CellLandType.DESERT);
 
-        if (allowed)
+        if (allowed) {
           cells[p.x][p.y].setCellLandType(WorldCell.CellLandType.DESERT);
+          visualisationRegionCall(p.x, p.y, 5);
+        }
       }
     }
   }
@@ -583,6 +601,7 @@ public class World {
               if (Math.random() < FOREST_PROB && cells[x][y].getElevation() == 0) {
                 if (cells[x][y].getCellLandType() == WorldCell.CellLandType.PLAIN) {
                   cells[x][y].setCellLandType(WorldCell.CellLandType.FOREST);
+                  visualisationRegionCall(x, y, 3);
                 }
 
                 if (Math.random() < FOREST_SPAWN_PROB)
@@ -606,6 +625,7 @@ public class World {
                 Math.random() < 1 - (dist / maxDist)) {
           if (cells[x1][y1].getCellLandType() == WorldCell.CellLandType.PLAIN) {
             cells[x1][y1].setCellLandType(WorldCell.CellLandType.FOREST);
+            visualisationRegionCall(x1, y1, 3);
           }
         }
       }
@@ -628,8 +648,10 @@ public class World {
           }
 
           if (isMountain) {
-            if (Math.random() < MOUNTAIN_PROB)
+            if (Math.random() < MOUNTAIN_PROB) {
               cells[x][y].setCellLandType(WorldCell.CellLandType.MOUNTAIN);
+              visualisationRegionCall(x, y, 10);
+            }
             continue;
           }
 
@@ -647,8 +669,10 @@ public class World {
           }
 
           if (isHill & Math.random() <
-                  HILL_PROB * 2 / Math.max(1, closestDistance - MOUNTAIN_RANGE))
+                  HILL_PROB * 2 / Math.max(1, closestDistance - MOUNTAIN_RANGE)) {
             cells[x][y].setCellLandType(WorldCell.CellLandType.HILL);
+            visualisationRegionCall(x, y, 10);
+          }
         }
       }
     }
@@ -667,6 +691,7 @@ public class World {
 
           if (isBeach && Math.random() < BEACH_PROB) {
             cells[x][y].setCellLandType(WorldCell.CellLandType.BEACH);
+            visualisationRegionCall(x, y, 10);
           }
         } else {
           boolean isShallow = false;
@@ -678,8 +703,10 @@ public class World {
             }
           }
 
-          if (isShallow)
+          if (isShallow) {
             cells[x][y].setCellLandType(WorldCell.CellLandType.SHALLOW);
+            visualisationRegionCall(x, y, 10);
+          }
         }
       }
     }
@@ -701,8 +728,10 @@ public class World {
           }
         }
 
-        if (peers >= LAND_PEER_THRESHOLD)
+        if (peers >= LAND_PEER_THRESHOLD) {
           cells[x][y] = new WorldCell(WorldCell.CellLandType.PLAIN, this, new Point(x, y));
+          visualisationRegionCall(x, y, 20);
+        }
       }
     }
   }
@@ -1357,6 +1386,11 @@ public class World {
         rivers.add(river);
         boolean done = false;
 
+        Visualisation.updateCell(riverStart.x, riverStart.y,
+                WorldCell.getMapColor(WorldCell.CellLandType.SHALLOW, WorldCell.Region.TEMPERATE), 1);
+        Visualisation.updateCell(point.x, point.y,
+                WorldCell.getMapColor(WorldCell.CellLandType.SHALLOW, WorldCell.Region.TEMPERATE), 1);
+
         while (!done) {
           River.RiverPoint next = river.generateNext();
           Point loc = next.point;
@@ -1369,8 +1403,11 @@ public class World {
 
           done = (!cells[loc.x][loc.y].isLand());
 
-          if (!done)
+          if (!done) {
             river.addRiverPoint(next);
+            Visualisation.updateCell(loc.x, loc.y,
+                    WorldCell.getMapColor(WorldCell.CellLandType.SHALLOW, WorldCell.Region.TEMPERATE), 1);
+          }
         }
 
         river.setCentral();
@@ -1413,8 +1450,10 @@ public class World {
 
       for (int x = leftmost; x <= rightmost; x++) {
         for (int y = topmost; y <= bottommost; y++) {
-          if (cells[x][y] == null)
+          if (cells[x][y] == null) {
             cells[x][y] = new WorldCell(WorldCell.CellLandType.SEA, world, new Point(x, y));
+            visualisationRegionCall(x, y, 75);
+          }
         }
       }
     }
@@ -1444,6 +1483,7 @@ public class World {
 
           if (landLikelihood(MathExt.distance(origin, p), maxDist)) {
             cells[p.x][p.y] = new WorldCell(WorldCell.CellLandType.PLAIN, world, new Point(p));
+            visualisationRegionCall(p.x, p.y, 10);
           }
         }
       }
@@ -1528,6 +1568,7 @@ public class World {
 
           for (Point point : pointList) {
             addToGrid(point.x, point.y);
+            Visualisation.updatePlates(point.x, point.y, index, 5);
           }
         }
       }
@@ -1583,8 +1624,10 @@ public class World {
             }
           }
 
-          if (peers >= PEER_THRESHOLD)
+          if (peers >= PEER_THRESHOLD) {
             addToGrid(x, y);
+            Visualisation.updatePlates(x, y, index, 10);
+          }
         }
       }
     }
@@ -1628,6 +1671,7 @@ public class World {
         if (!claimed(plates, index, p.x, p.y) && allowed &&
                 assignToPlate(maxDist, p.x, p.y)) {
           addToGrid(p.x, p.y);
+          Visualisation.updatePlates(p.x, p.y, index, 10);
         }
       }
     }

@@ -3,6 +3,8 @@ package com.redsquare.citizen;
 import com.redsquare.citizen.config.Settings;
 import com.redsquare.citizen.debug.GameDebug;
 import com.redsquare.citizen.debug.shell.DebuggerShell;
+import com.redsquare.citizen.devkit.visualisation.Visualisation;
+import com.redsquare.citizen.devkit.visualisation.WorldVisualisationWindow;
 
 import java.time.LocalDateTime;
 
@@ -22,6 +24,10 @@ public class GameLauncher {
         GameDebug.activate();
         Settings.debugger = new Thread(DebuggerShell::launch);
         Settings.debugger.start();
+        break;
+      case "-v":
+        Visualisation.activateVisualisation();
+        WorldVisualisationWindow.getInstance();
         break;
       case "-a":
         // ARCHIVE
