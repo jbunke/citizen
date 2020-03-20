@@ -34,7 +34,7 @@ public class World {
   private final static int HILL_RANGE = 10;
   private static final int BEACH_RANGE = 1;
   private static final int SHALLOW_RANGE = 2;
-  private static final int FOREST_RANGE = 10;
+  private static final int FOREST_RANGE = 5;
   private static final double FOREST_SPAWN_PROB = 0.05;
   private static final int FOREST_MAX_DIAM = 20;
   private static final int MIN_DESERTS = 3;
