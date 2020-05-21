@@ -60,8 +60,6 @@ public class Entryway extends BuildingComponent {
     BufferedImage sprite = new BufferedImage(72, 144, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D) sprite.getGraphics();
 
-    // TODO: Finish after date ;P
-
     switch (facingDirection) {
       case DOWN:
         if (isOpen) {
@@ -94,11 +92,35 @@ public class Entryway extends BuildingComponent {
         }
         break;
       case LEFT:
+        if (isOpen) {
+          g.setColor(new Color(100, 100, 100));
+          g.fillRect(0, 0, 72, 12);
 
+          g.setColor(new Color(0, 0, 0));
+          g.fillRect(0, 12, 72, 72);
+        } else {
+          g.setColor(new Color(100, 100, 100));
+          g.fillRect(0, 0, 12, 72);
+
+          g.setColor(new Color(0, 0, 0));
+          g.fillRect(0, 72, 12, 72);
+        }
         break;
       case RIGHT:
       default:
+        if (isOpen) {
+          g.setColor(new Color(100, 100, 100));
+          g.fillRect(0, 60, 72, 12);
 
+          g.setColor(new Color(0, 0, 0));
+          g.fillRect(0, 72, 72, 72);
+        } else {
+          g.setColor(new Color(100, 100, 100));
+          g.fillRect(60, 0, 12, 72);
+
+          g.setColor(new Color(0, 0, 0));
+          g.fillRect(60, 72, 12, 72);
+        }
         break;
     }
 

@@ -1,5 +1,7 @@
 package com.redsquare.citizen.debug.shell;
 
+import com.redsquare.citizen.debug.GameDebug;
+
 import java.util.Scanner;
 
 public class DebuggerShell {
@@ -34,7 +36,14 @@ public class DebuggerShell {
   }
 
   private static void process(String command) {
-
+    switch (command) {
+      case "activate":
+        GameDebug.activate();
+        break;
+      case "deactivate":
+        GameDebug.deactivate();
+        break;
+    }
   }
 
   private static void prompt() {
